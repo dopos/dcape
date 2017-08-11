@@ -1,0 +1,24 @@
+  # ------------------------------------------------------------------------------
+  mmost:
+    image: mattermost/mattermost-prod-app:4.0.2
+    volumes:
+      - ./var/data/mmost:/mattermost/data
+      - ./var/log/mmost:/mattermost/logs
+      - ./var/data/mmost-conf:/mattermost/config
+# ./conf/mmost.conf:/mattermost/config/config.json
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+#      - "traefik.port=80"
+      - "traefik.frontend.rule=Host:${MMOST_HOST}"
+    environment:
+      - TZ=${TZ}
+      - MM_CONFIG=/mattermost/config/config.json
+      - MM_DBNAME=mmost
+      - MM_USERNAME=mmost
+      - MM_PASSWORD=${MMOST_DB_PASS}
+      - MM_SERVICESETTINGS_SITEURL=http://${MMOST_HOST}
+

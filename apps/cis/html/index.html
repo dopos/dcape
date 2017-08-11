@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xml:lang="ru" xmlns="http://www.w3.org/1999/xhtml" lang="ru">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <meta charset="utf-8">
+  <title>DCAPE CIS</title>
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/skeleton.css">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <script src="services.json" type="text/javascript"></script>
+
+</head>
+<body>
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="row">
+      <div class="one-half column" style="margin-top: 25%">
+        <h4>Welcome to <a href="">DCAPE</a> Continuous Integration Server</h4>
+        <p>Our resources:
+<ul>
+<li><a href="/ui/">Consul UI</a>
+<li><a href="/dashboard/">Traefik dashboard</a>
+<li><a href="/logs/">Application logs</a>
+<li><a href="/dns/">PowerDNS stats</a>
+<li><a href="hook.pub">Hook public key</a> (for use in <a href="http://gogs.io">Gogs</a> remove last CR)</li>
+</ul>
+</p>
+        <p>Hosted projects:
+<ul>
+<li id="gitea-li"><a id="gitea" href="http://git.dev.lan/">Gitea</a>
+<li id="mmost-li"><a id="mmost" href="http://chat.dev.lan/">Mattermost</a>
+<li id="drone-li"><a id="drone" href="http://drone.dev.lan/">Drone</a>
+<li id="port-li" ><a id="port" href="http://port.dev.lan/">Portainer</a>
+</ul>
+</p>
+
+<p>Additional resources:
+<ul>
+<li><a href="https://github.com/adnanh/webhook/wiki">Webhook's docs</a></li>
+</ul>
+        </p>
+      </div>
+    </div>
+  </div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+<script>
+  function ready() {
+    for (var key in services) {
+      if (services[key] == "") {
+        document.getElementById(key+'-li').style.display = "none";
+      } else {
+        document.getElementById(key).setAttribute('href',"http://"+services[key]);
+      }
+    }
+  }
+  document.addEventListener("DOMContentLoaded", ready);
+</script>
+
+</body>
+</html>

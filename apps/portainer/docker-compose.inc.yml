@@ -1,0 +1,12 @@
+  # ------------------------------------------------------------------------------
+  portainer:
+    image: portainer/portainer
+    labels:
+      - "traefik.enable=true"
+      - "traefik.frontend.rule=Host:${PORTAINER_HOST}"
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./var/data/portainer:/data
+    environment:
+      - TZ=${TZ}

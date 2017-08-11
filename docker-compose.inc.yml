@@ -1,0 +1,36 @@
+version: '2.1'
+
+services:
+
+  # ------------------------------------------------------------------------------
+  db:
+    image: postgres:9.6-alpine
+    volumes:
+      - ./var/data/db:/var/lib/postgresql/data
+#    ports:
+#      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
+      - TZ=${TZ}
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=false"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-U", "postgres"]
+      interval: 2s
+      timeout: 3s
+      retries: 3
+
+
+  # ------------------------------------------------------------------------------
+  consul:
+    image: consul:0.9.1
+    restart: unless-stopped
+    command: agent -server -bootstrap -ui  -datacenter consup -data-dir /consul/data -disable-host-node-id
+    labels:
+      - "traefik.enable=false"
+    volumes:
+      - ./var/data/consul:/consul/data
+    environment:
+      - TZ=${TZ}
+      - CONSUL_CLIENT_INTERFACE=eth0

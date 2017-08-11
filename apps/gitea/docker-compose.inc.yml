@@ -1,0 +1,20 @@
+  # ------------------------------------------------------------------------------
+  gitea:
+    image: gitea/gitea:latest
+    ports:
+      - "10022:22"
+    volumes:
+      - ./var/data/gitea:/data
+      - ./var/log/gitea:/data/log
+    restart: always
+#    dns: 192.168.4.1
+    depends_on:
+      db:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=3000"
+      - "traefik.frontend.rule=Host:${GITEA_HOST}"
+    environment:
+      - TZ=${TZ}
+

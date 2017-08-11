@@ -1,0 +1,19 @@
+  # ------------------------------------------------------------------------------
+  traefik:
+    image: traefik
+    command:
+      --web --docker --docker.watch --docker.exposedbydefault false
+      --docker.domain=dev.lan --logLevel=DEBUG
+#--docker.constraints  = ["tag==hel*rld", "tag!=rev-*-beta"]
+
+    restart: always
+    labels:
+      - "traefik.enable=false"
+    ports:
+      - "${TRAEFIK_PORT}:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /dev/null:/traefik.toml
+    environment:
+      - TZ=${TZ}
+

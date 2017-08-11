@@ -1,0 +1,23 @@
+  # ------------------------------------------------------------------------------
+  traefik-acme:
+    image: traefik
+    command:
+      --web --docker --docker.watch --docker.exposedbydefault false --logLevel=DEBUG
+      --acme --acme.acmelogging true --acme.email ${TRAEFIK_ACME_EMAIL}
+      --acme.onhostrule true  --acme.storage /acme.json
+
+##--docker.constraints  = ["tag==hel*rld", "tag!=rev-*-beta"]
+
+    restart: always
+    labels:
+      - "traefik.enable=false"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /dev/null:/traefik.toml
+      - ./var/data/acme.json:/acme.json
+    environment:
+      - TZ=${TZ}
+

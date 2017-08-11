@@ -1,0 +1,52 @@
+[
+  {
+    "id": "simplehook",
+    "execute-command": "./hook.sh",
+    "command-working-directory": "/etc/webhook",
+    "include-command-output-in-response": true,
+    "pass-arguments-to-command": [
+      {
+        "source": "header",
+        "name": "X-Gogs-Event"
+      }
+    ],
+    "pass-environment-to-command": [
+      {
+         "source": "entire-payload"
+      },
+      {
+         "source": "url",
+         "name": "config"
+      },
+      {
+         "source": "url",
+         "name": "tag"
+      }
+    ]
+  },
+  {
+    "id": "consuphook",
+    "execute-command": "./hook_consup.sh",
+    "command-working-directory": "/etc/webhook",
+    "include-command-output-in-response": true,
+    "pass-arguments-to-command": [
+      {
+        "source": "header",
+        "name": "X-Gogs-Event"
+      }
+    ],
+    "pass-environment-to-command": [
+      {
+         "source": "entire-payload"
+      },
+      {
+         "source": "url",
+         "name": "config"
+      },
+      {
+         "source": "url",
+         "name": "tag"
+      }
+    ]
+  }
+]
