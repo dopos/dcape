@@ -7,9 +7,12 @@ PROJECT_NAME ?= dcape
 DOMAIN       ?= dev.lan
 APPS         ?= traefik portainer cis
 APPS_SYS     ?= consul db
+SERVER_TZ    ?= Europe/Moscow
+# Postgresql superuser Database user password
+PG_DB_PASS   ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c14; echo)
 
-DCINC = docker-compose.inc.yml
-DCFILES := $(shell find apps/ -name $(DCINC) -print | sort)
+DCINC         = docker-compose.inc.yml
+DCFILES       = $(shell find apps/ -name $(DCINC) -print | sort)
 
 -include $(CFG)
 export
@@ -38,14 +41,14 @@ PROJECT_NAME=$(PROJECT_NAME)
 # Default domain
 DOMAIN=$(DOMAIN)
 
-# App list, for make only
+# App list, for use in make only
 APPS="$(APPS)"
 
 # containers timezone
-TZ=Europe/Moscow
+TZ=$(SERVER_TZ)
 
 # db (postgresql)
-PG_PASSWORD=change_me
+PG_PASSWORD=$(PG_DB_PASS)
 
 endef
 export CONFIG_DEF

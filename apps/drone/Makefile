@@ -1,21 +1,43 @@
-SHELL = /bin/bash
-DCAPE_USED ?= 0
+# Drone init Makefile
+# This file included by ../../Makefile
+
+SHELL               = /bin/bash
+
+# DCAPE_USED==1 when called from upper Makefile
+DCAPE_USED         ?= 0
+# Password for drone-server <-> drone-agent exchange
+DRONE_SECRET       ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c14; echo)
+# Database name and database user name
+DRONE_DB_TAG       ?= drone
+# Database user password
+DRONE_DB_PASS      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c14; echo)
+# Drone hostname prefix
+DRONE_HOST_PREFIX  ?= drone
+# Drone hostname
+DRONE_HOST         ?= $(DRONE_HOST_PREFIX).$(DOMAIN)
+# Gitea user who will be Drone admin
+DRONE_ADMIN        ?= admin
+# Gitea hostname
+DRONE_GIT_HOST     ?= $(GITEA_HOST_PREFIX).$(DOMAIN)
 
 define CONFIG_DRONE
 # ------------------------------------------------------------------------------
 # Drone settings
 
 # App hostname
-DRONE_HOST=drone.$(DOMAIN)
+DRONE_HOST=$(DRONE_HOST)
 
-DRONE_SECRET=change_me
+# Password for drone-server <-> drone-agent exchange
+DRONE_SECRET=$(DRONE_SECRET)
 
-DRONE_GIT_URL=http://git.$(DOMAIN)/
+# Gitea URL
+DRONE_GIT_URL=http://$(DRONE_GIT_HOST)/
 
-# логин пользователя gitea с правами админа в drone
-DRONE_ADMIN=admin
+# Gitea user who will be drone admin
+DRONE_ADMIN=$(DRONE_ADMIN)
 
-DRONE_DB_PASS=change_me
+# Database user password
+DRONE_DB_PASS=$(DRONE_DB_PASS)
 
 endef
 export CONFIG_DRONE
@@ -24,6 +46,4 @@ drone-init:
 	@echo "$$CONFIG_DRONE" >> .env
 
 drone-apply:
-	@$(MAKE) -s db-create NAME=drone
-
-
+	@$(MAKE) -s db-create NAME=$(DRONE_DB_TAG)

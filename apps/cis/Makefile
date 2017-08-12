@@ -1,23 +1,37 @@
-SHELL = /bin/bash
-DCAPE_USED ?= 0
-SSH_KEY_NAME ?= hook
+# CIS init Makefile
+# This file included by ../../Makefile
+
+SHELL               = /bin/bash
+
+# DCAPE_USED==1 when called from upper Makefile
+DCAPE_USED         ?= 0
+# ssh key file name
+SSH_KEY_NAME       ?= hook
+# Login of admin user in CIR restricted areas
+CIS_AREA_LOGIN     ?= admin
+# Password of admin user in CIS restricted areas
+CIS_AREA_PASS      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c8; echo)
+# CIS hostname prefix
+CIS_HOST_PREFIX    ?= cis
+# CIS hostname
+CIS_HOST         ?= $(CIS_HOST_PREFIX).$(DOMAIN)
 
 define CONFIG_CIS
 # ------------------------------------------------------------------------------
 # CI site settings
 
 # App hostname
-CIS_HOST=cis.$(DOMAIN)
+CIS_HOST=$(CIS_HOST)
 
 # Private admin site part (traefik, consul, webtail, dns)
-CIS_AREA_LOGIN=admin
-CIS_AREA_PASS=change_me
+CIS_AREA_LOGIN=$(CIS_AREA_LOGIN)
+CIS_AREA_PASS=$(CIS_AREA_PASS)
 
 endef
 export CONFIG_CIS
 
 
-# Init data for $${GITEA_INI_DIR}/app.ini
+# Init data for /services.json
 define JSON_CIS
 var services = {
   "gitea": "$(GITEA_HOST)",
@@ -31,6 +45,8 @@ export JSON_CIS
 
 cis-init:
 	@echo "$$CONFIG_CIS" >> .env
+	@echo "** CIS AREA LOGIN:    $(CIS_AREA_LOGIN)"
+	@echo "** CIS AREA PASSWORD: $(CIS_AREA_PASS)"
 
 cis-apply: var/data/cis var/data/cis/htpasswd var/data/cis/html/$(SSH_KEY_NAME).pub
 	@echo "*** $@ ***"
