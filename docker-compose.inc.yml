@@ -26,11 +26,37 @@ services:
   consul:
     image: consul:0.9.1
     restart: unless-stopped
-    command: agent -server -bootstrap -ui  -datacenter consup -data-dir /consul/data -disable-host-node-id
+    command: agent -server -join consul1 -join consul2 -ui  -datacenter consup -data-dir /consul/data -raft-protocol=3 -disable-host-node-id
     labels:
       - "traefik.enable=false"
     volumes:
       - ./var/data/consul:/consul/data
+    depends_on:
+      - consul2
     environment:
       - TZ=${TZ}
       - CONSUL_CLIENT_INTERFACE=eth0
+
+  consul1:
+    image: consul:0.9.1
+    restart: unless-stopped
+    command: agent -server -bootstrap -datacenter consup -data-dir /consul/data -raft-protocol=3 -disable-host-node-id
+    labels:
+      - "traefik.enable=false"
+    volumes:
+      - ./var/data/consul1:/consul/data
+    environment:
+      - TZ=${TZ}
+
+  consul2:
+    image: consul:0.9.1
+    restart: unless-stopped
+    command: agent -server -join consul1 -datacenter consup -data-dir /consul/data -raft-protocol=3 -disable-host-node-id
+    labels:
+      - "traefik.enable=false"
+    depends_on:
+      - consul1
+    volumes:
+      - ./var/data/consul2:/consul/data
+    environment:
+      - TZ=${TZ}
