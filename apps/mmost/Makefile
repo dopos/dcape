@@ -6,11 +6,11 @@ SHELL               = /bin/bash
 # DCAPE_USED==1 when called from upper Makefile
 DCAPE_USED         ?= 0
 # Database name and database user name
-MMOST_DB_TAG       ?= drone
+MMOST_DB_TAG       ?= mmost
 # Database user password
 MMOST_DB_PASS      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c14; echo)
 # Drone hostname prefix
-MMOST_HOST_PREFIX  ?= mmost
+MMOST_HOST_PREFIX  ?= chat
 # Drone hostname
 MMOST_HOST         ?= $(MMOST_HOST_PREFIX).$(DOMAIN)
 
