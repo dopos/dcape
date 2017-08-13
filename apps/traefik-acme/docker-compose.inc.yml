@@ -2,12 +2,13 @@
   traefik-acme:
     image: traefik
     command:
-      --web --docker --docker.watch --docker.exposedbydefault false --logLevel=DEBUG
-      --acme --acme.acmelogging true --acme.email ${TRAEFIK_ACME_EMAIL}
-      --acme.onhostrule true  --acme.storage /acme.json
-
-##--docker.constraints  = ["tag==hel*rld", "tag!=rev-*-beta"]
-
+      --web --docker --docker.watch --docker.exposedbydefault=false --logLevel=DEBUG
+      --acme --acme.acmelogging=true --acme.email=${TRAEFIK_ACME_EMAIL}
+      --acme.onhostrule --acme.ondemand
+      --acme.storage=/acme/certs.json --acme.entrypoint=https
+      --defaultEntryPoints=http,https
+      --entryPoints='Name:http Address::80 Redirect.EntryPoint:https'
+      --entryPoints='Name:https Address::443 TLS'
     restart: always
     labels:
       - "traefik.enable=false"
@@ -15,9 +16,12 @@
       - "80:80"
       - "443:443"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - /dev/null:/traefik.toml
-      - ./var/data/acme.json:/acme.json
+      - ./var/data/acme:/acme
     environment:
       - TZ=${TZ}
-
+    networks:
+      default:
+        aliases:
+          - traefik

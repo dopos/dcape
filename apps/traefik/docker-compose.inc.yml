@@ -2,8 +2,8 @@
   traefik:
     image: traefik
     command:
-      --web --docker --docker.watch --docker.exposedbydefault false
-      --docker.domain=dev.lan --logLevel=DEBUG
+      --web --docker --docker.watch --docker.exposedbydefault=false --logLevel=DEBUG
+
 #--docker.constraints  = ["tag==hel*rld", "tag!=rev-*-beta"]
 
     restart: always
