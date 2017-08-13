@@ -24,6 +24,8 @@ services:
       interval: 2s
       timeout: 3s
       retries: 3
+    stop_grace_period: 5s
+    stop_signal: SIGINT
 
 
   # ------------------------------------------------------------------------------
