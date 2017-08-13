@@ -12,8 +12,8 @@
     environment:
       - TZ=${TZ}
     command:
-      /usr/sbin/pdns_server --master --daemon=no  --chroot=/ --socket-dir=/var/run
-      --launch=bind --lanch+=gpgsql --gpgsql-dbname=pdns --gpgsql-user=pdns
+      /usr/sbin/pdns_server --master --daemon=no --chroot=/ --socket-dir=/var/run
+      --launch=bind --launch+=gpgsql --gpgsql-dbname=pdns --gpgsql-user=pdns
       --gpgsql-host=db --gpgsql-password=${PDNS_DB_PASS}
       --webserver --webserver-address=0.0.0.0 --webserver-port=8081
 
