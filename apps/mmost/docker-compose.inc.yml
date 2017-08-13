@@ -3,7 +3,7 @@
     image: mattermost/mattermost-prod-app:4.0.2
     volumes:
       - ./var/data/mmost:/mattermost/data
-      - ./var/log/mmost:/mattermost/logs
+      - ./var/log/mmost:/mattermost/log
       - ./var/data/mmost-conf:/mattermost/config
 # ./conf/mmost.conf:/mattermost/config/config.json
     restart: always

@@ -89,12 +89,22 @@ make apply
 ## Использование
 
 * `make up` - старт приложений
+
+После выполнения этой команды все последующие администрирование сервера производится в интерфейсе portainer.
+Вместе с тем, в консоли доступны следующие команды:
+
 * `make down` - остановка и удаление всех контейнеров
-* `make dcrun CMD="up -d mmost"` - стартовать контейнер заданного приложения (если не запущен)
-* `make dcrun CMD="up -d --force-recreate  mmost"` - пересоздать и стартовать контейнер
-* `make dcrun CMD="rm -f -s mmost"`- остановить и удалить контейнер
+* `make dc CMD="up -d mmost"` - стартовать контейнер заданного приложения (если не запущен)
+* `make dc CMD="rm -f -s mmost"`- остановить и удалить контейнер
+* `make dc CMD="up -d --force-recreate  mmost"` - пересоздать и стартовать контейнер и его зависимости
 * `make db-create NAME=mmost` - создать в postgresql пользователя и БД mmost
 * `make db-drop NAME=mmost` - удалить пользователя и БД mmost
+
+### Полезные команды
+
+* `make init-master DOMAIN=your.host TRAEFIK_ACME_EMAIL=admin@your.host` - сформировать .env с заданными значениями
+* `docker exec -ti dcape_db_1 pg_dump -U mmost > dump-mmost-170813.sql` - выгрузить дамп БД mmost
+* `docker exec -i dcape_db_1 psql -U postgres -f - < dump-all-170813.dmp > imp.log 2>imp.err` - загрузить дампы БД (после `make apply`)
 
 ## Особенности реализации
 

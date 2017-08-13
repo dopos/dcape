@@ -9,6 +9,8 @@ DCAPE_USED         ?= 0
 GITEA_DB_TAG       ?= gitea
 # Database user password
 GITEA_DB_PASS      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c14; echo)
+# Gitea ssh server port
+GITEA_SSH_PORT     ?= 10022
 # Gitea hostname prefix
 GITEA_HOST_PREFIX  ?= git
 # Gitea hostname
@@ -20,6 +22,9 @@ define CONFIG_GITEA
 
 # App hostname
 GITEA_HOST=$(GITEA_HOST)
+
+# Gitea ssh server port
+GITEA_SSH_PORT=$(GITEA_SSH_PORT)
 
 # Database user password
 GITEA_DB_PASS=$(GITEA_DB_PASS)

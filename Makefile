@@ -73,7 +73,7 @@ init:
 ## Apply config to app files & db
 apply:
 	@echo "*** $@ $(APPS) ***"
-	@$(MAKE) -s dcrun CMD="up -d db consul" || echo ""
+	@$(MAKE) -s dc CMD="up -d db consul" || echo ""
 	@for f in $(shell echo $(APPS)) ; do $(MAKE) -s $${f}-apply ; done
 
 
@@ -87,24 +87,24 @@ docker-compose.yml: $(DCINC) $(DCFILES)
 ## старт контейнеров
 up:
 up: CMD=up -d $(APPS_SYS) $(shell echo $(APPS))
-up: dcrun
+up: dc
 
 ## рестарт контейнеров
 reup:
 reup: CMD=up --force-recreate -d $(APPS_SYS) $(shell echo $(APPS))
-reup: dcrun
+reup: dc
 
 ## остановка и удаление всех контейнеров
 down:
 down: CMD=down
-down: dcrun
+down: dc
 
 # ------------------------------------------------------------------------------
 
 # $$PWD используется для того, чтобы текущий каталог был доступен в контейнере по тому же пути
 # и относительные тома новых контейнеров могли его использовать
 ## run docker-compose
-dcrun: docker-compose.yml
+dc: docker-compose.yml
 	@docker run --rm -t -i \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v $$PWD:$$PWD \
