@@ -7,7 +7,8 @@ PROJECT_NAME ?= dcape
 DOMAIN       ?= dev.lan
 APPS         ?= traefik portainer cis
 APPS_SYS     ?= consul db
-SERVER_TZ    ?= Europe/Moscow
+HOST_TZ      ?= $(shell cat /etc/timezone)
+HOST_LANG    ?= $$LANG
 # Postgresql superuser Database user password
 PG_DB_PASS   ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c14; echo)
 
@@ -45,7 +46,10 @@ DOMAIN=$(DOMAIN)
 APPS="$(APPS)"
 
 # containers timezone
-TZ=$(SERVER_TZ)
+TZ=$(HOST_TZ)
+
+# Postgresql database encoding
+PG_ENCODING=$(HOST_LANG)
 
 # db (postgresql)
 PG_PASSWORD=$(PG_DB_PASS)

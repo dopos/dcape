@@ -16,11 +16,12 @@ services:
     environment:
       - POSTGRES_PASSWORD=${PG_PASSWORD}
       - TZ=${TZ}
+      - LANG=${PG_ENCODING}
     restart: unless-stopped
     labels:
       - "traefik.enable=false"
     healthcheck:
-      test: ["CMD", "pg_isready", "-q", "-U", "postgres"]
+      test: ["CMD", "pg_isready", "-q", "-U", "postgres", "-h", "db"]
       interval: 2s
       timeout: 3s
       retries: 3
