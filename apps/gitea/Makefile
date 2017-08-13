@@ -51,6 +51,7 @@ export INI_GITEA
 
 gitea-init:
 	@echo "$$CONFIG_GITEA" >> .env
+	@echo "** GITEA DB PASSWORD: $(GITEA_DB_PASS)"
 
 
 gitea-apply:
@@ -58,4 +59,5 @@ gitea-apply:
 	@[ -d $$GITEA_INI_DIR ] || mkdir -p $$GITEA_INI_DIR
 	@[ -f $$GITEA_INI_DIR/app.ini ] || echo "$$INI_GITEA" > $$GITEA_INI_DIR/app.ini
 	@[ -d var/log/gitea ] || mkdir -p var/log/gitea
-	@chown 1000 var/log/gitea $$GITEA_INI_DIR/app.ini
+	@chmod 777 var/log/gitea
+	@chmod 666 $$GITEA_INI_DIR/app.ini
