@@ -39,10 +39,11 @@ services:
       - ./var/data/consul:/consul/data
     depends_on:
       - consul2
+    stop_grace_period: 5s
     environment:
       - TZ=${TZ}
       - CONSUL_CLIENT_INTERFACE=eth0
-
+      - CONSUL_LOCAL_CONFIG={"leave_on_terminate":true}
   consul1:
     image: consul:0.9.1
     restart: unless-stopped
@@ -51,8 +52,10 @@ services:
       - "traefik.enable=false"
     volumes:
       - ./var/data/consul1:/consul/data
+    stop_grace_period: 5s
     environment:
       - TZ=${TZ}
+      - CONSUL_LOCAL_CONFIG={"leave_on_terminate":true}
 
   consul2:
     image: consul:0.9.1
@@ -64,5 +67,7 @@ services:
       - consul1
     volumes:
       - ./var/data/consul2:/consul/data
+    stop_grace_period: 5s
     environment:
       - TZ=${TZ}
+      - CONSUL_LOCAL_CONFIG={"leave_on_terminate":true}
