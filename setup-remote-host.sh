@@ -154,7 +154,7 @@ if [[ "$swap" ]] ; then
     chmod 600 \$swap_file
     mkswap \$swap_file
     swapon \$swap_file
-    echo "\$Sswap_file   none    swap    sw    0   0" >> /etc/fstab
+    echo "\$swap_file   none    swap    sw    0   0" >> /etc/fstab
     echo "Ok"
   fi
 else
