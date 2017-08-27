@@ -5,8 +5,8 @@ SHELL               = /bin/bash
 
 # DCAPE_USED==1 when called from upper Makefile
 DCAPE_USED         ?= 0
-# ssh key file name
-SSH_KEY_NAME       ?= hook
+# Webtail Docker image version
+CIS_WEBTAIL_VER    ?= 0.11.0
 # Login of admin user in CIR restricted areas
 CIS_AREA_LOGIN     ?= admin
 # Password of admin user in CIS restricted areas
@@ -14,7 +14,9 @@ CIS_AREA_PASS      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c8; echo)
 # CIS hostname prefix
 CIS_HOST_PREFIX    ?= cis
 # CIS hostname
-CIS_HOST         ?= $(CIS_HOST_PREFIX).$(DOMAIN)
+CIS_HOST           ?= $(CIS_HOST_PREFIX).$(DOMAIN)
+# ssh key file name
+SSH_KEY_NAME       ?= hook
 
 define CONFIG_CIS
 # ------------------------------------------------------------------------------
@@ -26,6 +28,9 @@ CIS_HOST=$(CIS_HOST)
 # Private admin site part (traefik, consul, webtail, dns)
 CIS_AREA_LOGIN=$(CIS_AREA_LOGIN)
 CIS_AREA_PASS=$(CIS_AREA_PASS)
+
+# Webtail Docker image version
+CIS_WEBTAIL_VER=$(CIS_WEBTAIL_VER)
 
 endef
 export CONFIG_CIS

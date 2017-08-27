@@ -1,4 +1,4 @@
-.env
+*.env
 .databases
 docker-compose.yml
 var

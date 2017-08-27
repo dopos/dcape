@@ -5,6 +5,8 @@ SHELL               = /bin/bash
 
 # DCAPE_USED==1 when called from upper Makefile
 DCAPE_USED         ?= 0
+# Mattermost Docker image version
+MMOST_VER          ?= 4.1.0
 # Database name and database user name
 MMOST_DB_TAG       ?= mmost
 # Database user password
@@ -17,6 +19,9 @@ MMOST_HOST         ?= $(MMOST_HOST_PREFIX).$(DOMAIN)
 define CONFIG_MMOST
 # ------------------------------------------------------------------------------
 # Mattermost settings
+
+# Mattermost Docker image version
+MMOST_VER=$(MMOST_VER)
 
 # App hostname
 MMOST_HOST=$(MMOST_HOST)

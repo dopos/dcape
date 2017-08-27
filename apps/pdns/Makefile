@@ -1,4 +1,4 @@
-# Drone init Makefile
+# pdns init Makefile
 # This file included by ../../Makefile
 
 SHELL               = /bin/bash

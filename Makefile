@@ -5,8 +5,8 @@ DCAPE_USED   = 1
 
 PROJECT_NAME ?= dcape
 DOMAIN       ?= dev.lan
-APPS         ?= traefik portainer cis
-APPS_SYS     ?= consul db
+APPS         ?= traefik portainer enfist cis
+APPS_SYS     ?= db
 HOST_TZ      ?= $(shell cat /etc/timezone)
 HOST_LANG    ?= $$LANG
 # Postgresql superuser Database user password
@@ -22,13 +22,13 @@ include apps/*/Makefile
 
 .PHONY: init-master init-test init
 
-init-master: APPS = traefik-acme gitea mmost drone portainer cis pdns
+init-master: APPS = traefik-acme gitea mmost drone portainer enfist cis pdns
 init-master: init
 
-init-slave: APPS = traefik-acme drone portainer cis pdns
+init-slave: APPS = traefik-acme drone portainer enfist cis pdns
 init-slave: init
 
-init-local: APPS = traefik gitea mmost drone portainer cis pdns
+init-local: APPS = traefik gitea mmost drone portainer enfist cis pdns
 init-local: init
 
 define CONFIG_DEF
@@ -73,7 +73,7 @@ init:
 ## Apply config to app files & db
 apply:
 	@echo "*** $@ $(APPS) ***"
-	@$(MAKE) -s dc CMD="up -d db consul" || echo ""
+	@$(MAKE) -s dc CMD="up -d $(APPS_SYS)" || echo ""
 	@for f in $(shell echo $(APPS)) ; do $(MAKE) -s $${f}-apply ; done
 
 
@@ -140,6 +140,27 @@ db-drop:
 psql:
 	@CONTAINER=$${PROJECT_NAME}_db_1 \
   && docker exec -it $$CONTAINER psql -U postgres
+
+# ------------------------------------------------------------------------------
+# .env file store
+
+## get env tag from store, `make env-get TAG=app--config--tag`
+env-get:
+	@[[ "$(TAG)" ]] || { echo "Error: Tag value required" ; exit 1 ;}
+	@echo "Getting env into $(TAG)"
+	@docker exec -ti $${PROJECT_NAME}_webhook_1 curl -gs http://enfist:8080/rpc/tag_vars?a_code=$(TAG) \
+  | jq -r '.result[0].tag_vars' > $(TAG).env
+# | sed 's/\\n/\n/g' > $(TAG).env
+
+#  | jq -r .result[0].tag_vars | sed 's/\\n/\n/g' > $(TAG).env
+
+## set env tag in store, `make env-set TAG=app--config--tag`
+env-set:
+	@[[ "$(TAG)" ]] || { echo "Error: Tag value required" ; exit 1 ;}
+	@echo "Setting $(TAG) from file" \
+ && jq -R -sc ". | {\"a_code\":\"$(TAG)\",\"a_data\":.}" < $(TAG).env | \
+  docker exec -i $${PROJECT_NAME}_webhook_1 curl -gsd @- http://enfist:8080/rpc/tag_set > /dev/null
+
 
 # ------------------------------------------------------------------------------
 

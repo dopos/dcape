@@ -1,8 +1,22 @@
-#
-# WebHook Continuous Intergation library
-#
+#!/bin/bash
+
+# This script called by webhook
+# See hooks.json
+
 # ------------------------------------------------------------------------------
 
+  # Docker ENVs
+  # DISTRO_ROOT - git clone into /home/app/ci/$DISTRO_ROOT
+  # DISTRO_CONFIG - file to save app config
+  # SSH_KEY_NAME - ssh priv key in /home/app
+
+#DISTRO_ROOT=/data/apps
+#DISTRO_CONFIG=.env
+#SSH_KEY_NAME=hook
+#HOOK_MODE=local
+#HOOK_URL_BRANCH=any
+
+#HOOK_PAYLOAD={json}
 # vars from hook uri args
 [[ "$HOOK_config" ]] || HOOK_config=default
 [[ "$HOOK_tag" ]] || HOOK_tag="-"
@@ -20,6 +34,11 @@ VAR_UPDATE_HOT="_CI_HOOK_UPDATE_HOT"
 VAR_MAKE_UPDATE="_CI_MAKE_UPDATE"
 _CI_HOOK_UPDATE_HOT="no"
 _CI_MAKE_UPDATE="update"
+
+KV_PREFIX="" # "/conf"
+ENFIST=http://enfist:8080/rpc
+
+# ------------------------------------------------------------------------------
 
 # strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
@@ -60,41 +79,42 @@ deplog() {
 }
 
 # ------------------------------------------------------------------------------
-# Parse STDIN as JSON and echo "name=value" pairs
-kv2vars() {
-  local key=$1
-  echo "# Generated from KV store $key"
-  jq -r '.[] | (.Key|ltrimstr("'$key'/")) +"\t"+  .Value ' | while read k v ; do
-    val=$(echo -n "$v" | base64 -d)
-    if [[ "${val/ /}" != "$val" ]] ; then
-      echo "$k=\"$val\""
-    else
-      echo "$k=$val"
-    fi
-  done
-}
-
-# ------------------------------------------------------------------------------
 # Get value from KV store
 kv_read() {
   local key=$1
-  val=$(curl -s http://localhost:8500/v1/kv/conf/$distro_path/$key | jq -r '.[] | .Value' |  base64 -d)
-  echo $val
+  local r=$(curl -gs $ENFIST/tag_vars?a_code=$distro_path)
+  local vars=$(echo "$r" | jq -r .result[0].tag_vars)
+#  local vars=$(echo "$r" | jq -r .result[0].tag_vars | sed 's/\\n/\n/g')
+  if [[ "$vars" != "null" ]] ; then
+    local row=$(echo "$vars" | grep -E "^$key=")
+    echo "${row#*=}"
+  fi
+}
+# ------------------------------------------------------------------------------
+# Parse STDIN as JSON and echo "name=value" pairs
+kv2vars() {
+  local key=$1
+>&2 echo "-----kv2vars: $ENFIST/tag_vars?a_code=$key"
+  local r=$(curl -gs $ENFIST/tag_vars?a_code=$key)
+  #echo "# Generated from KV store $key"
+  local ret=$(echo "$r" | jq -r .result[0].tag_vars)
+#  local ret=$(echo "$r" | jq -r .result[0].tag_vars | sed 's/\\n/\n/g')
+>&2 echo "-----kv2vars ret:$ret" 
+  [[ "$ret" == "null" ]] && ret="" 
+  echo "$ret"
 }
 
 # ------------------------------------------------------------------------------
 # Parse STDIN as "name=value" pairs and PUT them into KV store
 vars2kv() {
-  local key=$1
-  while read line ; do
-    s=${line%%#*} # remove endline comments
-    [ -n "${s##+([[:space:]])}" ] || continue # ignore line if contains only spaces
-    name=${s%=*}
-    val=$(eval echo ${s#*=})
-
-    #echo "=$name: $val="
-    curl -s -X PUT -d "$val" http://localhost:8500/v1/kv/$key/$name > /dev/null || echo "err saving $name"
-  done
+  local cmd=$1
+  local key=$2
+  local q=$(jq -R -sc ". | {\"a_code\":\"$key\",\"a_data\":.}")
+  # pack newlines, escape doble quotes
+#  local c=$(sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\n/g' | sed 's/"/\\"/g')
+#  local q='{"a_code":"'$key'","a_data":"'$c'"}'
+>&2 echo "-----vars2kv: $q $ENFIST/tag_$cmd"
+  local req=$(curl -gsd "$q" $ENFIST/tag_$cmd)
 }
 
 # ------------------------------------------------------------------------------
@@ -109,13 +129,7 @@ mkroot() {
   local r0=${repo#*:}         # remove proto
   local repo_path=${r0%.git}  # remove suffix
   local res=""
-  if [[ "$arg" != "${arg#/}" ]] ; then
-    # ARG begins with /
-    r0=${arg#/}
-  else
-    [[ "$arg" ]] || arg=default
-    r0=$repo_path/$tag/$arg
-  fi
+  r0=$repo_path/$tag
   echo ${r0//\//--}
 }
 
@@ -129,27 +143,29 @@ setup_config() {
   [[ "$config" ]] || config=.config
 
   # Get data from KV store
-  local kv=$(curl -s http://localhost:8500/v1/kv/$key?recurse)
+  local kv=$(kv2vars $key)
+>&2 echo "-----kv: ($kv)"
 
   if [[ ! "$kv" ]] ; then
     if [ ! -f $config ] ; then
-      make setup
+      make $config
       log "Load KV $key from default $config"
-      cat $config | vars2kv $key
-      echo "${VAR_ENABLED}=${_CI_HOOK_ENABLED}" | vars2kv $key
-      echo "${VAR_MAKE_START}=${_CI_MAKE_START}" | vars2kv $key
+      cat $config | vars2kv set $key
+      cat | vars2kv append $key <<EOF
+${VAR_ENABLED}=${_CI_HOOK_ENABLED}
+${VAR_MAKE_START}=${_CI_MAKE_START}
 
-      echo "${VAR_UPDATE_HOT}=${_CI_HOOK_UPDATE_HOT}" | vars2kv $key
-      echo "${VAR_MAKE_UPDATE}=\"${_CI_MAKE_UPDATE}\"" | vars2kv $key
-
+${VAR_UPDATE_HOT}=${_CI_HOOK_UPDATE_HOT}
+${VAR_MAKE_UPDATE}=${_CI_MAKE_UPDATE}
+EOF
       log "Prepared default config. Exiting"
       exit 0
     fi
     log "Load KV $key from $config"
-    cat $config | vars2kv $key
+    cat $config | vars2kv set $key
   else
     log "Save KV $key into $config"
-    echo $kv | kv2vars $key > $config
+    echo "$kv" > $config
   fi
 
   . $config
@@ -183,45 +199,43 @@ make_stop() {
   fi
 }
 
-
 # ------------------------------------------------------------------------------
 
-integrate() {
-
+process() {
   local event=$1
-  local is_consup=$2
 
-  # Docker ENVs
-  # DISTRO_ROOT - git clone into /home/app/ci/$DISTRO_ROOT
-  # DISTRO_CONFIG - file to save app config
-  # SSH_KEY_NAME - ssh priv key in /home/app
+  which curl > /dev/null || apk --update add curl curl-dev
+  which make > /dev/null || apk --update add make
 
   # All json payload
   # echo "${HOOK_}" | jq '.'
 
-  # repository url
-  local repo=$(echo "${HOOK_}" | jq -r '.repository.ssh_url')
-
-  # event type ("tag" etc)
-  local op=$(echo "${HOOK_}" | jq -r '.ref_type')
-  [[ "$op" == "null" ]] && op="tag"
-
-  if [[ "$event" != "push" && "$event" != "create" ]] || [[ "$op" != "tag" ]] ; then
-    log "Hook skipped - no event"
+  if [[ "$event" != "push" ]] ; then
+    log "Hook skipped - only push supported, but received '$event'"
     exit 0
   fi
 
+  local home=$PWD
+
+  # repository url
+  local repo=$(echo "${HOOK_PAYLOAD}" | jq -r '.repository.ssh_url')
+  if [[ ! "repo" ]] ; then
+    log "Hook skipped - repository.ssh_url empty in payload"
+    exit 0
+  fi
+
+
   # tag/branch name
-  if [[ $HOOK_tag != "-" ]] ; then
-    local tag=$HOOK_tag
+  if [[ $HOOK_URL_BRANCH != "any" ]] ; then
+    local tag=$HOOK_URL_BRANCH
   else
-    local tag=$(echo "${HOOK_}" | jq -r '.ref')
+    local tag=$(echo "${HOOK_PAYLOAD}" | jq -r '.ref')
     tag=${tag#refs/heads/}
   fi
   local distro_path=$(mkroot $repo $tag ${HOOK_config})
 
   # consup domain on same host
-  [[ "$is_consup" == "true" ]] && repo=${repo/:/.web.service.consul:/}
+  [[ "$HOOK_MODE" == "local" ]] && repo=${repo/@*:/@gitea:/}
 
   local path=$DISTRO_ROOT/$distro_path
 
@@ -235,7 +249,7 @@ integrate() {
     if [ -d $path ] ; then
       log "Removing $distro_path..."
       make_stop $path
-      rm -rfd $path || { log "rmdir error: $!" ; exit $? ; }
+      rm -rf $path || { log "rmdir error: $!" ; exit $? ; }
     fi
     log "Hook cleanup complete"
     exit 0
@@ -254,7 +268,6 @@ integrate() {
   local host_root=$(host_home_app)
 
   # deploy log directory
-  local deplog_root="/home/app/log/deploy"
   [ -d $deplog_root ] || mkdir -pm 777 $deplog_root || { echo "mkdir error, disable deploy logging" && deplog_root="" ; }
   local deplog_dest="$deplog_root/$distro_path.log"
 
@@ -263,14 +276,14 @@ integrate() {
     [ -d $DISTRO_ROOT/$distro_path ] || { log "Dir $distro_path does not exists. Exiting" ; exit 1 ; }
     pushd $DISTRO_ROOT/$distro_path
     if [ -f Makefile ] ; then
-      log "Setup $distro_path"
-      setup_config conf/$distro_path $DISTRO_CONFIG
+      log "Setup $distro_path for hot update"
+      setup_config $KV_PREFIX$distro_path $DISTRO_CONFIG
     fi
     local hot_cmd=$(kv_read $VAR_MAKE_UPDATE)
     log "Pull..."
-    . /home/app/git.sh -i /home/app/$SSH_KEY_NAME pull --recurse-submodules 2>&1 || { echo "Pull error: $?" ; exit 1 ; }
+    . $home/git.sh -i $home/$SSH_KEY_NAME pull --recurse-submodules 2>&1 || { echo "Pull error: $?" ; exit 1 ; }
     log "Pull submodules..."
-    . /home/app/git.sh -i /home/app/$SSH_KEY_NAME submodule update --recursive --remote 2>&1 || { echo "sPull error: $?" ; exit 1 ; }
+    . $home/git.sh -i $home/$SSH_KEY_NAME submodule update --recursive --remote 2>&1 || { echo "sPull error: $?" ; exit 1 ; }
     if [[ "$hot_cmd" != "" ]] ; then
       log "Run update cmd ($hot_cmd)..."
       deplog_begin $deplog_dest "update"
@@ -287,7 +300,7 @@ integrate() {
   if [ -d $path ] ; then
     log "ReCreating $path..."
     make_stop $path
-    rm -rfd $path || { log "rmdir error: $!" ; exit $? ; }
+    rm -rf $path || { log "rmdir error: $!" ; exit $? ; }
   else
     log "Creating $path..."
     mkdir -p $path || { log "mkdir error: $!" ; exit $? ; }
@@ -295,14 +308,14 @@ integrate() {
   pushd $DISTRO_ROOT
     log "Clone $repo / $tag..."
 
-    log bash /home/app/git.sh -i /home/app/$SSH_KEY_NAME clone --depth=1 --recursive --branch $tag $repo $distro_path
-    . /home/app/git.sh -i /home/app/$SSH_KEY_NAME clone --depth=1 --recursive --branch $tag $repo $distro_path || { echo "Clone error: $?" ; exit 1 ; }
+    log bash $home/git.sh -i $home/$SSH_KEY_NAME clone --depth=1 --recursive --branch $tag $repo $distro_path
+    . $home/git.sh -i $home/$SSH_KEY_NAME clone --depth=1 --recursive --branch $tag $repo $distro_path || { echo "Clone error: $?" ; exit 1 ; }
   pushd $distro_path
 
   if [ -f Makefile ] ; then
     log "Setup $distro_path"
 
-    setup_config conf/$distro_path $DISTRO_CONFIG
+    setup_config $KV_PREFIX$distro_path $DISTRO_CONFIG
 
     # check if hook was enabled directly
     if [[ "$enabled" != "yes" ]] ; then
@@ -314,11 +327,20 @@ integrate() {
     local host_root=$(host_home_app)
     deplog_begin $deplog_dest "create"
     deplog $deplog_dest APP_ROOT=$host_root/$DISTRO_ROOT APP_PATH=$distro_path make ${_CI_MAKE_START}
-    APP_ROOT=$host_root/$DISTRO_ROOT APP_PATH=$distro_path make ${_CI_MAKE_START} >> $deplog_dest 2>&1
+    #APP_ROOT=$host_root/$DISTRO_ROOT APP_PATH=$distro_path make ${_CI_MAKE_START} >> $deplog_dest 2>&1
+    DOCKER_BIN=vdocker.sh make ${_CI_MAKE_START} >> $deplog_dest 2>&1
+
     deplog_end $deplog_dest
   fi
   popd > /dev/null
   popd > /dev/null
   log "Hook stop"
 
+
 }
+
+deplog_root="/data/log/deploy"
+
+process $@ >> /data/log/webhook.log 2>&1
+#>/data/log/webhook.err
+

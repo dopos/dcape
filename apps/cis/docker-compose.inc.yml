@@ -17,13 +17,15 @@
 
   # ------------------------------------------------------------------------------
   webtail:
-    image: lekovr/webtail
+    image: lekovr/webtail:${CIS_WEBTAIL_VER}
     restart: always
+    ports:
+      - "8081:8080"
     labels:
       - "traefik.enable=false"
     volumes:
       - ./var/log:/var/log/webtail
-    command: --root /var/log/webtail --lines 200
+    command: --root /var/log/webtail --lines 200 --host ${CIS_HOST}
 
   # ------------------------------------------------------------------------------
   webhook:
@@ -33,6 +35,12 @@
       - "traefik.enable=false"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./var/log/webhook:/data/log
       - ./var/data/cis/hooks:/etc/webhook
+      - ./var/apps:/data/apps
     command: -hooks /etc/webhook/hooks.json -hotreload -nopanic -verbose -header Content-Type=application/json
+    environment:
+      - DISTRO_ROOT=/data/apps
+      - DISTRO_CONFIG=.env
+      - SSH_KEY_NAME=hook
 

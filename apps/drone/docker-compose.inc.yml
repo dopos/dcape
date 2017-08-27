@@ -21,7 +21,8 @@
       - DRONE_GITEA_URL=${DRONE_GIT_URL}
 
        # not required auth for public repos
-      - DRONE_GITEA_PRIVATE_MODE=false
+      - DRONE_GITEA_PRIVATE_MODE=true
+#      - DRONE_GITEA_PRIVATE_MODE=false
 
       - DRONE_SECRET=${DRONE_SECRET}
       - DRONE_ADMIN=${DRONE_ADMIN}

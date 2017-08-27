@@ -1,9 +1,10 @@
 [
   {
-    "id": "simplehook",
-    "execute-command": "./hook.sh",
+    "id": "local",
+    "execute-command": "./hook_dcape.sh",
     "command-working-directory": "/etc/webhook",
-    "include-command-output-in-response": true,
+    "include-command-output-in-response": false,
+    "trigger-rule-mismatch-http-response-code": 400,
     "pass-arguments-to-command": [
       {
         "source": "header",
@@ -12,41 +13,50 @@
     ],
     "pass-environment-to-command": [
       {
-         "source": "entire-payload"
+         "source": "entire-payload",
+         "envname": "PAYLOAD"
+      },
+      {
+        "source": "string",
+        "envname": "MODE",
+        "name": "local"
       },
       {
          "source": "url",
-         "name": "config"
-      },
-      {
-         "source": "url",
-         "name": "tag"
-      }
-    ]
-  },
-  {
-    "id": "consuphook",
-    "execute-command": "./hook_consup.sh",
-    "command-working-directory": "/etc/webhook",
-    "include-command-output-in-response": true,
-    "pass-arguments-to-command": [
-      {
-        "source": "header",
-        "name": "X-Gogs-Event"
+         "name": "branch",
+         "envname": "URL_BRANCH"
       }
     ],
-    "pass-environment-to-command": [
-      {
-         "source": "entire-payload"
-      },
-      {
-         "source": "url",
-         "name": "config"
-      },
-      {
-         "source": "url",
-         "name": "tag"
-      }
-    ]
+    "trigger-rule":
+    {
+      "and":
+      [
+        {
+          "match":
+          {
+            "type": "regex",
+            "regex": "^refs/heads/[^t][^m][^p]",
+            "parameter":
+            {
+              "source": "payload",
+              "name": "ref"
+            }
+          }
+        },
+        {
+          "match":
+          {
+            "type": "value",
+            "value": "mysecred",
+            "parameter":
+            {
+              "source": "payload",
+              "name": "secret"
+            }
+          }
+        }
+      ]
+    }
   }
 ]
+

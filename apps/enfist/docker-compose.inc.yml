@@ -1,0 +1,18 @@
+  # ------------------------------------------------------------------------------
+  enfist:
+    image: lekovr/dbrpc:${ENFIST_DRPC_VER}
+#    image: dbrpc
+    restart: always
+#    ports:
+#      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=false"
+    environment:
+      - TZ=${TZ}
+    command:
+      --http_addr :8080 --db_connect ${ENFIST_DB_TAG}:${ENFIST_DB_PASS}@db:5432/${ENFIST_DB_TAG}?sslmode=disable
+      --db_schema rpc,public --db_reset_event disable
+
