@@ -24,6 +24,6 @@ endef
 export CONFIG_PORTAINER
 
 portainer-init:
-	@echo "$$CONFIG_PORTAINER" >> .env
+	@grep PORTAINER_ .env > /dev/null || echo "$$CONFIG_PORTAINER" >> .env
 
 portainer-apply:

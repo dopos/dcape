@@ -55,8 +55,11 @@ export INI_GITEA
 
 
 gitea-init:
-	@echo "$$CONFIG_GITEA" >> .env
-	@echo "** GITEA DB PASSWORD: $(GITEA_DB_PASS)"
+	@grep GITEA_DB_PASS .env || \
+  { \
+    echo "$$CONFIG_GITEA" >> .env ; \
+    echo "** GITEA DB PASSWORD: $(GITEA_DB_PASS)" ; \
+  }
 
 
 gitea-apply:

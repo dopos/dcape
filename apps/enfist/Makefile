@@ -27,7 +27,7 @@ endef
 export CONFIG_ENFIST
 
 enfist-init:
-	@echo "$$CONFIG_ENFIST" >> .env
+	@grep ENFIST_ .env > /dev/null || echo "$$CONFIG_ENFIST" >> .env
 
 enfist-apply:
 	@echo $(MAKE) -s db-create NAME=$(ENFIST_DB_TAG) \

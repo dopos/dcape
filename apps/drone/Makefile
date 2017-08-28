@@ -43,7 +43,7 @@ endef
 export CONFIG_DRONE
 
 drone-init:
-	@echo "$$CONFIG_DRONE" >> .env
+	@grep DRONE_ .env > /dev/null || echo "$$CONFIG_DRONE" >> .env
 
 drone-apply:
 	@$(MAKE) -s db-create NAME=$(DRONE_DB_TAG)

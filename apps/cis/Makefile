@@ -39,19 +39,22 @@ export CONFIG_CIS
 # Init data for /services.json
 define JSON_CIS
 var services = {
-  "gitea": "$(GITEA_HOST)",
-  "mmost": "$(MMOST_HOST)",
-  "drone": "$(DRONE_HOST)",
-  "port":  "$(PORTAINER_HOST)"
+  "gitea": "$$GITEA_HOST",
+  "mmost": "$$MMOST_HOST",
+  "drone": "$$DRONE_HOST",
+  "port":  "$$PORTAINER_HOST"
 };
+var port = "$$TRAEFIK_PORT";
 endef
 export JSON_CIS
 
-
 cis-init:
-	@echo "$$CONFIG_CIS" >> .env
-	@echo "** CIS AREA LOGIN:    $(CIS_AREA_LOGIN)"
-	@echo "** CIS AREA PASSWORD: $(CIS_AREA_PASS)"
+	@grep CIS_AREA .env || \
+  { \
+    echo "$$CONFIG_CIS" >> .env ; \
+    echo "** CIS AREA LOGIN:    $(CIS_AREA_LOGIN)" ; \
+    echo "** CIS AREA PASSWORD: $(CIS_AREA_PASS)" ; \
+  }
 
 cis-apply: var/data/cis var/data/cis/htpasswd var/data/cis/html/$(SSH_KEY_NAME).pub
 	@echo "*** $@ ***"

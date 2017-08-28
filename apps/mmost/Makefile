@@ -33,7 +33,7 @@ endef
 export CONFIG_MMOST
 
 mmost-init:
-	@echo "$$CONFIG_MMOST" >> .env
+	@grep MMOST_ .env > /dev/null || echo "$$CONFIG_MMOST" >> .env
 
 mmost-apply:
 	@$(MAKE) -s db-create NAME=$(MMOST_DB_TAG)

@@ -30,7 +30,7 @@ endef
 export CONFIG_PDNS
 
 pdns-init:
-	@echo "$$CONFIG_PDNS" >> .env
+	@grep PDNS_ .env > /dev/null || echo "$$CONFIG_PDNS" >> .env
 
 # pdns container nameBelow
 pdns-apply:

@@ -24,6 +24,6 @@ endef
 export CONFIG_TRAEFIKA
 
 traefik-acme-init:
-	@echo "$$CONFIG_TRAEFIKA" >> .env
+	@grep Traefik-acme .env > /dev/null || echo "$$CONFIG_TRAEFIKA" >> .env
 
 traefik-acme-apply:

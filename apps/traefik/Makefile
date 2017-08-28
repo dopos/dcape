@@ -24,6 +24,6 @@ endef
 export CONFIG_TRAEFIK
 
 traefik-init:
-	@echo "$$CONFIG_TRAEFIK" >> .env
+	@grep TRAEFIK_ .env > /dev/null || echo "$$CONFIG_TRAEFIK" >> .env
 
 traefik-apply:
