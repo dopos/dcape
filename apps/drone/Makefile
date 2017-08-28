@@ -36,6 +36,9 @@ DRONE_GIT_URL=http://$(DRONE_GIT_HOST)/
 # Gitea user who will be drone admin
 DRONE_ADMIN=$(DRONE_ADMIN)
 
+# Database name and database user name
+DRONE_DB_TAG=$(DRONE_DB_TAG)
+
 # Database user password
 DRONE_DB_PASS=$(DRONE_DB_PASS)
 
@@ -46,4 +49,4 @@ drone-init:
 	@grep DRONE_ .env > /dev/null || echo "$$CONFIG_DRONE" >> .env
 
 drone-apply:
-	@$(MAKE) -s db-create NAME=$(DRONE_DB_TAG)
+	@$(MAKE) -s db-create NAME=DRONE

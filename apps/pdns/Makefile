@@ -23,6 +23,9 @@ define CONFIG_PDNS
 # DNS server port
 PDNS_PORT=$(PDNS_PORT)
 
+# Database name and database user name
+PDNS_DB_TAG=$(PDNS_DB_TAG)
+
 # Database user password
 PDNS_DB_PASS=$(PDNS_DB_PASS)
 
@@ -35,7 +38,7 @@ pdns-init:
 # pdns container nameBelow
 pdns-apply:
 	@echo "*** $@ ***"
-	@$(MAKE) -s db-create NAME=$(PDNS_DB_TAG)
+	@$(MAKE) -s db-create NAME=PDNS
 	@pass=$${PDNS_DB_PASS} \
   && CONTAINER=$${PROJECT_NAME}_db_1 \
   && docker run -t --rm $(PDNS_IMAGE) cat $(PDNS_PGSQL_PATH) \

@@ -26,6 +26,9 @@ MMOST_VER=$(MMOST_VER)
 # App hostname
 MMOST_HOST=$(MMOST_HOST)
 
+# Database name and database user name
+MMOST_DB_TAG=$(MMOST_DB_TAG)
+
 # Database user password
 MMOST_DB_PASS=$(MMOST_DB_PASS)
 
@@ -36,4 +39,4 @@ mmost-init:
 	@grep MMOST_ .env > /dev/null || echo "$$CONFIG_MMOST" >> .env
 
 mmost-apply:
-	@$(MAKE) -s db-create NAME=$(MMOST_DB_TAG)
+	@$(MAKE) -s db-create NAME=MMOST

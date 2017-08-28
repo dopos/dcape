@@ -97,8 +97,8 @@ make apply
 * `make dc CMD="up -d mmost"` - стартовать контейнер заданного приложения (если не запущен)
 * `make dc CMD="rm -f -s mmost"`- остановить и удалить контейнер
 * `make dc CMD="up -d --force-recreate  mmost"` - пересоздать и стартовать контейнер и его зависимости
-* `make db-create NAME=mmost` - создать в postgresql пользователя и БД mmost
-* `make db-drop NAME=mmost` - удалить пользователя и БД mmost
+* `make db-create NAME=MMOST` - создать в postgresql пользователя и БД из настроек mmost
+* `make db-drop NAME=MMOST` - удалить пользователя и БД
 
 ### Полезные команды
 

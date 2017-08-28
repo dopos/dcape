@@ -39,12 +39,12 @@ export CONFIG_CIS
 # Init data for /services.json
 define JSON_CIS
 var services = {
-  "gitea": "$$GITEA_HOST",
-  "mmost": "$$MMOST_HOST",
-  "drone": "$$DRONE_HOST",
-  "port":  "$$PORTAINER_HOST"
+  "gitea": "${GITEA_HOST}",
+  "mmost": "${MMOST_HOST}",
+  "drone": "${DRONE_HOST}",
+  "port":  "${PORTAINER_HOST}"
 };
-var port = "$$TRAEFIK_PORT";
+var port = "${TRAEFIK_PORT}";
 endef
 export JSON_CIS
 
@@ -56,18 +56,24 @@ cis-init:
     echo "** CIS AREA PASSWORD: $(CIS_AREA_PASS)" ; \
   }
 
-cis-apply: var/data/cis var/data/cis/htpasswd var/data/cis/html/$(SSH_KEY_NAME).pub
+cis-apply: var/data/cis var/data/cis/htpasswd var/data/cis/html/services.json var/data/cis/html/$(SSH_KEY_NAME).pub
 	@echo "*** $@ ***"
 
 var/data/cis:
+	@echo "*** $@ ***"
 	@[ -d var/data/cis ] || mkdir var/data/cis
 	@cp -pr apps/cis/{nginx.conf,html,hooks} var/data/cis
+
+var/data/cis/html/services.json:
+	@echo "*** $@ ***"
 	echo "$$JSON_CIS" > var/data/cis/html/services.json
 
 var/data/cis/htpasswd:
+	@echo "*** $@ ***"
 	@P=$$(echo $$CIS_AREA_PASS | openssl passwd -stdin) && echo "$$CIS_AREA_LOGIN:$$P" > var/data/cis/htpasswd
 
 var/data/cis/html/$(SSH_KEY_NAME).pub:
+	@echo "*** $@ ***"
 	ssh-keygen -t rsa -b 4096 -f $(SSH_KEY_NAME) -N "" -C webhook@$$DOMAIN
 	@mv $(SSH_KEY_NAME) var/data/cis/hooks/
 	@mv $(SSH_KEY_NAME).pub var/data/cis/html/

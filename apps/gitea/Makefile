@@ -26,6 +26,9 @@ GITEA_HOST=$(GITEA_HOST)
 # Gitea ssh server port
 GITEA_SSH_PORT=$(GITEA_SSH_PORT)
 
+# Database name and database user name
+GITEA_DB_TAG=$(GITEA_DB_TAG)
+
 # Database user password
 GITEA_DB_PASS=$(GITEA_DB_PASS)
 
@@ -63,7 +66,7 @@ gitea-init:
 
 
 gitea-apply:
-	@$(MAKE) -s db-create NAME=$(GITEA_DB_TAG)
+	@$(MAKE) -s db-create NAME=GITEA
 	@[ -d $$GITEA_INI_DIR ] || mkdir -p $$GITEA_INI_DIR
 	@[ -f $$GITEA_INI_DIR/app.ini ] || echo "$$INI_GITEA" > $$GITEA_INI_DIR/app.ini
 	@[ -d var/log/gitea ] || mkdir -p var/log/gitea
