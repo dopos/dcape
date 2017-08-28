@@ -17,6 +17,9 @@ define CONFIG_ENFIST
 # ------------------------------------------------------------------------------
 # enfist settings
 
+# Database name and database user name
+ENFIST_DB_TAG=$(ENFIST_DB_TAG)
+
 # Database user password
 ENFIST_DB_PASS=$(ENFIST_DB_PASS)
 

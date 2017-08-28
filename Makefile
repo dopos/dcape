@@ -3,18 +3,17 @@ CFG          =.env
 DIR          =? $$PWD
 DCAPE_USED   = 1
 
-APPS_SYS     ?= db
-HOST_TZ      ?= $(shell cat /etc/timezone)
-HOST_LANG    ?= ${LANG}
+TZ           ?= $(shell cat /etc/timezone)
 DCINC         = docker-compose.inc.yml
 DCFILES       = $(shell find apps/ -name $(DCINC) -print | sort)
 
-
 PROJECT_NAME ?= dcape
 DOMAIN       ?= dev.lan
+APPS_SYS     ?= db
 APPS         ?= traefik portainer enfist cis
 # Postgresql superuser Database user password
 PG_DB_PASS   ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c14; echo)
+PG_ENCODING  ?= $(LANG)
 
 # if exists - load old values
 -include $(CFG).bak
@@ -54,13 +53,13 @@ DOMAIN=$(DOMAIN)
 APPS="$(shell echo $(APPS))"
 
 # containers timezone
-TZ=$(HOST_TZ)
+TZ=$(TZ)
 
 # Postgresql database encoding
-PG_ENCODING=$(HOST_LANG)
+PG_ENCODING=$(PG_ENCODING)
 
 # db (postgresql)
-PG_PASSWORD=$(PG_DB_PASS)
+PG_DB_PASS=$(PG_DB_PASS)
 
 endef
 export CONFIG_DEF

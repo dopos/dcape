@@ -17,8 +17,10 @@ DRONE_HOST_PREFIX  ?= drone
 DRONE_HOST         ?= $(DRONE_HOST_PREFIX).$(DOMAIN)
 # Gitea user who will be Drone admin
 DRONE_ADMIN        ?= admin
-# Gitea hostname
+# Gitea url hostname
 DRONE_GIT_HOST     ?= $(GITEA_HOST_PREFIX).$(DOMAIN)
+# Gitea url proto
+DRONE_GIT_PROTO    ?= http
 
 define CONFIG_DRONE
 # ------------------------------------------------------------------------------
@@ -30,8 +32,10 @@ DRONE_HOST=$(DRONE_HOST)
 # Password for drone-server <-> drone-agent exchange
 DRONE_SECRET=$(DRONE_SECRET)
 
-# Gitea URL
-DRONE_GIT_URL=http://$(DRONE_GIT_HOST)/
+# Gitea url hostname
+DRONE_GIT_HOST=$(DRONE_GIT_HOST)
+# Gitea url proto
+DRONE_GIT_PROTO=$(DRONE_GIT_PROTO)
 
 # Gitea user who will be drone admin
 DRONE_ADMIN=$(DRONE_ADMIN)
