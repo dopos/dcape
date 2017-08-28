@@ -15,7 +15,7 @@ services:
 #    ports:
 #      - 5432:5432
     environment:
-      - POSTGRES_PASSWORD=${PG_PASSWORD}
+      - POSTGRES_PASSWORD=${PG_DB_PASS}
       - TZ=${TZ}
       - LANG=${PG_ENCODING}
     restart: unless-stopped

@@ -48,7 +48,7 @@
       - DRONE_SERVER=ws://drone-server:8000/ws/broker
       - DRONE_SECRET=${DRONE_SECRET}
       - DRONE_GITEA=true
-      - DRONE_GITEA_URL=${DRONE_GIT_URL}
+      - DRONE_GITEA_URL=${DRONE_GIT_PROTO}://${DRONE_GIT_HOST}/
       - DRONE_GITEA_PRIVATE_MODE=true
 
       - DRONE_DATABASE_DRIVER=postgres
