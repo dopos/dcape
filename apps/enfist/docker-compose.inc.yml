@@ -1,6 +1,6 @@
   # ------------------------------------------------------------------------------
   enfist:
-    image: lekovr/dbrpc:${ENFIST_DRPC_VER}
+    image: lekovr/dbrpc:${ENFIST_DBRPC_VER}
 #    image: dbrpc
     restart: always
 #    ports:
@@ -14,5 +14,5 @@
       - TZ=${TZ}
     command:
       --http_addr :8080 --db_connect ${ENFIST_DB_TAG}:${ENFIST_DB_PASS}@db:5432/${ENFIST_DB_TAG}?sslmode=disable
-      --db_schema rpc,public --db_reset_event disable
+      --db_schema rpc,public --db_reset_event disable --auth_header "X-Authorization"
 
