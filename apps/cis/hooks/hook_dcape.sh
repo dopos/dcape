@@ -287,7 +287,7 @@ process() {
     if [[ "$make_cmd" != "" ]] ; then
       log "Run update cmd ($make_cmd)..."
       deplog_begin $deplog_dest "update"
-      deplog $deplog_dest "APP_ROOT=$host_root/$DISTRO_ROOT APP_PATH=$distro_path make $make_cmd"
+      deplog $deplog_dest "APP_ROOT=$host_root$DISTRO_ROOT APP_PATH=$distro_path make $make_cmd"
       # NOTE: This command must start container if it does not running
       APP_ROOT=$host_root$DISTRO_ROOT APP_PATH=$distro_path DOCKER_BIN=vdocker \
         make $make_cmd >> $deplog_dest 2>&1
@@ -330,7 +330,7 @@ process() {
     local make_cmd=$(kv_read $VAR_MAKE_START)
 
     deplog_begin $deplog_dest "create"
-    deplog $deplog_dest APP_ROOT=$host_root/$DISTRO_ROOT APP_PATH=$distro_path make $make_cmd
+    deplog $deplog_dest APP_ROOT=$host_root$DISTRO_ROOT APP_PATH=$distro_path make $make_cmd
     APP_ROOT=$host_root$DISTRO_ROOT APP_PATH=$distro_path DOCKER_BIN=vdocker \
       make $make_cmd >> $deplog_dest 2>&1
 
