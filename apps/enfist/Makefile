@@ -23,8 +23,8 @@ ENFIST_DB_TAG=$(ENFIST_DB_TAG)
 # Database user password
 ENFIST_DB_PASS=$(ENFIST_DB_PASS)
 
-# dbrpc docker image version
-ENFIST_DBRPC_VER=$(ENFIST_DBRPC_VER)
+# dbrpc docker image version (uncomment for update by hand)
+# ENFIST_DBRPC_VER=$(ENFIST_DBRPC_VER)
 
 endef
 export CONFIG_ENFIST

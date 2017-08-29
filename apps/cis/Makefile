@@ -29,8 +29,8 @@ CIS_HOST=$(CIS_HOST)
 CIS_AREA_LOGIN=$(CIS_AREA_LOGIN)
 CIS_AREA_PASS=$(CIS_AREA_PASS)
 
-# Webtail Docker image version
-CIS_WEBTAIL_VER=$(CIS_WEBTAIL_VER)
+# Webtail Docker image version (uncomment for update by hand)
+# CIS_WEBTAIL_VER=$(CIS_WEBTAIL_VER)
 
 endef
 export CONFIG_CIS

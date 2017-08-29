@@ -20,8 +20,8 @@ define CONFIG_MMOST
 # ------------------------------------------------------------------------------
 # Mattermost settings
 
-# Mattermost Docker image version
-MMOST_VER=$(MMOST_VER)
+# Mattermost Docker image version (uncomment for update by hand)
+# MMOST_VER=$(MMOST_VER)
 
 # App hostname
 MMOST_HOST=$(MMOST_HOST)
