@@ -15,6 +15,9 @@ APPS         ?= traefik portainer enfist cis
 PG_DB_PASS   ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c14; echo)
 PG_ENCODING  ?= $(LANG)
 
+# Config store url
+ENFIST_URL   ?= http://enfist:8080/rpc
+
 # if exists - load old values
 -include $(CFG).bak
 export
@@ -154,7 +157,7 @@ psql:
 env-get:
 	@[[ "$(TAG)" ]] || { echo "Error: Tag value required" ; exit 1 ;}
 	@echo "Getting env into $(TAG)"
-	@docker exec -ti $${PROJECT_NAME}_webhook_1 curl -gs http://enfist:8080/rpc/tag_vars?a_code=$(TAG) \
+	@docker exec -ti $${PROJECT_NAME}_webhook_1 curl -gs $${ENFIST_URL}/tag_vars?a_code=$(TAG) \
   | jq -r '.result[0].tag_vars' > $(TAG).env
 # | sed 's/\\n/\n/g' > $(TAG).env
 
@@ -165,7 +168,7 @@ env-set:
 	@[[ "$(TAG)" ]] || { echo "Error: Tag value required" ; exit 1 ;}
 	@echo "Setting $(TAG) from file" \
  && jq -R -sc ". | {\"a_code\":\"$(TAG)\",\"a_data\":.}" < $(TAG).env | \
-  docker exec -i $${PROJECT_NAME}_webhook_1 curl -gsd @- http://enfist:8080/rpc/tag_set > /dev/null
+  docker exec -i $${PROJECT_NAME}_webhook_1 curl -gsd @- $${ENFIST_URL}/tag_set > /dev/null
 
 
 # ------------------------------------------------------------------------------
