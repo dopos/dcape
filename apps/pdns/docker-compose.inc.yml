@@ -7,10 +7,9 @@
     restart: always
     labels:
       - "traefik.enable=false"
-#    volumes:
-#      - ./var/conf/pdns.conf:/etc/pdns/pdns.conf
-    environment:
-      - TZ=${TZ}
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     command:
       /usr/sbin/pdns_server --master --daemon=no --chroot=/ --socket-dir=/var/run
       --launch=bind --launch+=gpgsql --gpgsql-dbname=pdns --gpgsql-user=pdns

@@ -7,6 +7,6 @@
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
       - ./var/data/portainer:/data
-    environment:
-      - TZ=${TZ}

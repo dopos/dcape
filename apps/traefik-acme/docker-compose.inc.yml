@@ -17,10 +17,10 @@
       - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
       - /dev/null:/traefik.toml
       - ./var/data/acme:/acme
-    environment:
-      - TZ=${TZ}
     networks:
       default:
         aliases:

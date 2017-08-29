@@ -2,11 +2,12 @@
   drone-server:
     image: drone/drone:0.7
     restart: always
-#    dns: 192.168.4.1
     depends_on:
       db:
         condition: service_healthy
-#    volumes:
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
 #      - ./drones:/drone
     labels:
       - "traefik.enable=true"
@@ -38,8 +39,8 @@
       - drone-server
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/timezone:/etc/timezone:ro
 #      - ./dronea:/drone
-#    dns: 192.168.4.1
     labels:
       - "traefik.enable=false"
     environment:
