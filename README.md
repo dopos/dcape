@@ -5,6 +5,10 @@
 Цель проекта - с минимальными усилиями развернуть на удаленном сервере (или локальном linux-хосте) стек приложений для разработки ПО
 и далее поддерживать разворачивание своего кода.
 
+## Быстрый старт
+
+https://raw.githubusercontent.com/dopos/dcape/master/setup-remote-host.sh
+
 ## Стек приложений
 
 Текущая версия dcape поддерживает следующие приложения:
@@ -21,9 +25,9 @@
 
 Приложения, используемые в целях Continuous intergation:
 
-* [consul](https://www.consul.io/) - Key-Value хранилище для хранения конфигураций и интерфейс к нему
 * [webhook](https://github.com/adnanh/webhook) - деплой программ по событию из gitea
 * [webtail](https://github.com/LeKovr/webtail) - web-интерфейс к логам контейнеров
+* enfist - хранилище файлов .env в postgresql с JSON_RPC интерфейсом
 
 ## Зависимости
 
@@ -33,7 +37,7 @@
 ## Предыдущее решение
 
 Dcape (Дикейп) - это реинкарнация [consup](https://github.com/LeKovr/consup) (консап). В dcape тот же функционал
-реализован в соответствии с текущими возможностями инфраструктуры docker. Это решение проще и не
+реализован на основе docker-compose, более продвинутой версии fig, чем fidm. Это решение проще и не
 требует для каждого приложения создавать специальный docker-образ. В большинстве случаев подходит официальный образ приложения
 с https://hub.docker.com. В остальных случаях используются альтернативные сборки, доступные в этом же реестре.
 
@@ -55,7 +59,7 @@ which make > /dev/null || sudo apt-get install make
 ### Установка **dcape**
 
 ```
-git clone https://github.com/TenderPro/dcape.git
+git clone https://github.com/dopos/dcape.git
 cd dcape
 ```
 
@@ -132,4 +136,5 @@ make apply
 
 The MIT License (MIT), see [LICENSE](LICENSE).
 
+Copyright (c) 2017 Alexey Kovrizhkin <lekovr+dopos@gmail.com>
 Copyright (c) 2017 Tender.Pro
