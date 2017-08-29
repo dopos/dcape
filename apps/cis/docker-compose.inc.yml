@@ -35,12 +35,12 @@
       - "traefik.enable=false"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./var/log/webhook:/data/log
       - ./var/data/cis/hooks:/etc/webhook
-      - ./var/apps:/data/apps
+      - ./var/log/webhook:/opt/dcape/var/log/webhook
+      - ./var/apps:/opt/dcape/var/apps
     command: -hooks /etc/webhook/hooks.json -hotreload -nopanic -verbose -header Content-Type=application/json
     environment:
-      - DISTRO_ROOT=/data/apps
+      - DISTRO_ROOT=/opt/dcape/var/apps
       - DISTRO_CONFIG=.env
       - SSH_KEY_NAME=hook
 

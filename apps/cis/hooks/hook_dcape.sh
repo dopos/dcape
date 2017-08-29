@@ -144,7 +144,7 @@ setup_config() {
 
   # Get data from KV store
   local kv=$(kv2vars $key)
->&2 echo "-----kv: ($kv)"
+>&2 echo -e "-----------\n$kv\n-----------\n"
 
   if [[ ! "$kv" ]] ; then
     if [ ! -f $config ] ; then
@@ -279,17 +279,19 @@ process() {
       log "Setup $distro_path for hot update"
       setup_config $KV_PREFIX$distro_path $DISTRO_CONFIG
     fi
-    local hot_cmd=$(kv_read $VAR_MAKE_UPDATE)
+    local make_cmd=$(kv_read $VAR_MAKE_UPDATE)
     log "Pull..."
     . $home/git.sh -i $home/$SSH_KEY_NAME pull --recurse-submodules 2>&1 || { echo "Pull error: $?" ; exit 1 ; }
     log "Pull submodules..."
     . $home/git.sh -i $home/$SSH_KEY_NAME submodule update --recursive --remote 2>&1 || { echo "sPull error: $?" ; exit 1 ; }
-    if [[ "$hot_cmd" != "" ]] ; then
-      log "Run update cmd ($hot_cmd)..."
+    if [[ "$make_cmd" != "" ]] ; then
+      log "Run update cmd ($make_cmd)..."
       deplog_begin $deplog_dest "update"
-      deplog $deplog_dest "APP_ROOT=$host_root/$DISTRO_ROOT APP_PATH=$distro_path make $hot_cmd"
+      deplog $deplog_dest "APP_ROOT=$host_root/$DISTRO_ROOT APP_PATH=$distro_path make $make_cmd"
       # NOTE: This command must start container if it does not running
-      APP_ROOT=$host_root/$DISTRO_ROOT APP_PATH=$distro_path make $hot_cmd >> $deplog_dest 2>&1
+      APP_ROOT=$host_root$DISTRO_ROOT APP_PATH=$distro_path DOCKER_BIN=vdocker \
+        make $make_cmd >> $deplog_dest 2>&1
+
       deplog_end $deplog_dest
     fi
     popd > /dev/null
@@ -325,10 +327,12 @@ process() {
 
     # APP_ROOT - hosted application dirname for mount /home/app and /var/log/supervisor
     local host_root=$(host_home_app)
+    local make_cmd=$(kv_read $VAR_MAKE_START)
+
     deplog_begin $deplog_dest "create"
-    deplog $deplog_dest APP_ROOT=$host_root/$DISTRO_ROOT APP_PATH=$distro_path make ${_CI_MAKE_START}
-    #APP_ROOT=$host_root/$DISTRO_ROOT APP_PATH=$distro_path make ${_CI_MAKE_START} >> $deplog_dest 2>&1
-    DOCKER_BIN=vdocker.sh make ${_CI_MAKE_START} >> $deplog_dest 2>&1
+    deplog $deplog_dest APP_ROOT=$host_root/$DISTRO_ROOT APP_PATH=$distro_path make $make_cmd
+    APP_ROOT=$host_root$DISTRO_ROOT APP_PATH=$distro_path DOCKER_BIN=vdocker \
+      make $make_cmd >> $deplog_dest 2>&1
 
     deplog_end $deplog_dest
   fi
@@ -339,8 +343,8 @@ process() {
 
 }
 
-deplog_root="/data/log/deploy"
+deplog_root="/opt/dcape/var/log/webhook/deploy"
 
-process $@ >> /data/log/webhook.log 2>&1
+process $@ >> /opt/dcape/var/log/webhook/webhook.log 2>&1
 #>/data/log/webhook.err
 
