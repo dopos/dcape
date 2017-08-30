@@ -1,6 +1,6 @@
   # ------------------------------------------------------------------------------
   pdns:
-    image: lekovr/powerdns
+    image: dopos/powerdns:0.1
     ports:
       - "${PDNS_PORT}:53"
       - "${PDNS_PORT}:53/udp"
