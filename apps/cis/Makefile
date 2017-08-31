@@ -5,8 +5,10 @@ SHELL               = /bin/bash
 
 # DCAPE_USED==1 when called from upper Makefile
 DCAPE_USED         ?= 0
+# Webtail Docker image version by dcape
+CIS_WEBTAIL_VER0   ?= 0.11.0
 # Webtail Docker image version
-CIS_WEBTAIL_VER    ?= 0.11.0
+CIS_WEBTAIL_VER    ?= $(CIS_WEBTAIL_VER0)
 # Login of admin user in CIR restricted areas
 CIS_AREA_LOGIN     ?= admin
 # Password of admin user in CIS restricted areas
@@ -29,8 +31,8 @@ CIS_HOST=$(CIS_HOST)
 CIS_AREA_LOGIN=$(CIS_AREA_LOGIN)
 CIS_AREA_PASS=$(CIS_AREA_PASS)
 
-# Webtail Docker image version (uncomment for update by hand)
-# CIS_WEBTAIL_VER=$(CIS_WEBTAIL_VER)
+# Webtail Docker image version
+CIS_WEBTAIL_VER=$(CIS_WEBTAIL_VER)
 
 endef
 export CONFIG_CIS
@@ -55,6 +57,9 @@ cis-init:
     echo "** CIS AREA LOGIN:    $(CIS_AREA_LOGIN)" ; \
     echo "** CIS AREA PASSWORD: $(CIS_AREA_PASS)" ; \
   }
+	@if [[ "$$CIS_WEBTAIL_VER0" != "$$CIS_WEBTAIL_VER" ]] ; then \
+  echo "Warning: CIS_WEBTAIL_VER in dcape ($$CIS_WEBTAIL_VER0) differs from yours ($$CIS_WEBTAIL_VER)" ; \
+  fi
 
 cis-apply: var/data/cis var/data/cis/htpasswd var/data/cis/html/services.json var/data/cis/html/$(SSH_KEY_NAME).pub
 	@echo "*** $@ ***"

@@ -5,8 +5,10 @@ SHELL               = /bin/bash
 
 # DCAPE_USED==1 when called from upper Makefile
 DCAPE_USED         ?= 0
+# Mattermost Docker image version by dcape
+MMOST_VER0         ?= 4.1.0
 # Mattermost Docker image version
-MMOST_VER          ?= 4.1.0
+MMOST_VER          ?= $(MMOST_VER0)
 # Database name and database user name
 MMOST_DB_TAG       ?= mmost
 # Database user password
@@ -20,8 +22,8 @@ define CONFIG_MMOST
 # ------------------------------------------------------------------------------
 # Mattermost settings
 
-# Mattermost Docker image version (uncomment for update by hand)
-# MMOST_VER=$(MMOST_VER)
+# Mattermost Docker image version
+MMOST_VER=$(MMOST_VER)
 
 # App hostname
 MMOST_HOST=$(MMOST_HOST)
@@ -37,6 +39,9 @@ export CONFIG_MMOST
 
 mmost-init:
 	@grep MMOST_ .env > /dev/null || echo "$$CONFIG_MMOST" >> .env
+	@if [[ "$$MMOST_VER0" != "$$MMOST_VER" ]] ; then \
+  echo "Warning: MMOST_VER in dcape ($$MMOST_VER0) differs from yours ($$MMOST_VER)" ; \
+  fi
 
 mmost-apply:
 	@$(MAKE) -s db-create NAME=MMOST
