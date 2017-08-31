@@ -170,6 +170,16 @@ env-set:
  && jq -R -sc ". | {\"a_code\":\"$(TAG)\",\"a_data\":.}" < $(TAG).env | \
   docker exec -i $${PROJECT_NAME}_webhook_1 curl -gsd @- $${ENFIST_URL}/tag_set > /dev/null
 
+# ------------------------------------------------------------------------------
+
+## delete unused docker images w/o name
+clean-noname:
+	docker rmi $$(docker images | grep "<none>" | awk "{print \$$3}")
+#docker images -q -f dangling=true
+
+## delete docker dangling volumes
+clean-volume:
+	docker volume rm $$(docker volume ls -qf dangling=true)
 
 # ------------------------------------------------------------------------------
 
