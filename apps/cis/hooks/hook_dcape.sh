@@ -36,7 +36,7 @@ _CI_HOOK_UPDATE_HOT="no"
 _CI_MAKE_UPDATE="update"
 
 KV_PREFIX="" # "/conf"
-ENFIST=http://enfist:8080/rpc
+ENFIST=${ENFIST:-http://enfist:8080/rpc}
 
 # ------------------------------------------------------------------------------
 
