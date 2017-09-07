@@ -151,6 +151,7 @@ make init
 * [ ] CIS login via mattermost (must be channel member)
 * [ ] mmost bot: `/cget <name>`, `/cset <name>`, `/cls <mask>` (channelat linked to server)
 * [ ] flow: PR -> Drone -> post to mmost chat with link to PR
+* [ ] webhook: обработка tag create + pull request
 
 ## Лицензия
 
