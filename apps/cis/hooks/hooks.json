@@ -57,6 +57,65 @@
         }
       ]
     }
+  },
+  {
+    "id": "remote",
+    "execute-command": "./hook_dcape.sh",
+    "command-working-directory": "/etc/webhook",
+    "include-command-output-in-response": false,
+    "trigger-rule-mismatch-http-response-code": 400,
+    "pass-arguments-to-command": [
+      {
+        "source": "header",
+        "name": "X-Gogs-Event"
+      }
+    ],
+    "pass-environment-to-command": [
+      {
+         "source": "entire-payload",
+         "envname": "PAYLOAD"
+      },
+      {
+        "source": "string",
+        "envname": "MODE",
+        "name": "remote"
+      },
+      {
+         "source": "url",
+         "name": "branch",
+         "envname": "URL_BRANCH"
+      }
+    ],
+    "trigger-rule":
+    {
+      "and":
+      [
+        {
+          "match":
+          {
+            "type": "regex",
+            "regex": "^refs/heads/[^t][^m][^p]",
+            "parameter":
+            {
+              "source": "payload",
+              "name": "ref"
+            }
+          }
+        },
+        {
+          "match":
+          {
+            "type": "value",
+            "value": "mysecred",
+            "parameter":
+            {
+              "source": "payload",
+              "name": "secret"
+            }
+          }
+        }
+      ]
+    }
   }
 ]
 
