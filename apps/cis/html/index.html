@@ -25,8 +25,8 @@
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <div class="container">
     <div class="row">
-      <div class="one-half column" style="margin-top: 25%">
-        <h4>Welcome to <a href="">DCAPE</a> Continuous Integration Server</h4>
+      <div class="column" style="margin-top: 5%">
+        <h4>Welcome to <a href="https://github.com/dopos/dcape">DCAPE</a> Continuous Integration Server</h4>
         <p>Our resources:
 <ul>
 <li><a href="/conf/rpc/" target="_blank">Config store</a>
@@ -45,11 +45,6 @@
 </ul>
 </p>
 
-<p>Additional resources:
-<ul>
-<li><a href="https://github.com/adnanh/webhook/wiki">Webhook's docs</a></li>
-</ul>
-        </p>
       </div>
     </div>
   </div>
@@ -57,6 +52,8 @@
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 <script>
   function ready() {
+    document.title = location.host + ' - ' + document.title;
+
     for (var key in services) {
       if (services[key] == "") {
         document.getElementById(key+'-li').style.display = "none";
