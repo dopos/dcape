@@ -1,7 +1,6 @@
-SHELL        = /bin/bash
-CFG          =.env
-DIR          =? $$PWD
-DCAPE_USED   = 1
+SHELL         = /bin/bash
+CFG           = .env
+DCAPE_USED    = 1
 
 TZ           ?= $(shell cat /etc/timezone)
 DCINC         = docker-compose.inc.yml
