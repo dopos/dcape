@@ -34,14 +34,14 @@ export CONFIG_ENFIST
 enfist-init:
 	@grep ENFIST_ .env > /dev/null || echo "$$CONFIG_ENFIST" >> .env
 	@if [[ "$$ENFIST_DBRPC_VER0" != "$$ENFIST_DBRPC_VER" ]] ; then \
-  echo "Warning: ENFIST_DBRPC_VER in dcape ($$ENFIST_DBRPC_VER0) differs from yours ($$ENFIST_DBRPC_VER)" ; \
-  fi
+	  echo "Warning: ENFIST_DBRPC_VER in dcape ($$ENFIST_DBRPC_VER0) differs from yours ($$ENFIST_DBRPC_VER)" ; \
+	fi
 
 enfist-apply:
-	@$(MAKE) -s db-create NAME=ENFIST \
-  && docker run -d --rm --name $${PROJECT_NAME}_enfist_temp_start lekovr/dbrpc:$${ENFIST_DRPC_VER} --wait 5 \
-  && docker cp $${PROJECT_NAME}_enfist_temp_start:/opt/sql var/sql.tmp \
-  && cp apps/enfist/sql/Makefile var/sql.tmp/Makefile \
-  && pushd var/sql.tmp > /dev/null && $(MAKE) -s build-docker PG_USER=$${ENFIST_DB_TAG} && popd > /dev/null \
-  && pushd apps/enfist/sql > /dev/null && $(MAKE) -s build-docker PG_USER=$${ENFIST_DB_TAG} && popd > /dev/null \
-  && rm -rf var/sql.tmp
+	@$(MAKE) -s db-create NAME=ENFIST || true
+	@docker run -d --rm --name $${PROJECT_NAME}_enfist_temp_start lekovr/dbrpc:$${ENFIST_DRPC_VER} --wait 5
+	@docker cp $${PROJECT_NAME}_enfist_temp_start:/opt/sql var/sql.tmp
+	cp apps/enfist/sql/Makefile var/sql.tmp/Makefile
+	pushd var/sql.tmp > /dev/null && $(MAKE) -s build-docker PG_USER=$${ENFIST_DB_TAG} && popd > /dev/null
+	pushd apps/enfist/sql > /dev/null && $(MAKE) -s build-docker PG_USER=$${ENFIST_DB_TAG} && popd > /dev/null
+	rm -rf var/sql.tmp
