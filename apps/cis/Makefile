@@ -79,6 +79,6 @@ var/data/cis/htpasswd:
 
 var/data/cis/html/$(SSH_KEY_NAME).pub:
 	@echo "*** $@ ***"
-	ssh-keygen -t rsa -b 4096 -f $(SSH_KEY_NAME) -N "" -C webhook@$$DOMAIN
+	ssh-keygen -t ed25519 -f $(SSH_KEY_NAME) -N "" -C webhook@$$DOMAIN
 	@mv $(SSH_KEY_NAME) var/data/cis/hooks/
 	@mv $(SSH_KEY_NAME).pub var/data/cis/html/
