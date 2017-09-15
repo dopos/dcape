@@ -39,9 +39,9 @@ enfist-init:
 
 enfist-apply:
 	@$(MAKE) -s db-create NAME=ENFIST || true
-	@docker run -d --rm --name $${PROJECT_NAME}_enfist_temp_start lekovr/dbrpc:$${ENFIST_DRPC_VER} --wait 5
+	@docker run -d --rm --name $${PROJECT_NAME}_enfist_temp_start lekovr/dbrpc:$${ENFIST_DBRPC_VER} --wait 5
 	@docker cp $${PROJECT_NAME}_enfist_temp_start:/opt/sql var/sql.tmp
-	cp apps/enfist/sql/Makefile var/sql.tmp/Makefile
-	pushd var/sql.tmp > /dev/null && $(MAKE) -s build-docker PG_USER=$${ENFIST_DB_TAG} && popd > /dev/null
-	pushd apps/enfist/sql > /dev/null && $(MAKE) -s build-docker PG_USER=$${ENFIST_DB_TAG} && popd > /dev/null
-	rm -rf var/sql.tmp
+	@cp apps/enfist/sql/Makefile var/sql.tmp/Makefile
+	@pushd var/sql.tmp > /dev/null && $(MAKE) -s build-docker PG_USER=$${ENFIST_DB_TAG} && popd > /dev/null
+	@pushd apps/enfist/sql > /dev/null && $(MAKE) -s build-docker PG_USER=$${ENFIST_DB_TAG} && popd > /dev/null
+	@rm -rf var/sql.tmp
