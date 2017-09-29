@@ -9,12 +9,15 @@
     depends_on:
       - webtail
       - webhook
+      - traefik-fl
+      - enfist
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - ./var/data/cis/html:/usr/share/nginx/html:ro
-      - ./var/data/cis/htpasswd:/etc/nginx/htpasswd
-      - ./var/data/cis/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./apps/cis/html:/usr/share/nginx/html:ro
+      - ./apps/cis/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./var/data/cis/htpasswd:/etc/nginx/htpasswd:ro
+      - ./var/data/cis/hook.pub:/data/hook.pub:ro
 
 
   # ------------------------------------------------------------------------------
@@ -33,7 +36,8 @@
 
   # ------------------------------------------------------------------------------
   webhook:
-    image: wpalmer/webhook
+    image: webhook
+#    image: dopos/webhook:${CIS_WEBHOOK_VER}
     restart: always
     labels:
       - "traefik.enable=false"
@@ -41,12 +45,19 @@
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - ./var/data/cis/hooks:/etc/webhook:ro
-      - ./var/log/webhook:/opt/dcape/var/log/webhook
-      - ./var/apps:/opt/dcape/var/apps
-    command: -hooks /etc/webhook/hooks.json -hotreload -nopanic -verbose -header Content-Type=application/json
+      - ./apps/cis/hooks:/etc/webhook:ro
+      - ./var/data/cis/hook:/hook:ro
+      - ./var:${DCAPE_ROOT}/var
+    command: -hooks /etc/webhook/local.json -hooks /etc/webhook/remote.json -hotreload -nopanic -verbose
     environment:
-      - DISTRO_ROOT=/opt/dcape/var/apps
-      - DISTRO_CONFIG=.env
-      - SSH_KEY_NAME=hook
+      - DEPLOY_ROOT=${DCAPE_ROOT}/var
+      - DEPLOY_PASS=${CIS_DEPLOY_PASS}
+      - GIT_SSH_COMMAND=ssh -i /hook -o StrictHostKeyChecking=no
+
+  # ------------------------------------------------------------------------------
+  traefik-fl:
+    image: dopos/traefik-fl:0.1
+    restart: always
+    labels:
+      - "traefik.enable=false"
 

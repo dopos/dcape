@@ -28,22 +28,17 @@
       <div class="column" style="margin-top: 5%">
         <h4>Welcome to <a href="https://github.com/dopos/dcape">DCAPE</a> Continuous Integration Server</h4>
         <p>Our resources:
-<ul>
-<li><a href="/conf/rpc/" target="_blank">Config store</a>
-<li><a href="/dashboard/" target="_blank">Traefik dashboard</a>
-<li><a href="/logs/" target="_blank">Application logs</a>
-<li><a href="/dns/" target="_blank">PowerDNS stats</a>
-<li><a href="hook.pub">Hook public key</a> (for use in <a href="http://gogs.io">Gogs</a> remove last CR)</li>
-</ul>
-</p>
+          <ul>
+            <li><a href="/logs/" target="_blank">Application logs</a>
+            <li><a href="/conf/rpc/tag" target="_blank">Config store</a>
+            <li><a href="/dashboard/" target="_blank">Traefik dashboard</a>
+            <li><a href="/hook.pub">Hook public key</a> (for use in <a href="http://gogs.io">Gogs</a> remove last CR)</li>
+          </ul>
+        </p>
         <p>Hosted projects:
-<ul>
-<li id="gitea-li"><a id="gitea" href="http://git.dev.lan/" target="_blank">Gitea</a>
-<li id="mmost-li"><a id="mmost" href="http://chat.dev.lan/" target="_blank">Mattermost</a>
-<li id="drone-li"><a id="drone" href="http://drone.dev.lan/" target="_blank">Drone</a>
-<li id="port-li" ><a id="port" href="http://port.dev.lan/" target="_blank">Portainer</a>
-</ul>
-</p>
+          <ul id='sites'>
+          </ul>
+        </p>
 
       </div>
     </div>
@@ -51,14 +46,32 @@
 <!-- End Document
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 <script>
+  // https://stackoverflow.com/a/22790025
+  function Get(yourUrl){
+    var Httpreq = new XMLHttpRequest(); // a new request
+    Httpreq.open("GET",yourUrl,false);
+    Httpreq.send(null);
+    return Httpreq.responseText;
+  }
+
   function ready() {
     document.title = location.host + ' - ' + document.title;
-
-    for (var key in services) {
-      if (services[key] == "") {
-        document.getElementById(key+'-li').style.display = "none";
-      } else {
-        document.getElementById(key).setAttribute('href',"http://"+services[key]);
+    var json_obj = JSON.parse(Get("/frontends.json"));
+    var ul = document.getElementById('sites');
+    for (var key in json_obj) {
+      if (key == 'cis') continue; // we already at this site
+      var sites = json_obj[key];
+      var sitesLength = sites.length;
+      var port = "";
+      if (location.port != '') port = ':' + location.port;
+      for (var i = 0; i < sitesLength; i++) {
+        var a = document.createElement('a');
+        a.href = 'http://' + sites[i] + port + '/';
+        a.innerHTML = key + ' (' + sites[i] + ')';
+        a.setAttribute('target', '_blank');
+        var li = document.createElement('li');
+        li.appendChild(a);
+        ul.appendChild(li);
       }
     }
   }

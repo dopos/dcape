@@ -1,0 +1,55 @@
+[
+  {
+    "id": "local",
+    "execute-command": "./hook_dcape.sh",
+    "command-working-directory": "/etc/webhook",
+    "include-command-output-in-response": false,
+    "trigger-rule-mismatch-http-response-code": 400,
+    "pass-environment-to-command": [
+      {
+         "source": "entire-payload",
+         "envname": "PAYLOAD"
+      },
+      {
+        "source": "string",
+        "name": "local",
+        "envname": "MODE"
+      },
+      {
+        "source": "header",
+        "name": "X-Gogs-Event",
+        "envname": "EVENT"
+      },
+      {
+         "source": "url",
+         "name": "branch",
+         "envname": "URL_BRANCH"
+      },
+      {
+        "source": "payload",
+        "name": "secret",
+        "envname": "SECRET"
+      },
+      {
+        "source": "payload",
+        "name": "ref",
+        "envname": "REF"
+      },
+      {
+        "source": "payload",
+        "name": "repository.private",
+        "envname": "REPO_PRIVATE"
+      },
+      {
+        "source": "payload",
+        "name": "repository.ssh_url",
+        "envname": "SSH_URL"
+      },
+      {
+        "source": "payload",
+        "name": "repository.clone_url",
+        "envname": "CLONE_URL"
+      }
+    ]
+  }
+]

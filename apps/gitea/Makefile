@@ -1,10 +1,14 @@
-# Drone init Makefile
+# Gitea init Makefile
 # This file included by ../../Makefile
 
 SHELL               = /bin/bash
 
 # DCAPE_USED==1 when called from upper Makefile
 DCAPE_USED         ?= 0
+# Gitea Docker image version by dcape
+GITEA_VER0         ?= latest
+# Gitea Docker image version
+GITEA_VER          ?= $(GITEA_VER0)
 # Database name and database user name
 GITEA_DB_TAG       ?= gitea
 # Database user password
@@ -14,16 +18,23 @@ GITEA_SSH_PORT     ?= 10022
 # Gitea hostname prefix
 GITEA_HOST_PREFIX  ?= git
 # Gitea hostname
-GITEA_HOST  ?= $(GITEA_HOST_PREFIX).$(DOMAIN)
+GITEA_HOST         ?= $(GITEA_HOST_PREFIX).$(DOMAIN)
+
+# Internal gitea config path
+GITEA_INI_DIR      ?= var/data/gitea/gitea/conf
 
 define CONFIG_GITEA
 # ------------------------------------------------------------------------------
 # Gitea settings
 
+# Gitea Docker image version
+GITEA_VER=$(GITEA_VER)
+
 # App hostname
 GITEA_HOST=$(GITEA_HOST)
 
 # Gitea ssh server port
+# You should change sshd port and set this to 22
 GITEA_SSH_PORT=$(GITEA_SSH_PORT)
 
 # Database name and database user name
@@ -35,7 +46,6 @@ GITEA_DB_PASS=$(GITEA_DB_PASS)
 endef
 export CONFIG_GITEA
 
-GITEA_INI_DIR ?= var/data/gitea/gitea/conf
 
 # Init data for $${GITEA_INI_DIR}/app.ini
 define INI_GITEA
@@ -59,11 +69,13 @@ export INI_GITEA
 
 gitea-init:
 	@grep GITEA_DB_PASS .env || \
-  { \
-    echo "$$CONFIG_GITEA" >> .env ; \
-    echo "** GITEA DB PASSWORD: $(GITEA_DB_PASS)" ; \
-  }
-
+	{ \
+	  echo "$$CONFIG_GITEA" >> .env ; \
+	  echo "** GITEA DB PASSWORD: $(GITEA_DB_PASS)" ; \
+	}
+	@if [[ "$$GITEA_VER0" != "$$GITEA_VER" ]] ; then \
+	  echo "Warning: GITEA_VER in dcape ($$GITEA_VER0) differs from yours ($$GITEA_VER)" ; \
+	fi
 
 gitea-apply:
 	@$(MAKE) -s db-create NAME=GITEA

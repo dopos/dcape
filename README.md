@@ -1,33 +1,34 @@
 # dcape - Docker composed application environment
 
+**Project status**: beta
+
 Утилита для установки стека приложений с помощью docker-compose.
 
 Цель проекта - с минимальными усилиями развернуть на удаленном сервере (или локальном linux-хосте) стек приложений для разработки ПО
 и далее поддерживать разворачивание своего кода.
 
-## Быстрый старт
-
-https://raw.githubusercontent.com/dopos/dcape/master/setup-remote-host.sh
-
 ## Стек приложений
 
-Текущая версия dcape поддерживает следующие приложения:
+Текущая версия dcape имеет в составе следующие приложения:
 
 * [gitea](https://gitea.io/) - веб-интерфейс к git
-* [mattermost](https://about.mattermost.com/) - сервис группового общения
 * [portainer](https://portainer.io/) - управление инфраструктурой docker
-* [drone](https://github.com/drone/drone) - сборка и тест приложения в отдельном контейнере
-* [traefik](https://traefik.io/) - прокси для доступа к www-сервисам контейнеров по заданному имени
-* [powerdns](https://www.powerdns.com/) - DNS-сервер, который хранит описания зон в БД postgresql
-* cis - статический сайт, в подразделах которого размещены защищенные паролем страницы приложений Continuous intergation
-
-Для приложений, требующих БД, используется контейнер postgresql.
+* [traefik](https://traefik.io/) - прокси для доступа к www-сервисам контейнеров по заданному имени (с поддержкой Let's encrypt)
+* [cis](https://github.com/dopos/dcape/tree/master/apps/cis) - скрипт обработки webhook и статический сайт, в подразделах которого
+размещены защищенные паролем страницы приложений Continuous intergation.
 
 Приложения, используемые в целях Continuous intergation:
 
+* [postgresql](https://www.postgresql.org) - хранение конфигураций приложений и БД, используемая приложениями
 * [webhook](https://github.com/adnanh/webhook) - деплой программ по событию из gitea
 * [webtail](https://github.com/LeKovr/webtail) - web-интерфейс к логам контейнеров
-* enfist - хранилище файлов .env в postgresql с JSON_RPC интерфейсом
+* [enfist](https://github.com/pgrpc/pgrpc-sql-enfist) - хранилище файлов .env в postgresql с JSON-RPC интерфейсом
+
+Приложения, для которых доступна конфигурация в dcape:
+
+* [drone](https://github.com/drone/drone) - сборка и тест приложения в отдельном контейнере
+* [mattermost](https://about.mattermost.com/) - сервис группового общения
+* [powerdns](https://www.powerdns.com/) - DNS-сервер, который хранит описания зон в БД postgresql
 
 ## Зависимости
 
@@ -39,8 +40,11 @@ https://raw.githubusercontent.com/dopos/dcape/master/setup-remote-host.sh
 Dcape (Дикейп) - это реинкарнация [consup](https://github.com/LeKovr/consup) (консап). В dcape тот же функционал
 реализован на основе docker-compose, более продвинутой версии fig, чем fidm. Это решение проще и не
 требует для каждого приложения создавать специальный docker-образ. В большинстве случаев подходит официальный образ приложения
-с https://hub.docker.com. В остальных случаях используются альтернативные сборки, доступные в этом же реестре.
+с https://hub.docker.com (или https://cloud.docker.com). В остальных случаях используются альтернативные сборки, доступные в этом же реестре.
 
+## Быстрый старт
+
+Скрипт настройки нового сервера - https://raw.githubusercontent.com/dopos/dcape/master/setup-remote-host.sh
 
 ## Установка
 
@@ -135,7 +139,6 @@ rm .env
 make init
 ```
 
-
 ## Особенности реализации
 
 * определенная совместимость с [consup](https://github.com/LeKovr/consup) сохранена, можно запускать контейнеры оттуда (для этого, в частности, у `consul` параметр `datacenter` имеет значение `consup`) и алгоритм деплоя основан на том же webhook
@@ -146,10 +149,20 @@ make init
   * `init` - добавление настроек приложения в файл `.env`
   * `apply` - подготовка БД и данных приложения в `var/data/*/`
 
+## Две и более среды dcape на одном сервере
+
+### Текущее решение
+
+Изменить порт в параметре `TRAEFIK_PORT` и использовать traefik (не traefik-acme).
+
+### Планируемое решение
+
+Для 2й и следующих копий реализовать конфигурацию без своего traefik (с подключением основного traefik к сети копии).
+
 ## TODO
 
-* [ ] CIS login via mattermost (must be channel member)
-* [ ] mmost bot: `/cget <name>`, `/cset <name>`, `/cls <mask>` (channelat linked to server)
+* [ ] CIS login via gitea (в настройках указывать организацию)
+* [ ] mmost bot: `/cget <name>`, `/cset <name>`, `/cls <mask>` (channel linked to server)
 * [ ] flow: PR -> Drone -> post to mmost chat with link to PR
 * [ ] webhook: обработка tag create + pull request
 
@@ -158,4 +171,3 @@ make init
 The MIT License (MIT), see [LICENSE](LICENSE).
 
 Copyright (c) 2017 Alexey Kovrizhkin <lekovr+dopos@gmail.com>
-Copyright (c) 2017 Tender.Pro

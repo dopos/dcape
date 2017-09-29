@@ -19,6 +19,9 @@ PG_ENCODING  ?= $(LANG)
 # Config store url
 ENFIST_URL   ?= http://enfist:8080/rpc
 
+# cis/webhook needs to know dcape root
+DCAPE_ROOT   ?= $(shell pwd)
+
 # if exists - load old values
 -include $(CFG).bak
 export
@@ -33,13 +36,13 @@ include apps/*/Makefile
 
 all: help
 
-init-master: APPS = traefik-acme gitea mmost drone portainer enfist cis pdns
+init-master: APPS = traefik-acme gitea portainer enfist cis
 init-master: init
 
-init-slave: APPS = traefik-acme drone portainer enfist cis pdns
+init-slave: APPS = traefik-acme portainer enfist cis
 init-slave: init
 
-init-local: APPS = traefik gitea mmost drone portainer enfist cis pdns
+init-local: APPS = traefik gitea portainer enfist cis
 init-local: init
 
 define CONFIG_DEF
@@ -64,6 +67,8 @@ PG_ENCODING=$(PG_ENCODING)
 
 # db (postgresql)
 PG_DB_PASS=$(PG_DB_PASS)
+
+DCAPE_ROOT=$(DCAPE_ROOT)
 
 endef
 export CONFIG_DEF
@@ -117,39 +122,38 @@ down: dc
 ## run docker-compose
 dc: docker-compose.yml
 	@docker run --rm -t -i \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v $$PWD:$$PWD \
-  -w $$PWD \
-  docker/compose:1.14.0 \
-  -p $$PROJECT_NAME \
-  $(CMD)
-
+	  -v /var/run/docker.sock:/var/run/docker.sock \
+	  -v $$PWD:$$PWD \
+	  -w $$PWD \
+	  docker/compose:1.14.0 \
+	  -p $$PROJECT_NAME \
+	  $(CMD)
 
 # ------------------------------------------------------------------------------
 
 ## create database and user
 db-create:
 	@echo "*** $@ ***" \
-  && varname=$(NAME)_DB_PASS && pass=$${!varname} \
-  && varname=$(NAME)_DB_TAG && dbname=$${!varname} \
-  && CONTAINER=$${PROJECT_NAME}_db_1 \
-  && echo -n "Checking PG is ready..." \
-  && until [[ `docker inspect -f "{{.State.Health.Status}}" $$CONTAINER` == healthy ]] ; do sleep 1 ; echo -n "." ; done \
-  && echo "Ok" \
-  && docker exec -it $$CONTAINER psql -U postgres -c "CREATE USER \"$$dbname\" WITH PASSWORD '$$pass';" \
-  && docker exec -it $$CONTAINER psql -U postgres -c "CREATE DATABASE \"$$dbname\" OWNER \"$$dbname\";"
+	&& varname=$(NAME)_DB_PASS && pass=$${!varname} \
+	&& varname=$(NAME)_DB_TAG && dbname=$${!varname} \
+	&& CONTAINER=$${PROJECT_NAME}_db_1 \
+	&& echo -n "Checking PG is ready..." \
+	&& until [[ `docker inspect -f "{{.State.Health.Status}}" $$CONTAINER` == healthy ]] ; do sleep 1 ; echo -n "." ; done \
+	&& echo "Ok" \
+	&& docker exec -it $$CONTAINER psql -U postgres -c "CREATE USER \"$$dbname\" WITH PASSWORD '$$pass';" \
+	&& docker exec -it $$CONTAINER psql -U postgres -c "CREATE DATABASE \"$$dbname\" OWNER \"$$dbname\";"
 
 ## drop database and user
 db-drop:
 	@echo "*** $@ ***" \
-  && varname=$(NAME)_DB_TAG && dbname=$${!varname} \
-  && CONTAINER=$${PROJECT_NAME}_db_1 \
-  && docker exec -it $$CONTAINER psql -U postgres -c "DROP DATABASE \"$$dbname\";" \
-  && docker exec -it $$CONTAINER psql -U postgres -c "DROP USER \"$$dbname\";"
+	&& varname=$(NAME)_DB_TAG && dbname=$${!varname} \
+	&& CONTAINER=$${PROJECT_NAME}_db_1 \
+	&& docker exec -it $$CONTAINER psql -U postgres -c "DROP DATABASE \"$$dbname\";" \
+	&& docker exec -it $$CONTAINER psql -U postgres -c "DROP USER \"$$dbname\";"
 
 psql:
 	@CONTAINER=$${PROJECT_NAME}_db_1 \
-  && docker exec -it $$CONTAINER psql -U postgres
+	  && docker exec -it $$CONTAINER psql -U postgres
 
 # ------------------------------------------------------------------------------
 # .env file store
@@ -159,7 +163,7 @@ env-get:
 	@[[ "$(TAG)" ]] || { echo "Error: Tag value required" ; exit 1 ;}
 	@echo "Getting env into $(TAG)"
 	@docker exec -ti $${PROJECT_NAME}_webhook_1 curl -gs $${ENFIST_URL}/tag_vars?a_code=$(TAG) \
-  | jq -r '.result[0].tag_vars' > $(TAG).env
+	  | jq -r '.result[0].tag_vars' > $(TAG).env
 # | sed 's/\\n/\n/g' > $(TAG).env
 
 #  | jq -r .result[0].tag_vars | sed 's/\\n/\n/g' > $(TAG).env
@@ -168,8 +172,8 @@ env-get:
 env-set:
 	@[[ "$(TAG)" ]] || { echo "Error: Tag value required" ; exit 1 ;}
 	@echo "Setting $(TAG) from file" \
- && jq -R -sc ". | {\"a_code\":\"$(TAG)\",\"a_data\":.}" < $(TAG).env | \
-  docker exec -i $${PROJECT_NAME}_webhook_1 curl -gsd @- $${ENFIST_URL}/tag_set > /dev/null
+	&& jq -R -sc ". | {\"a_code\":\"$(TAG)\",\"a_data\":.}" < $(TAG).env | \
+	  docker exec -i $${PROJECT_NAME}_webhook_1 curl -gsd @- $${ENFIST_URL}/tag_set > /dev/null
 
 # ------------------------------------------------------------------------------
 
