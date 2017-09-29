@@ -36,8 +36,7 @@
 
   # ------------------------------------------------------------------------------
   webhook:
-    image: webhook
-#    image: dopos/webhook:${CIS_WEBHOOK_VER}
+    image: dopos/webhook:${CIS_WEBHOOK_VER}
     restart: always
     labels:
       - "traefik.enable=false"
@@ -45,7 +44,6 @@
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - ./apps/cis/hooks:/etc/webhook:ro
       - ./var/data/cis/hook:/hook:ro
       - ./var:${DCAPE_ROOT}/var
     command: -hooks /etc/webhook/local.json -hooks /etc/webhook/remote.json -hotreload -nopanic -verbose

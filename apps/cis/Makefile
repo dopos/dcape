@@ -10,7 +10,7 @@ CIS_WEBTAIL_VER0   ?= 0.11.0
 # Webtail Docker image version
 CIS_WEBTAIL_VER    ?= $(CIS_WEBTAIL_VER0)
 # Webhook Docker image version by dcape
-CIS_WEBHOOK_VER0   ?= 0.2
+CIS_WEBHOOK_VER0   ?= 0.3
 # Webtail Docker image version
 CIS_WEBHOOK_VER    ?= $(CIS_WEBHOOK_VER0)
 # CIS hostname prefix
