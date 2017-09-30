@@ -58,4 +58,3 @@
     restart: always
     labels:
       - "traefik.enable=false"
-
