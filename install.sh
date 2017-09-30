@@ -1,9 +1,9 @@
 #!/bin/bash
 # ------------------------------------------------------------------------------
-# setup-remote-host.sh
+# install.sh
 # Setup remote ubuntu/debian host from scratch
 # This script is a part of DCAPE project
-# See https://github.com/TenderPro/dcape
+# See https://github.com/dopos/dcape
 # ------------------------------------------------------------------------------
 
 # default user login
@@ -14,16 +14,17 @@ help() {
 
 cat <<EOF
 
-setup-remote-host.sh - Remote Server Setup Script
+install.sh - Remote Server Setup Script
 
 Usage:
 
-  ./setup-remote-host.sh HOST [OPTIONS]
+  ./install.sh HOST [OPTIONS]
 
 Where HOST is remote server hostname or ip
   and OPTIONS are:
 
   -a USER, --admin USER - create & setup user USER for remote login (default: $admin, set '-' to disable)
+  -c ARGS, --cape ARGS  - install docker cape with init args ARGS
   -d, --docker          - install docker
   -e, --extended        - install extended package set (mc wget make sudo ntpdate)
   -h, --help            - show this help
@@ -37,15 +38,13 @@ Where HOST is remote server hostname or ip
 
 EXAMPLE:
 
-  bash setup-remote-host.sh 127.0.0.1 -a op -p 32 -s 1Gb -delntu
+  bash install.sh 127.0.0.1 -a op -p 32 -s 1Gb -delntu
 
 SEE ALSO:
 
-  * https://github.com/TenderPro/dcape
+  * https://github.com/dopos/dcape
 
 EOF
-
-# TODO: -c ARGS, --cape ARGS  - install dcape with init args ARGS        
 
 }
 
@@ -68,6 +67,8 @@ while [ $# -ge 1 ]; do
      ;;
     -a|--admin)
       admin="$2" ; shift ;;
+    -c|--cape)
+      cape="$2" ; shift ;;
     -d|--docker)
       docker="yes" ;;
     -e|--extended)
@@ -112,13 +113,14 @@ cat <<EOF
 host:     $host
 
 admin:    ${admin:--}
-key:      ${key:--}
-port:     ${port:--}
-swap:     ${swap:--}
+cape:     ${cape:--}
 docker:   ${docker:--}
 extended: $extended
+key:      ${key:--}
 locale:   $locale
 ntpdate:  $ntpdate
+port:     ${port:--}
+swap:     ${swap:--}
 tune:     $tune
 update:   $update
 EOF
@@ -284,6 +286,21 @@ if [[ "$port" ]] ; then
   fi
 
   #service ssh reload
+  echo "Ok"
+else
+  echo "skip"
+fi
+# ------------------------------------------------------------------------------
+# TODO: test it
+echo -n "* cape: "
+if [[ "$cape" ]] ; then
+  echo -n "setup dcape with args $cape..."
+  cd /opt
+  git clone https://github.com/dopos/dcape.git
+  cd dcape
+  make init $cape
+  make apply
+  make up
   echo "Ok"
 else
   echo "skip"

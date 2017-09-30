@@ -2,74 +2,93 @@
 
 **Project status**: beta
 
-Утилита для установки стека приложений с помощью docker-compose.
+Сервис установки стека приложений с помощью docker-compose.
 
-Цель проекта - с минимальными усилиями развернуть на удаленном сервере (или локальном linux-хосте) стек приложений для разработки ПО
-и далее поддерживать разворачивание своего кода.
+Приложения размещаются на github.com или аналогичном сервисе (в составе dcape может быть установлен такой сервис - gitea).
+
+Для поддержки сервиса dcape репозиторий приложения должен содержать файлы:
+* docker-compose.yml v2.1, где описана конфигурация контейнеров docker, используемых для сборки и запуска приложений
+* Makefile с командами создания файла настроек .env и управления docker-compose
+
+Файл .env c переменными для docker-compose.yml и другими настройками приложения не размещается в репозитории, при первом деплое он создается и сохраняется в Хранилище конфигураций. После этого доступ к настройкам копий приложения осуществляется через это хранилище.
+
+Интеграция проекта в dcape состоит из двух шагов:
+1. Настроить автоматическое обновление (webhook) в репозитории проекта
+2. Поместить в хранилище конфигураций настройки проекта с разрешением на деплой (параметр `_CI_HOOK_ENABLED`)
+
+После этого push в репозиторий проекта будет приводить к разворачиванию/обновлению приложения на сервере dcape.
+См. также: [DEPLOY.md](DEPLOY.md)
 
 ## Стек приложений
 
 Текущая версия dcape имеет в составе следующие приложения:
 
 * [gitea](https://gitea.io/) - веб-интерфейс к git
+* [traefik](https://traefik.io/) - прокси для доступа к www-сервисам контейнеров по заданному имени с поддержкой сертификатов Let's Encrypt
+* [cis](https://github.com/dopos/dcape/tree/master/apps/cis) - статический сайт, в подразделах которого размещены защищенные паролем страницы служебных приложений dcape.
 * [portainer](https://portainer.io/) - управление инфраструктурой docker
-* [traefik](https://traefik.io/) - прокси для доступа к www-сервисам контейнеров по заданному имени (с поддержкой Let's encrypt)
-* [cis](https://github.com/dopos/dcape/tree/master/apps/cis) - скрипт обработки webhook и статический сайт, в подразделах которого
-размещены защищенные паролем страницы приложений Continuous intergation.
 
-Приложения, используемые в целях Continuous intergation:
+Служебные приложения dcape:
 
 * [postgresql](https://www.postgresql.org) - хранение конфигураций приложений и БД, используемая приложениями
 * [webhook](https://github.com/adnanh/webhook) - деплой программ по событию из gitea
 * [webtail](https://github.com/LeKovr/webtail) - web-интерфейс к логам контейнеров
 * [enfist](https://github.com/pgrpc/pgrpc-sql-enfist) - хранилище файлов .env в postgresql с JSON-RPC интерфейсом
 
-Приложения, для которых доступна конфигурация в dcape:
+Приложения, для которых доступна конфигурация dcape:
 
 * [drone](https://github.com/drone/drone) - сборка и тест приложения в отдельном контейнере
 * [mattermost](https://about.mattermost.com/) - сервис группового общения
 * [powerdns](https://www.powerdns.com/) - DNS-сервер, который хранит описания зон в БД postgresql
+
+[Список конфигураций dcape](https://github.com/dopos?utf8=%E2%9C%93&q=dcape-app&type=&language=)
 
 ## Зависимости
 
 * linux 64bit (git, make, wget, openssl)
 * [docker](https://www.docker.com/)
 
-## Предыдущее решение
-
-Dcape (Дикейп) - это реинкарнация [consup](https://github.com/LeKovr/consup) (консап). В dcape тот же функционал
-реализован на основе docker-compose, более продвинутой версии fig, чем fidm. Это решение проще и не
-требует для каждого приложения создавать специальный docker-образ. В большинстве случаев подходит официальный образ приложения
-с https://hub.docker.com (или https://cloud.docker.com). В остальных случаях используются альтернативные сборки, доступные в этом же реестре.
+Для работы с контейнерами в dcape используется образ docker c docker-compose, поэтому отдельной установки docker-compose не требуется.
 
 ## Быстрый старт
 
-Скрипт настройки нового сервера - https://raw.githubusercontent.com/dopos/dcape/master/setup-remote-host.sh
+Установка на локальный сервер.
+```
+# настроить wildcard domain *.dev.lan
+sudo echo "address=/dev.lan/127.0.0.1" > /etc/NetworkManager/dnsmasq.d/dev.lan.conf
+sudo service network-manager reload
+
+# установить dcape
+curl -sSL https://raw.githubusercontent.com/dopos/dcape/master/install.sh | sh -s \
+  127.0.0.1 -cape 'DOMAIN=dev.lan TRAEFIK_PORT=81'
+```
+
+Настройка удаленного сервера ip 192.168.0.1 с установкой dcape.
+На сервере не производилось никаких настроек после инсталляции ОС (описание настройки - см. [install.sh](install.sh).
+В DNS адресу 192.168.0.1 задана запись `A *.your.host`.
+```
+curl -sSL https://raw.githubusercontent.com/dopos/dcape/master/install.sh | sh -s \
+ 192.168.0.1 -a op -p 32 -s 1Gb -delntu \
+ -cape 'APPS="traefik-acme gitea portainer enfist cis" DOMAIN=your.host TRAEFIK_ACME_EMAIL=admin@your.host'
+
+```
 
 ## Установка
 
 Установка производится на хост с 64bit linux
 
-### Установка **make**
-
-Ниже описывается вариант для apt-based ОС (Debian, Ubuntu), в других дистрибутивах установка make и wget производится аналогично.
-
-При установке пакета потребуется пароль для sudo.
+При установке пакетов потребуется пароль для sudo.
 
 ```
+# make
 which make > /dev/null || sudo apt-get install make
-```
 
-### Установка **dcape**
-
-```
+# dcape
+cd /opt
 git clone https://github.com/dopos/dcape.git
 cd dcape
-```
 
-### Установка **docker**
-
-```
+# docker
 make deps
 ```
 
@@ -84,13 +103,13 @@ make deps
 make init
 
 # сайт, доступный извне, с сертификатами от Let's Encrypt
-make init-master DOMAIN=example.com
+make init-master DOMAIN=your.host TRAEFIK_ACME_EMAIL=admin@your.host
 
 # свой список приложений
-make init APPS="gitea mmost portainer" DOMAIN=example.com
+make init APPS="gitea portainer" DOMAIN=example.com
 ```
 
-После этого надо отредактировать файл `.env`, изменив дефолтные настройки на подходящие.
+После выполнения `init` надо отредактировать файл `.env`, изменив дефолтные настройки на подходящие.
 Также будет создан каталог `var` для файлов, необходимых для запуска приложений.
 Персистентные данные приложений размещаются в `var/data`, журналы - в `var/log`.
 
@@ -100,6 +119,54 @@ make apply
 ```
 При этом будут стартованы контейнеры enfist и db (postgresql), созданы БД приложений, загружены необходимые для работы данные.
 
+## Управление конфигурациями
+
+Конфигурация любого приложения dcape - текстовый файл .env, который создается командой `make .env`.
+Этот файл используется `make start-hook` для разворачивания приложения и [docker-compose](https://docs.docker.com/compose/) при разворачивании контейнеров приложения.
+В части переменных, используемых в docker-compose.yml, формат файла должен соответствовать [docker-compose env_file](https://docs.docker.com/compose/compose-file/compose-file-v2/#env_file)
+
+Конфигурации приложений хранятся в БД в виде Key-value хранилища, где ключ формируется из адреса git репозитория (организация--проект--ветка), а значение - содержимое .env файла. Доступ к хранилищу закрыт паролем и осуществляется через JSON-RPC прокси dbrpc.
+
+Для управления конфигурациями на удаленном сервере dcape используется [dcape-config-cli](https://github.com/dopos/dcape-config-cli).
+После клонирования (git clone) и настройки (make .env) доступны команды:
+
+* `make get TAG=name` - получить из хранилища конфигурацию для тега `name` и сохранить в файл name.env
+* `make set TAG=name` - загрузить файл name.env в хранилище с тегом `name`
+* `make del TAG=name` - удалить в хранилище тег `name`
+
+## Структура проекта
+
+```
+├── apps
+│   ├── cis
+│   │   ├── docker-compose.inc.yml
+│   │   ├── html
+│   │   ├── Makefile
+│   │   └── nginx.conf
+│   ├── enfist
+│   │   ├── docker-compose.inc.yml
+│   │   ├── Makefile
+│   │   └── README.md
+│   ├── gitea
+│   │   ├── docker-compose.inc.yml
+│   │   └── Makefile
+│   ├── portainer
+│   │   ├── docker-compose.inc.yml
+│   │   └── Makefile
+│   ├── traefik
+│   │   ├── docker-compose.inc.yml
+│   │   └── Makefile
+│   └── traefik-acme
+│       ├── docker-compose.inc.yml
+│       └── Makefile
+├── DEPLOY.md
+├── docker-compose.inc.yml
+├── install.sh
+├── LICENSE
+├── Makefile
+└── README.md
+```
+
 ## Использование
 
 * `make up` - старт приложений
@@ -108,11 +175,11 @@ make apply
 Вместе с тем, в консоли доступны следующие команды:
 
 * `make down` - остановка и удаление всех контейнеров
-* `make dc CMD="up -d mmost"` - стартовать контейнер заданного приложения (если не запущен)
-* `make dc CMD="rm -f -s mmost"`- остановить и удалить контейнер
-* `make dc CMD="up -d --force-recreate  mmost"` - пересоздать и стартовать контейнер и его зависимости
-* `make db-create NAME=MMOST` - создать в postgresql пользователя и БД из настроек mmost
-* `make db-drop NAME=MMOST` - удалить пользователя и БД
+* `make dc CMD="up -d cis"` - стартовать контейнер заданного приложения (если не запущен)
+* `make dc CMD="rm -f -s cis"`- остановить и удалить контейнер
+* `make dc CMD="up -d --force-recreate cis"` - пересоздать и стартовать контейнер и его зависимости
+* `make db-create NAME=ENFIST` - создать в postgresql пользователя и БД из настроек enfist
+* `make db-drop NAME=ENFIST` - удалить пользователя и БД
 
 ### Полезные команды
 
@@ -122,7 +189,7 @@ make apply
 
 ### Обновление файла .env
 
-При обновлении проекта появляются новые переменные в .env файле.
+При обновлении проекта возможно появление новых переменных в .env файле.
 Алгоритм обновления .env с сохранением старых настроек:
 ```
 mv .env .env.bak
@@ -139,12 +206,16 @@ rm .env
 make init
 ```
 
+## Предыдущее решение
+
+Dcape (Дикейп) - это реинкарнация [consup](https://github.com/LeKovr/consup) (консап). В dcape тот же функционал реализован на основе docker-compose, более продвинутой чем fidm версии fig. В dcape не требуется для каждого приложения создавать специальный docker-образ. В большинстве случаев подходит официальный образ приложения с https://hub.docker.com (или https://cloud.docker.com). В остальных случаях используются альтернативные сборки, доступные в этом же реестре.
+
+
 ## Особенности реализации
 
-* определенная совместимость с [consup](https://github.com/LeKovr/consup) сохранена, можно запускать контейнеры оттуда (для этого, в частности, у `consul` параметр `datacenter` имеет значение `consup`) и алгоритм деплоя основан на том же webhook
 * для запуска контейнеров достаточно docker и make (docker-compose запускается в контейнере)
-* для настройки приложения достаточно двух файлов - `Makefile` и инклюда для `docker-compose.yml`
-* настройки контейнеров размещены в `apps/*/docker-compose.inc.yml`, все эти файлы средствами `make` копируются в `docker-compose.yml` перед запуском `docker-compose`
+* для настройки приложения достаточно двух файлов - `Makefile` и `docker-compose.yml`
+* настройки служебных приложений размещены в `apps/*/docker-compose.inc.yml`, все эти файлы средствами `make` копируются в `docker-compose.yml` перед запуском `docker-compose`
 * файлы `apps/*/Makefile` содержат две цели:
   * `init` - добавление настроек приложения в файл `.env`
   * `apply` - подготовка БД и данных приложения в `var/data/*/`
@@ -153,7 +224,7 @@ make init
 
 ### Текущее решение
 
-Изменить порт в параметре `TRAEFIK_PORT` и использовать traefik (не traefik-acme).
+Для второй копии изменить порт в параметре `TRAEFIK_PORT` и использовать traefik (не traefik-acme).
 
 ### Планируемое решение
 
@@ -164,7 +235,7 @@ make init
 * [ ] CIS login via gitea (в настройках указывать организацию)
 * [ ] mmost bot: `/cget <name>`, `/cset <name>`, `/cls <mask>` (channel linked to server)
 * [ ] flow: PR -> Drone -> post to mmost chat with link to PR
-* [ ] webhook: обработка tag create + pull request
+* [ ] webhook: обработка pull request
 
 ## Лицензия
 
