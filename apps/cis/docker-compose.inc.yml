@@ -70,4 +70,4 @@
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     command:
-      --gitea_host ${CIS_GITEA_HOST} --cookie_sign ${CIS_SIGN_KEY} --cookie_crypt ${CIS_CRYPT_KEY} --gitea_org ${GITEA_ORG}
+      --gitea_host ${CIS_GITEA_HOST} --cookie_sign ${CIS_SIGN_KEY} --cookie_crypt ${CIS_CRYPT_KEY} --gitea_org ${CIS_GITEA_ORG}
