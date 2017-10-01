@@ -11,12 +11,12 @@
       - webhook
       - traefik-fl
       - enfist
+      - narra
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - ./apps/cis/html:/usr/share/nginx/html:ro
       - ./apps/cis/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./var/data/cis/htpasswd:/etc/nginx/htpasswd:ro
       - ./var/data/cis/hook.pub:/data/hook.pub:ro
 
 
@@ -58,3 +58,16 @@
     restart: always
     labels:
       - "traefik.enable=false"
+
+  # ------------------------------------------------------------------------------
+  narra:
+    image: narra
+#    image: dopos/webhook:${CIS_NARRA_VER}
+    restart: always
+    labels:
+      - "traefik.enable=false"
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    command:
+      --gitea_host ${CIS_GITEA_HOST} --cookie_sign ${CIS_SIGN_KEY} --cookie_crypt ${CIS_CRYPT_KEY} --gitea_org ${GITEA_ORG}

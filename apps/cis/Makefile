@@ -13,14 +13,22 @@ CIS_WEBTAIL_VER    ?= $(CIS_WEBTAIL_VER0)
 CIS_WEBHOOK_VER0   ?= 0.4
 # Webtail Docker image version
 CIS_WEBHOOK_VER    ?= $(CIS_WEBHOOK_VER0)
+# Narra Docker image version by dcape
+CIS_NARRA_VER0     ?= 0.2
+# Webtail Docker image version
+CIS_NARRA_VER    ?= $(CIS_NARRA_VER0)
 # CIS hostname prefix
 CIS_HOST_PREFIX    ?= cis
 # CIS hostname
 CIS_HOST           ?= $(CIS_HOST_PREFIX).$(DOMAIN)
-# Login of admin user in CIR restricted areas
-CIS_AREA_LOGIN     ?= admin
-# Password of admin user in CIS restricted areas
-CIS_AREA_PASS      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c8; echo)
+# Gitea host for auth
+CIS_GITEA_HOST     ?= http://gitea:3000
+# Gitea organization for users who has access to CIS
+CIS_GITEA_ORG      ?= dcape
+# Key to sign CIS token
+CIS_SIGN_KEY       ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c32; echo)
+# Key to crypt CIS token
+CIS_CRYPT_KEY      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c32; echo)
 # Webhook access password
 CIS_DEPLOY_PASS    ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c8; echo)
 # For webhook container
@@ -32,9 +40,15 @@ define CONFIG_CIS
 # App hostname
 CIS_HOST=$(CIS_HOST)
 
-# Private admin site part (traefik, consul, webtail, dns)
-CIS_AREA_LOGIN=$(CIS_AREA_LOGIN)
-CIS_AREA_PASS=$(CIS_AREA_PASS)
+# Private admin site part (traefik, consul, webtail, dns) token
+# Gitea host for auth
+CIS_GITEA_HOST=$(CIS_GITEA_HOST)
+# Gitea organization for users who has access to CIS
+CIS_GITEA_ORG=$(CIS_GITEA_ORG)
+# Key to sign CIS token
+CIS_SIGN_KEY=$(CIS_SIGN_KEY)
+# Key to crypt CIS token
+CIS_CRYPT_KEY=$(CIS_CRYPT_KEY)
 
 # Webhook access password
 CIS_DEPLOY_PASS=$(CIS_DEPLOY_PASS)
@@ -43,6 +57,8 @@ CIS_DEPLOY_PASS=$(CIS_DEPLOY_PASS)
 CIS_WEBTAIL_VER=$(CIS_WEBTAIL_VER)
 # Webhook Docker image version
 CIS_WEBHOOK_VER=$(CIS_WEBHOOK_VER)
+# Narra Docker image version
+CIS_NARRA_VER=$(CIS_NARRA_VER)
 
 # CIS webhook must have same root
 DCAPE_ROOT=$(DCAPE_ROOT)
@@ -51,11 +67,9 @@ endef
 export CONFIG_CIS
 
 cis-init:
-	@grep CIS_AREA .env || \
+	@grep CIS_DEPLOY .env || \
 	{ \
 	  echo "$$CONFIG_CIS" >> .env ; \
-	  echo "** CIS AREA LOGIN:      $$CIS_AREA_LOGIN" ; \
-	  echo "** CIS AREA PASSWORD:   $$CIS_AREA_PASS" ; \
 	  echo "** CIS DEPLOY PASSWORD: $$CIS_DEPLOY_PASS" ; \
 	}
 	@if [[ "$$CIS_WEBTAIL_VER0" != "$$CIS_WEBTAIL_VER" ]] ; then \
@@ -64,18 +78,16 @@ cis-init:
 	@if [[ "$$CIS_WEBHOOK_VER0" != "$$CIS_WEBHOOK_VER" ]] ; then \
 	  echo "Warning: CIS_WEBHOOK_VER in dcape ($$CIS_WEBHOOK_VER0) differs from yours ($$CIS_WEBHOOK_VER)" ; \
 	fi
+	@if [[ "$$CIS_NARRA_VER0" != "$$CIS_NARRA_VER" ]] ; then \
+	  echo "Warning: CIS_NARRA_VER in dcape ($$CIS_NARRA_VER0) differs from yours ($$CIS_NARRA_VER)" ; \
+	fi
 
-cis-apply: var/data/cis var/data/cis/htpasswd var/data/cis/hook.pub
+cis-apply: var/data/cis var/data/cis/hook.pub
 	@echo "*** $@ ***"
 
 var/data/cis:
 	@echo "*** $@ ***"
 	@[ -d var/data/cis ] || mkdir var/data/cis
-
-# the only file needed in var. While gogs auth client does not written
-var/data/cis/htpasswd:
-	@echo "*** $@ ***"
-	@P=$$(echo $$CIS_AREA_PASS | openssl passwd -stdin) && echo "$$CIS_AREA_LOGIN:$$P" > var/data/cis/htpasswd
 
 var/data/cis/hook.pub:
 	@echo "*** $@ ***"
