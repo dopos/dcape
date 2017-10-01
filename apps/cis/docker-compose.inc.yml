@@ -61,8 +61,7 @@
 
   # ------------------------------------------------------------------------------
   narra:
-    image: narra
-#    image: dopos/webhook:${CIS_NARRA_VER}
+    image: dopos/narra:${CIS_NARRA_VER}
     restart: always
     labels:
       - "traefik.enable=false"
