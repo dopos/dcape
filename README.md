@@ -2,7 +2,7 @@
 
 **Project status**: beta
 
-**Dcape** - это система оркестрации docker-контейнеров для программистов. Она позволяет разворачивать свое или стороннее ПО на локальном компьютере или облачном сервере с помощью всего пары файлов - `Makefile` и `docker-compose.yml`. Это можно увидеть в [структуре проекта](https://github.com/dopos/dcape#Структура-проекта) и [конфигурациях приложений](https://github.com/dopos?q=dcape-app).
+[Dcape](https://github.com/dopos/dcape) - это система оркестрации docker-контейнеров для программистов. Она позволяет разворачивать свое или стороннее ПО на локальном компьютере или облачном сервере с помощью всего пары файлов - `Makefile` и `docker-compose.yml`. Это можно увидеть в [структуре проекта](https://github.com/dopos/dcape#Структура-проекта) и [конфигурациях приложений](https://github.com/dopos?q=dcape-app).
 
 ## Как это работает
 
@@ -235,7 +235,6 @@ Dcape (Дикейп) - это реинкарнация [consup](https://github.c
 
 ## TODO
 
-* [ ] CIS login via gitea (в настройках указывать организацию)
 * [ ] mmost bot: `/cget <name>`, `/cset <name>`, `/cls <mask>` (channel linked to server)
 * [ ] flow: PR -> Drone -> post to mmost chat with link to PR
 * [ ] webhook: обработка pull request
