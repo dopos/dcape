@@ -2,46 +2,50 @@
 
 **Project status**: beta
 
-Сервис установки стека приложений с помощью docker-compose.
+**Dcape** - это система оркестрации docker-контейнеров для программистов. Она позволяет разворачивать свое или стороннее ПО на локальном компьютере или облачном сервере с помощью всего пары файлов - `Makefile` и `docker-compose.yml`. Это можно увидеть в [структуре проекта](https://github.com/dopos/dcape#Структура-проекта) и [конфигурациях приложений](https://github.com/dopos?q=dcape-app).
 
-Приложения размещаются на github.com или аналогичном сервисе (в составе dcape может быть установлен такой сервис - gitea).
+## Как это работает
 
-Для поддержки сервиса dcape репозиторий приложения должен содержать файлы:
-* docker-compose.yml v2.1, где описана конфигурация контейнеров docker, используемых для сборки и запуска приложений
-* Makefile с командами создания файла настроек .env и управления docker-compose
+Приложения (исходники своего или конфиги чужого ПО) размещаются на github.com или аналогичном сервисе (в составе **dcape** может быть установлен такой сервис - **gitea**).
 
-Файл .env c переменными для docker-compose.yml и другими настройками приложения не размещается в репозитории, при первом деплое он создается и сохраняется в Хранилище конфигураций. После этого доступ к настройкам копий приложения осуществляется через это хранилище.
+Для поддержки сервиса **dcape** репозиторий должен содержать файлы:
+* `docker-compose.yml` v2.1, где описана конфигурация контейнеров docker, используемых для сборки и запуска приложений
+* `Makefile` с командами создания файла настроек `.env` и управления docker-compose
 
-Интеграция проекта в dcape состоит из двух шагов:
+Файл `.env` c переменными для `docker-compose.yml` и другими настройками приложения не размещается в репозитории, при первом деплое он создается и сохраняется в Хранилище конфигураций. После этого доступ к настройкам копий приложения осуществляется через это хранилище.
+
+Интеграция проекта в **dcape** состоит из двух шагов:
 1. Настроить автоматическое обновление (webhook) в репозитории проекта
 2. Поместить в хранилище конфигураций настройки проекта с разрешением на деплой (параметр `_CI_HOOK_ENABLED`)
 
-После этого push в репозиторий проекта будет приводить к разворачиванию/обновлению приложения на сервере dcape.
+После этого push в репозиторий проекта будет приводить к разворачиванию/обновлению приложения на сервере **dcape**.
 См. также: [DEPLOY.md](DEPLOY.md)
 
 ## Стек приложений
 
-Текущая версия dcape имеет в составе следующие приложения:
+Текущая версия **dcape** имеет в составе следующие приложения:
 
-* [gitea](https://gitea.io/) - веб-интерфейс к git
-* [traefik](https://traefik.io/) - прокси для доступа к www-сервисам контейнеров по заданному имени с поддержкой сертификатов Let's Encrypt
-* [cis](https://github.com/dopos/dcape/tree/master/apps/cis) - статический сайт, в подразделах которого размещены защищенные паролем страницы служебных приложений dcape.
-* [portainer](https://portainer.io/) - управление инфраструктурой docker
+* [gitea](https://gitea.io/) ([docker](https://store.docker.com/community/images/gitea/gitea))- веб-интерфейс к git
+* [traefik](https://traefik.io/) ([docker](https://hub.docker.com/_/traefik/)) - прокси для доступа к www-сервисам контейнеров по заданному имени с поддержкой сертификатов Let's Encrypt
+* [portainer](https://portainer.io/) ([docker](https://hub.docker.com/r/portainer/portainer/)) - управление инфраструктурой docker
+* cis ([в составе dcape](https://github.com/dopos/dcape/tree/master/apps/cis)) - статический сайт, в подразделах которого размещены страницы служебных приложений dcape. Для доступа к ним необходимо наличие учетной записи в gitea.
 
-Служебные приложения dcape:
+**Служебные приложения dcape:**
 
-* [postgresql](https://www.postgresql.org) - хранение конфигураций приложений и БД, используемая приложениями
-* [webhook](https://github.com/adnanh/webhook) - деплой программ по событию из gitea
-* [webtail](https://github.com/LeKovr/webtail) - web-интерфейс к логам контейнеров
-* [enfist](https://github.com/pgrpc/pgrpc-sql-enfist) - хранилище файлов .env в postgresql с JSON-RPC интерфейсом
+* [postgresql](https://www.postgresql.org) ([docker](https://store.docker.com/images/postgres)) - хранение конфигураций приложений и БД, используемая приложениями
+* [nginx](https://en.wikipedia.org/wiki/Nginx) ([docker](https://store.docker.com/images/nginx)) - доступ к статическому контенту
+* [webhook](https://github.com/adnanh/webhook) ([docker](https://store.docker.com/community/images/dopos/webhook)) - деплой программ по событию из gitea
+* [webtail](https://github.com/LeKovr/webtail) ([docker](https://store.docker.com/community/images/lekovr/webtail)) - web-интерфейс к логам контейнеров
+* [enfist](https://github.com/pgrpc/pgrpc-sql-enfist) - хранилище файлов .env в postgresql с JSON-RPC интерфейсом [dbrpc](https://github.com/LeKovr/dbrpc) ([docker](https://store.docker.com/community/images/lekovr/dbrpc))
+* [narra](https://github.com/dopos/narra) ([docker](https://store.docker.com/community/images/dopos/narra)) - сервис авторизации для nginx через API gitea
 
-Приложения, для которых доступна конфигурация dcape:
+**Приложения, для которых доступна конфигурация dcape:**
 
-* [drone](https://github.com/drone/drone) - сборка и тест приложения в отдельном контейнере
-* [mattermost](https://about.mattermost.com/) - сервис группового общения
-* [powerdns](https://www.powerdns.com/) - DNS-сервер, который хранит описания зон в БД postgresql
+* [drone](https://github.com/drone/drone) ([docker](https://store.docker.com/community/images/drone/drone)) - сборка и тест приложения в отдельном контейнере
+* [mattermost](https://about.mattermost.com/) ([docker](https://store.docker.com/community/images/mattermost/mattermost-prod-app)) - сервис группового общения
+* [powerdns](https://www.powerdns.com/) - ([docker](https://store.docker.com/community/images/dopos/powerdns)) DNS-сервер, который хранит описания зон в БД postgresql
 
-[Список конфигураций dcape](https://github.com/dopos?utf8=%E2%9C%93&q=dcape-app&type=&language=)
+[Список конфигураций dcape](https://github.com/dopos?q=dcape-app)
 
 ## Зависимости
 
@@ -52,7 +56,7 @@
 
 ## Быстрый старт
 
-Установка на локальный сервер.
+**Установка на локальный сервер**
 ```
 # настроить wildcard domain *.dev.lan
 sudo echo "address=/dev.lan/127.0.0.1" > /etc/NetworkManager/dnsmasq.d/dev.lan.conf
@@ -63,9 +67,9 @@ curl -sSL https://raw.githubusercontent.com/dopos/dcape/master/install.sh | sh -
   127.0.0.1 -cape 'DOMAIN=dev.lan TRAEFIK_PORT=81'
 ```
 
-Настройка удаленного сервера ip 192.168.0.1 с установкой dcape.
-На сервере не производилось никаких настроек после инсталляции ОС (описание настройки - см. [install.sh](install.sh).
-В DNS адресу 192.168.0.1 задана запись `A *.your.host`.
+**Настройка удаленного сервера ip 192.168.0.1 с установкой dcape**
+Может быть выполнена сразу после установки ОС (описание настройки - см. [install.sh](install.sh)).
+В DNS для адреса 192.168.0.1 должна быть задана запись `A *.your.host`.
 ```
 curl -sSL https://raw.githubusercontent.com/dopos/dcape/master/install.sh | sh -s \
  192.168.0.1 -a op -p 32 -s 1Gb -delntu \
@@ -73,65 +77,19 @@ curl -sSL https://raw.githubusercontent.com/dopos/dcape/master/install.sh | sh -
 
 ```
 
-## Установка
-
-Установка производится на хост с 64bit linux
-
-При установке пакетов потребуется пароль для sudo.
-
-```
-# make
-which make > /dev/null || sudo apt-get install make
-
-# dcape
-cd /opt
-git clone https://github.com/dopos/dcape.git
-cd dcape
-
-# docker
-make deps
-```
-
-## Инициализация
-
-На этом этапе задается список приложений, формируется шаблон конфигурации (файл `.env`) и вспомогательные файлы.
-Выбор варианта команды `make init` зависит от требуемой конфигурации сервера.
-Доступные варианты (надо выбрать один):
-
-```
-# конфигурация локального сайта
-make init
-
-# сайт, доступный извне, с сертификатами от Let's Encrypt
-make init-master DOMAIN=your.host TRAEFIK_ACME_EMAIL=admin@your.host
-
-# свой список приложений
-make init APPS="gitea portainer" DOMAIN=example.com
-```
-
-После выполнения `init` надо отредактировать файл `.env`, изменив дефолтные настройки на подходящие.
-Также будет создан каталог `var` для файлов, необходимых для запуска приложений.
-Персистентные данные приложений размещаются в `var/data`, журналы - в `var/log`.
-
-По готовности файла `.env`, необходимо обработать его командой
-```
-make apply
-```
-При этом будут стартованы контейнеры enfist и db (postgresql), созданы БД приложений, загружены необходимые для работы данные.
-
 ## Управление конфигурациями
 
-Конфигурация любого приложения dcape - текстовый файл .env, который создается командой `make .env`.
+Конфигурация любого приложения **dcape** - текстовый файл `.env`, который создается командой `make .env`.
 Этот файл используется `make start-hook` для разворачивания приложения и [docker-compose](https://docs.docker.com/compose/) при разворачивании контейнеров приложения.
-В части переменных, используемых в docker-compose.yml, формат файла должен соответствовать [docker-compose env_file](https://docs.docker.com/compose/compose-file/compose-file-v2/#env_file)
+В части переменных, используемых в `docker-compose.yml`, формат файла должен соответствовать [docker-compose env_file](https://docs.docker.com/compose/compose-file/compose-file-v2/#env_file)
 
-Конфигурации приложений хранятся в БД в виде Key-value хранилища, где ключ формируется из адреса git репозитория (организация--проект--ветка), а значение - содержимое .env файла. Доступ к хранилищу закрыт паролем и осуществляется через JSON-RPC прокси dbrpc.
+Конфигурации приложений хранятся в БД в виде Key-value хранилища, где ключ формируется из адреса git репозитория (организация--проект--ветка), а значение - содержимое `.env` файла. Доступ к хранилищу закрыт паролем и осуществляется через JSON-RPC прокси dbrpc.
 
-Для управления конфигурациями на удаленном сервере dcape используется [dcape-config-cli](https://github.com/dopos/dcape-config-cli).
+Для управления конфигурациями на удаленном сервере **dcape** используется [dcape-config-cli](https://github.com/dopos/dcape-config-cli).
 Примеры команд, доступных после клонирования (git clone) и настройки (make .env) dcape-config-cli:
 
-* `make get TAG=name` - получить из хранилища конфигурацию для тега `name` и сохранить в файл name.env
-* `make set TAG=name` - загрузить файл name.env в хранилище с тегом `name`
+* `make get TAG=name` - получить из хранилища конфигурацию для тега `name` и сохранить в файл `name.env`
+* `make set TAG=name` - загрузить файл `name.env` в хранилище с тегом `name`
 
 ## Структура проекта
 
@@ -165,6 +123,52 @@ make apply
 ├── Makefile
 └── README.md
 ```
+
+## Установка
+
+Установка производится на хост с 64bit linux
+
+При установке пакетов потребуется пароль для sudo.
+
+```
+# make
+which make > /dev/null || sudo apt-get install make
+
+# dcape
+cd /opt
+git clone https://github.com/dopos/dcape.git
+cd dcape
+
+# docker
+make deps
+```
+
+## Инициализация
+
+На этом этапе задается список приложений, формируется файл настроек **dcape** (файл `.env`) и вспомогательные файлы.
+Выбор варианта команды `make init` зависит от требуемой конфигурации сервера.
+Доступные варианты (надо выбрать один):
+
+```
+# конфигурация локального сайта
+make init
+
+# сайт, доступный извне, с сертификатами от Let's Encrypt
+make init-master DOMAIN=your.host TRAEFIK_ACME_EMAIL=admin@your.host
+
+# свой список приложений
+make init APPS="gitea portainer" DOMAIN=example.com
+```
+
+После выполнения `init` надо отредактировать файл `.env`, изменив дефолтные настройки на подходящие.
+Также будет создан каталог `var/` для файлов, необходимых для запуска приложений.
+Персистентные данные приложений размещаются в `var/data/`, журналы - в `var/log/`.
+
+По готовности файла `.env`, необходимо обработать его командой
+```
+make apply
+```
+При этом будут стартованы контейнеры enfist и db (postgresql), созданы БД приложений, загружены необходимые для работы данные.
 
 ## Использование
 
