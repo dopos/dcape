@@ -14,7 +14,7 @@ CIS_WEBHOOK_VER0   ?= 0.4
 # Webtail Docker image version
 CIS_WEBHOOK_VER    ?= $(CIS_WEBHOOK_VER0)
 # Narra Docker image version by dcape
-CIS_NARRA_VER0     ?= 0.2
+CIS_NARRA_VER0     ?= 0.3
 # Webtail Docker image version
 CIS_NARRA_VER    ?= $(CIS_NARRA_VER0)
 # CIS hostname prefix
@@ -83,12 +83,16 @@ cis-init:
 	  echo "Warning: CIS_NARRA_VER in dcape ($$CIS_NARRA_VER0) differs from yours ($$CIS_NARRA_VER)" ; \
 	fi
 
-cis-apply: var/data/cis var/data/cis/hook.pub
+cis-apply: var/data/cis var/data/cis/hook.pub var/log/webhook
 	@echo "*** $@ ***"
 
 var/data/cis:
 	@echo "*** $@ ***"
-	@[ -d var/data/cis ] || mkdir var/data/cis
+	@[ -d $@ ] || mkdir $@
+
+var/log/webhook:
+	@echo "*** $@ ***"
+	@[ -d $@ ] || mkdir $@
 
 var/data/cis/hook.pub:
 	@echo "*** $@ ***"
