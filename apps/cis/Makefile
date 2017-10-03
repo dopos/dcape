@@ -31,8 +31,9 @@ CIS_SIGN_KEY       ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c32; echo)
 CIS_CRYPT_KEY      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c32; echo)
 # Webhook access password
 CIS_DEPLOY_PASS    ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c8; echo)
-# For webhook container
-DCAPE_ROOT         ?= $$PWD
+# webhook needs to know dcape root
+DCAPE_ROOT         ?= $(shell pwd)
+
 define CONFIG_CIS
 # ------------------------------------------------------------------------------
 # CI site settings
@@ -60,7 +61,7 @@ CIS_WEBHOOK_VER=$(CIS_WEBHOOK_VER)
 # Narra Docker image version
 CIS_NARRA_VER=$(CIS_NARRA_VER)
 
-# CIS webhook must have same root
+# CIS webhook must have same root as dcape
 DCAPE_ROOT=$(DCAPE_ROOT)
 
 endef

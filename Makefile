@@ -19,8 +19,6 @@ PG_ENCODING  ?= $(LANG)
 # Config store url
 ENFIST_URL   ?= http://enfist:8080/rpc
 
-# cis/webhook needs to know dcape root
-DCAPE_ROOT   ?= $(shell pwd)
 
 # if exists - load old values
 -include $(CFG).bak
@@ -67,8 +65,6 @@ PG_ENCODING=$(PG_ENCODING)
 
 # db (postgresql)
 PG_DB_PASS=$(PG_DB_PASS)
-
-DCAPE_ROOT=$(DCAPE_ROOT)
 
 endef
 export CONFIG_DEF
