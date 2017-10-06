@@ -59,7 +59,7 @@
 **Установка на локальный сервер**
 ```
 # настроить wildcard domain *.dev.lan
-sudo echo "address=/dev.lan/127.0.0.1" > /etc/NetworkManager/dnsmasq.d/dev.lan.conf
+sudo bash -c 'echo "address=/dev.lan/127.0.0.1" > /etc/NetworkManager/dnsmasq.d/dev.lan.conf'
 sudo service network-manager reload
 
 # установить dcape
