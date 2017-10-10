@@ -44,6 +44,7 @@
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
+      - /etc/cron.d:/etc/cron.d
       - ./var/data/cis/hook:/hook:ro
       - ./var:${DCAPE_ROOT}/var
     command: -hooks /etc/webhook/local.json -hooks /etc/webhook/remote.json -hotreload -nopanic -verbose
