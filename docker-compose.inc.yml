@@ -11,13 +11,16 @@ services:
     image: postgres:9.6-alpine
     volumes:
       - ./var/data/db:/var/lib/postgresql/data
-#TODO:     - ./var/data/initdb:/docker-entrypoint-initdb.d/
+      - ./var/data/db-backup:/opt/backup
+      - ./var/data/db-share:/opt/share
+      - ./var/data/db-init:/docker-entrypoint-initdb.d/
 #    ports:
 #      - 5432:5432
     environment:
       - POSTGRES_PASSWORD=${PG_DB_PASS}
       - TZ=${TZ}
       - LANG=${PG_ENCODING}
+      - DCAPE_DB_DUMP_DEST=/opt/backup
     restart: unless-stopped
     labels:
       - "traefik.enable=false"
