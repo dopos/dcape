@@ -12,8 +12,12 @@ PROJECT_NAME ?= dcape
 DOMAIN       ?= dev.lan
 APPS_SYS     ?= db
 APPS         ?= traefik portainer enfist cis
-# Postgresql superuser Database user password
+
+# Postgresql Database image
+PG_IMAGE     ?= postgres:9.6-alpine
+# Postgresql Database superuser password
 PG_DB_PASS   ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c14; echo)
+# Postgresql Database encoding
 PG_ENCODING  ?= $(LANG)
 
 # Config store url
@@ -60,11 +64,12 @@ APPS="$(shell echo $(APPS))"
 # containers timezone
 TZ=$(TZ)
 
-# Postgresql database encoding
-PG_ENCODING=$(PG_ENCODING)
-
-# db (postgresql)
+# Postgresql Database image
+PG_IMAGE=$(PG_IMAGE)
+# Postgresql Database superuser password
 PG_DB_PASS=$(PG_DB_PASS)
+# Postgresql Database encoding
+PG_ENCODING=$(PG_ENCODING)
 
 endef
 export CONFIG_DEF

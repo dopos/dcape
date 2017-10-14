@@ -8,14 +8,14 @@ services:
 
   # ------------------------------------------------------------------------------
   db:
-    image: postgres:9.6-alpine
+    image: ${PG_IMAGE}
     volumes:
       - ./var/data/db:/var/lib/postgresql/data
       - ./var/data/db-backup:/opt/backup
-      - ./var/data/db-share:/opt/share
+      - ./var/data/db-shared:/opt/shared
       - ./var/data/db-init:/docker-entrypoint-initdb.d/
-#    ports:
-#      - 5432:5432
+    ports:
+      - "127.0.0.1:5433:5432"
     environment:
       - POSTGRES_PASSWORD=${PG_DB_PASS}
       - TZ=${TZ}
