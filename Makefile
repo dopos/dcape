@@ -18,16 +18,17 @@ PG_IMAGE     ?= postgres:9.6-alpine
 # Postgresql Database superuser password
 PG_DB_PASS   ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c14; echo)
 # Postgresql Database encoding
-PG_ENCODING  ?= $(LANG)
+PG_ENCODING  ?= en_US.UTF-8
+
+# Dump name suffix to load on db-create
+PG_SOURCE_SUFFIX ?=
 
 # Config store url
 ENFIST_URL   ?= http://enfist:8080/rpc
 
-
 # if exists - load old values
 -include $(CFG).bak
 export
-
 
 -include $(CFG)
 export
@@ -132,29 +133,55 @@ dc: docker-compose.yml
 
 # ------------------------------------------------------------------------------
 
+# Wait for postgresql container start
+docker-wait:
+	@echo -n "Checking PG is ready..." ; \
+	DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
+	until [[ `docker inspect -f "{{.State.Health.Status}}" $$DCAPE_DB` == healthy ]] ; do sleep 1 ; echo -n "." ; done
+	@echo "Ok"
+
+# Database import script
+# DCAPE_DB_DUMP_DEST must be set in pg container
+
+define IMPORT_SCRIPT
+[[ "$$DCAPE_DB_DUMP_DEST" ]] || { echo "DCAPE_DB_DUMP_DEST not set. Exiting" ; exit 1 ; } ; \
+DB_NAME="$$1" ; DB_USER="$$2" ; DB_PASS="$$3" ; DB_SOURCE="$$4" ; \
+dbsrc=$$DCAPE_DB_DUMP_DEST/$$DB_SOURCE.tgz ; \
+if [ -f $$dbsrc ] ; then \
+  echo "Dump file $$dbsrc found, restoring database..." ; \
+  zcat $$dbsrc | PGPASSWORD=$$DB_PASS pg_restore -h localhost -U $$DB_USER -O -Ft -d $$DB_NAME || exit 1 ; \
+else \
+  echo "Dump file $$dbsrc not found" ; \
+  exit 2 ; \
+fi
+endef
+export IMPORT_SCRIPT
+
 ## create database and user
-db-create:
+db-create: docker-wait
 	@echo "*** $@ ***" \
 	&& varname=$(NAME)_DB_PASS && pass=$${!varname} \
 	&& varname=$(NAME)_DB_TAG && dbname=$${!varname} \
-	&& CONTAINER=$${PROJECT_NAME}_db_1 \
-	&& echo -n "Checking PG is ready..." \
-	&& until [[ `docker inspect -f "{{.State.Health.Status}}" $$CONTAINER` == healthy ]] ; do sleep 1 ; echo -n "." ; done \
-	&& echo "Ok" \
-	&& docker exec -it $$CONTAINER psql -U postgres -c "CREATE USER \"$$dbname\" WITH PASSWORD '$$pass';" \
-	&& docker exec -it $$CONTAINER psql -U postgres -c "CREATE DATABASE \"$$dbname\" OWNER \"$$dbname\";"
+	&& DCAPE_DB=$${PROJECT_NAME}_db_1 \
+	&& docker exec -i $$DCAPE_DB psql -U postgres -c "CREATE USER \"$$dbname\" WITH PASSWORD '$$pass';" \
+	&& docker exec -i $$DCAPE_DB psql -U postgres -c "CREATE DATABASE \"$$dbname\" OWNER \"$$dbname\";" || db_exists=1 ; \
+	if [[ ! "$$db_exists" ]] && [[ "$(PG_SOURCE_SUFFIX)" ]] ; then \
+	    echo "$$IMPORT_SCRIPT" | docker exec -i $$DCAPE_DB bash -s - $$dbname $$dbname $$pass $$dbname$(PG_SOURCE_SUFFIX) \
+	    && docker exec -i $$DCAPE_DB psql -U postgres -c "COMMENT ON DATABASE \"$$dbname\" IS 'SOURCE $$dbname$(PG_SOURCE_SUFFIX)';" \
+	    || true ; \
+	fi
 
 ## drop database and user
 db-drop:
 	@echo "*** $@ ***" \
 	&& varname=$(NAME)_DB_TAG && dbname=$${!varname} \
-	&& CONTAINER=$${PROJECT_NAME}_db_1 \
-	&& docker exec -it $$CONTAINER psql -U postgres -c "DROP DATABASE \"$$dbname\";" \
-	&& docker exec -it $$CONTAINER psql -U postgres -c "DROP USER \"$$dbname\";"
+	&& DCAPE_DB=$${PROJECT_NAME}_db_1 \
+	&& docker exec -i $$DCAPE_DB psql -U postgres -c "DROP DATABASE \"$$dbname\";" \
+	&& docker exec -i $$DCAPE_DB psql -U postgres -c "DROP USER \"$$dbname\";"
 
 psql:
-	@CONTAINER=$${PROJECT_NAME}_db_1 \
-	  && docker exec -it $$CONTAINER psql -U postgres
+	@DCAPE_DB=$${PROJECT_NAME}_db_1 \
+	&& docker exec -it $$DCAPE_DB psql -U postgres
 
 # ------------------------------------------------------------------------------
 # .env file store

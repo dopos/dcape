@@ -158,6 +158,9 @@ make init-master DOMAIN=your.host TRAEFIK_ACME_EMAIL=admin@your.host
 
 # свой список приложений
 make init APPS="gitea portainer" DOMAIN=example.com
+
+# использование контейнера postgresql для разработки SQL:
+make init PG_IMAGE=dopos/postgresql
 ```
 
 После выполнения `init` надо отредактировать файл `.env`, изменив дефолтные настройки на подходящие.
@@ -208,6 +211,11 @@ mv .env .env.all
 rm .env
 make init
 ```
+
+## Резервные копии
+
+Пример разворачивания проекта из резервных копий БД, созданных [pg-backup](https://github.com/dopos/dcape-app-pg-backup):
+`make apply PG_SOURCE_SUFFIX=-171014`
 
 ## Предыдущее решение
 
