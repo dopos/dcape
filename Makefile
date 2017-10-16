@@ -62,7 +62,8 @@ DOMAIN=$(DOMAIN)
 # App list, for use in make only
 APPS="$(shell echo $(APPS))"
 
-# containers timezone
+# create db cluster with this timezone
+# (also used by gitea container)
 TZ=$(TZ)
 
 # Postgresql Database image
