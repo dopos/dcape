@@ -83,8 +83,12 @@ cis-init:
 	  echo "Warning: CIS_NARRA_VER in dcape ($$CIS_NARRA_VER0) differs from yours ($$CIS_NARRA_VER)" ; \
 	fi
 
-cis-apply: var/data/cis var/data/cis/hook.pub var/log/webhook
+cis-apply: var/apps var/data/cis var/data/cis/hook.pub var/log/webhook
 	@echo "*** $@ ***"
+
+var/apps:
+	@echo "*** $@ ***"
+	@[ -d $@ ] || mkdir $@
 
 var/data/cis:
 	@echo "*** $@ ***"
