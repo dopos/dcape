@@ -88,15 +88,15 @@ cis-apply: var/apps var/data/cis var/data/cis/hook.pub var/log/webhook
 
 var/apps:
 	@echo "*** $@ ***"
-	@[ -d $@ ] || mkdir $@
-
-var/data/cis:
-	@echo "*** $@ ***"
-	@[ -d $@ ] || mkdir $@
+	@[ -d $@ ] || mkdir -p $@
 
 var/log/webhook:
 	@echo "*** $@ ***"
-	@[ -d $@ ] || mkdir $@
+	@[ -d $@ ] || mkdir -p $@
+
+var/data/cis:
+	@echo "*** $@ ***"
+	@[ -d $@ ] || mkdir -p $@
 
 var/data/cis/hook.pub:
 	@echo "*** $@ ***"
