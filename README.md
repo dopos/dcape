@@ -63,13 +63,19 @@ sudo bash -c 'echo "address=/dev.lan/127.0.0.1" > /etc/NetworkManager/dnsmasq.d/
 sudo service network-manager reload
 
 # установить dcape
-curl -sSL https://raw.githubusercontent.com/dopos/dcape/master/install.sh | sh -s \
-  127.0.0.1 -cape 'DOMAIN=dev.lan TRAEFIK_PORT=81'
+git clone https://github.com/dopos/dcape.git
 ```
 
 **Настройка удаленного сервера ip 192.168.0.1 с установкой dcape**
-Может быть выполнена сразу после установки ОС (описание настройки - см. [install.sh](install.sh)).
-В DNS для адреса 192.168.0.1 должна быть задана запись `A *.your.host`.
+
+В DNS зоне для ip сервера настроить wildcard domain (эта тема за рамками текущего REAMDE).
+
+Если сервер уже настроен, достаточно выполнить
+```
+git clone https://github.com/dopos/dcape.git
+```
+
+Если сервер только что создан и его OS - ubuntu/debian, можно установить dcape и провести тюнинг сервера одной командой:
 ```
 curl -sSL https://raw.githubusercontent.com/dopos/dcape/master/install.sh | sh -s \
  192.168.0.1 -a op -p 32 -s 1Gb -delntu \
