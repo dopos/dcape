@@ -49,7 +49,7 @@
 
 ## Зависимости
 
-* linux 64bit (git, make, wget, openssl)
+* linux 64bit (git, make, wget, gawk, openssl)
 * [docker](https://www.docker.com/)
 
 Для работы с контейнерами в dcape используется образ docker c docker-compose, поэтому отдельной установки docker-compose не требуется.
