@@ -16,7 +16,7 @@ services:
       - ./var/data/db-shared:/opt/shared
       - ./var/data/db-init:/docker-entrypoint-initdb.d/
     ports:
-      - "127.0.0.1:5433:5432"
+      - "127.0.0.1:${PG_PORT_LOCAL}:5432"
     environment:
       - POSTGRES_PASSWORD=${PG_DB_PASS}
       - TZ=${TZ}

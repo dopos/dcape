@@ -167,6 +167,9 @@ make init APPS="gitea portainer" DOMAIN=example.com
 
 # использование контейнера postgresql для разработки SQL:
 make init PG_IMAGE=dopos/postgresql
+
+# изменение локального порта, по которому будет доступен postgresql (по умолчанию: 5433):
+make init PG_PORT_LOCAL=5434
 ```
 
 После выполнения `init` надо отредактировать файл `.env`, изменив дефолтные настройки на подходящие.

@@ -19,7 +19,8 @@ PG_IMAGE     ?= postgres:9.6-alpine
 PG_DB_PASS   ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c14; echo)
 # Postgresql Database encoding
 PG_ENCODING  ?= en_US.UTF-8
-
+# port on localhost postgresql listen on
+PG_PORT_LOCAL ?= 5433
 # Dump name suffix to load on db-create
 PG_SOURCE_SUFFIX ?=
 
@@ -72,6 +73,8 @@ PG_IMAGE=$(PG_IMAGE)
 PG_DB_PASS=$(PG_DB_PASS)
 # Postgresql Database encoding
 PG_ENCODING=$(PG_ENCODING)
+# port on localhost postgresql listen on
+PG_PORT_LOCAL=$(PG_PORT_LOCAL)
 
 endef
 export CONFIG_DEF
