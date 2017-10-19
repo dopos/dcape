@@ -210,6 +210,11 @@ make apply
 mv .env .env.bak
 make init
 ```
+Другой вариант:
+```
+mv .env .env.1019
+make init CFG_BAK=.env.1019
+```
 все совпадающие значения будут взяты из .env.bak (т.е. из старого конфига).
 Если изменятся номера версий используемых образов docker, будут выведены предупреждения.
 
@@ -217,7 +222,6 @@ make init
 ```
 grep -v "_VER=" .env > .env.bak
 mv .env .env.all
-rm .env
 make init
 ```
 

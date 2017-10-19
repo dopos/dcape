@@ -1,5 +1,6 @@
 SHELL         = /bin/bash
 CFG           = .env
+CFG_BAK       ?= $(CFG).bak
 DCAPE_USED    = 1
 
 TZ           ?= $(shell cat /etc/timezone)
@@ -28,7 +29,7 @@ PG_SOURCE_SUFFIX ?=
 ENFIST_URL   ?= http://enfist:8080/rpc
 
 # if exists - load old values
--include $(CFG).bak
+-include $(CFG_BAK)
 export
 
 -include $(CFG)
