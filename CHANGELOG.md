@@ -13,6 +13,16 @@
   * DEPLOY.md: блоки "Информация для разработчика", "Удаление деплоя"
   * Makefile: поддержка параметров `PG_PORT_LOCAL`, `CFG_BAK`
 
+### Установка обновления
+```
+git pull
+mv .env .env.bak
+make init
+# Тут будет предупреждение об устаревшей версии webtail - надо изменить на новую в .env
+make enfist-apply
+make dc CMD="up -d webtail"
+```
+
 ## [0.9]
 Релиз: 2017-10-16
 
