@@ -24,15 +24,13 @@
   webtail:
     image: lekovr/webtail:${CIS_WEBTAIL_VER}
     restart: always
-#    ports:
-#      - "8081:8080"
     labels:
       - "traefik.enable=false"
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - ./var/log:/var/log
-    command: --root /var/log/webhook --lines 200 --host ${CIS_HOST}
+    command: --root /var/log/webhook --host ${CIS_HOST}
 
   # ------------------------------------------------------------------------------
   webhook:
