@@ -17,9 +17,13 @@
 ```
 git pull
 mv .env .env.bak
+
 make init
 # Тут будет предупреждение об устаревшей версии webtail - надо изменить на новую в .env
+
 make enfist-apply
+# Сообщения "ERROR:  Newest lib version (0.1) loaded already" игнорируем, других ошибок быть не должно
+
 make dc CMD="up -d webtail"
 ```
 
