@@ -10,9 +10,6 @@ PORTAINER_HOST_PREFIX = port
 # Portainer hostname
 PORTAINER_HOST       ?= $(PORTAINER_HOST_PREFIX).$(DOMAIN)
 
-SHELL = /bin/bash
-DCAPE_USED ?= 0
-
 define CONFIG_PORTAINER
 # ------------------------------------------------------------------------------
 # Portainer settings
