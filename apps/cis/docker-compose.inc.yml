@@ -4,6 +4,7 @@
     restart: always
     labels:
       - "traefik.enable=true"
+      - "traefik.frontend.entryPoints=http,https"
       - "traefik.frontend.rule=Host:${CIS_HOST}"
       - "traefik.port=80"
     depends_on:

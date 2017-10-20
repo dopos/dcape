@@ -3,6 +3,7 @@
     image: portainer/portainer
     labels:
       - "traefik.enable=true"
+      - "traefik.frontend.entryPoints=http,https"
       - "traefik.frontend.rule=Host:${PORTAINER_HOST}"
     restart: always
     volumes:
