@@ -1,6 +1,6 @@
   # ------------------------------------------------------------------------------
   traefik-acme:
-    image: traefik
+    image: traefik:${TRAEFIK_VER}
     command:
       --web --docker --docker.watch --docker.exposedbydefault=false --logLevel=DEBUG
       --acme --acme.acmelogging=true --acme.email=${TRAEFIK_ACME_EMAIL}

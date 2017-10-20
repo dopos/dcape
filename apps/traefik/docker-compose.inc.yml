@@ -1,6 +1,6 @@
   # ------------------------------------------------------------------------------
   traefik:
-    image: traefik:1.4
+    image: traefik:${TRAEFIK_VER}
     command:
       --web --docker --docker.watch --docker.exposedbydefault=false --logLevel=DEBUG
 
