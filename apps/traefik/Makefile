@@ -11,8 +11,6 @@ TRAEFIK_VER0       ?= 1.4
 TRAEFIK_VER        ?= $(TRAEFIK_VER0)
 # Traefik external port (used in no-acme config)
 TRAEFIK_PORT       ?= 80
-# Traefik Let's encrypt email (used in acme config)
-TRAEFIK_ACME_EMAIL ?= your@mail
 
 define CONFIG_TRAEFIK
 # ------------------------------------------------------------------------------
@@ -23,9 +21,6 @@ TRAEFIK_VER=$(TRAEFIK_VER)
 
 # Proxy external port
 TRAEFIK_PORT=$(TRAEFIK_PORT)
-
-# Not used in this config but must be defined for docker-compose
-TRAEFIK_ACME_EMAIL=$(TRAEFIK_ACME_EMAIL)
 
 endef
 export CONFIG_TRAEFIK

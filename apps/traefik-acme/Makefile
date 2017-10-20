@@ -9,10 +9,13 @@ DCAPE_USED         ?= 0
 TRAEFIK_VER0       ?= 1.4
 # Traefik Docker image version
 TRAEFIK_VER        ?= $(TRAEFIK_VER0)
-# Traefik external port (used in no-acme config)
-TRAEFIK_PORT       ?= 80
-# Traefik Let's encrypt email (used in acme config)
-TRAEFIK_ACME_EMAIL ?= your@mail
+
+# Let's encrypt user email
+TRAEFIK_ACME_EMAIL ?= admin@$(DOMAIN)
+# Traefik hosts default entrypoint (eg: http,https)
+TRAEFIK_ENTRY_DEFAULT ?= http
+# Traefik port 80 serving rule (eg: 80 Redirect.EntryPoint:https)
+TRAEFIK_ENTRY_HTTP ?= 80
 
 define CONFIG_TRAEFIKA
 # ------------------------------------------------------------------------------
@@ -21,11 +24,12 @@ define CONFIG_TRAEFIKA
 # Traefik Docker image version
 TRAEFIK_VER=$(TRAEFIK_VER)
 
-# Not used in this config but must be defined for docker-compose
-TRAEFIK_PORT=$(TRAEFIK_PORT)
-
 # Let's encrypt user email
 TRAEFIK_ACME_EMAIL=$(TRAEFIK_ACME_EMAIL)
+# Traefik hosts default entrypoint (eg: http,https)
+TRAEFIK_ENTRY_DEFAULT=$(TRAEFIK_ENTRY_DEFAULT)
+# Traefik port 80 serving rule (eg: 80 Redirect.EntryPoint:https)
+TRAEFIK_ENTRY_HTTP=$(TRAEFIK_ENTRY_HTTP)
 
 endef
 export CONFIG_TRAEFIKA

@@ -6,10 +6,9 @@
       --acme --acme.acmelogging=true --acme.email=${TRAEFIK_ACME_EMAIL}
       --acme.onhostrule
       --acme.storage=/acme/certs.json --acme.entrypoint=https
-      --defaultEntryPoints=http
-      --entryPoints='Name:http Address::80'
+      --defaultEntryPoints=${TRAEFIK_ENTRY_DEFAULT}
+      --entryPoints='Name:http Address::${TRAEFIK_ENTRY_HTTP}'
       --entryPoints='Name:https Address::443 TLS'
-#      --entryPoints='Name:http Address::80 Redirect.EntryPoint:https'
     restart: always
     labels:
       - "traefik.enable=false"
