@@ -260,6 +260,12 @@ make init
 * [ ] flow: PR -> Drone -> post to mmost chat with link to PR
 * [ ] webhook: обработка pull request
 
+## Благодарности
+
+* Проекту [docker-compose](https://docs.docker.com/compose/), который научился читать конфиг из файла (что позволило отказаться от [fidm](https://github.com/LeKovr/fidm))
+* Проекту [traefik](https://traefik.io/) за возможность на лету подключать контейнеры как виртуальный HTTP-хост (что избавило от необходимости собирать индивидуальные контейнеры consup](https://github.com/LeKovr/consup))
+* Проекту [portainer](https://portainer.io/), который позволил управлять инфраструктурой docker через веб-интерфейс (без логина на сервер по ssh)
+
 ## Лицензия
 
 The MIT License (MIT), see [LICENSE](LICENSE).
