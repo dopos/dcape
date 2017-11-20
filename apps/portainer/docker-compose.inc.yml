@@ -1,6 +1,6 @@
   # ------------------------------------------------------------------------------
   portainer:
-    image: portainer/portainer
+    image: portainer/portainer:${PORTAINER_VER}
     labels:
       - "traefik.enable=true"
       - "traefik.frontend.entryPoints=http,https"
