@@ -31,7 +31,7 @@
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - ./var/log:/var/log
-    command: --root /var/log/webhook
+    command: --root /var/log/webhook --log_level debug
 
   # ------------------------------------------------------------------------------
   webhook:
