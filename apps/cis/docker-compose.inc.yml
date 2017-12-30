@@ -54,7 +54,7 @@
 
   # ------------------------------------------------------------------------------
   traefik-fl:
-    image: dopos/traefik-fl:0.1
+    image: dopos/traefik-fl:0.2
     restart: always
     labels:
       - "traefik.enable=false"
