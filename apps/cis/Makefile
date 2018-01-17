@@ -26,11 +26,11 @@ CIS_GITEA_HOST     ?= http://gitea:3000
 # Gitea organization for users who has access to CIS
 CIS_GITEA_ORG      ?= dcape
 # Key to sign CIS token
-CIS_SIGN_KEY       ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c32; echo)
+CIS_SIGN_KEY       ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c32; echo)
 # Key to crypt CIS token
-CIS_CRYPT_KEY      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c32; echo)
+CIS_CRYPT_KEY      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c32; echo)
 # Webhook access password
-CIS_DEPLOY_PASS    ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c8; echo)
+CIS_DEPLOY_PASS    ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c8; echo)
 # webhook needs to know dcape root
 DCAPE_ROOT         ?= $(shell pwd)
 

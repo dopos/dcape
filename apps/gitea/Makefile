@@ -12,7 +12,7 @@ GITEA_VER          ?= $(GITEA_VER0)
 # Database name and database user name
 GITEA_DB_TAG       ?= gitea
 # Database user password
-GITEA_DB_PASS      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c14; echo)
+GITEA_DB_PASS      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
 # Gitea ssh server port
 GITEA_SSH_PORT     ?= 10022
 # Gitea hostname prefix

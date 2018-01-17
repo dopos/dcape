@@ -18,7 +18,7 @@ APPS             ?= traefik portainer enfist cis
 # Postgresql Database image
 PG_IMAGE         ?= postgres:9.6-alpine
 # Postgresql Database superuser password
-PG_DB_PASS       ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c14; echo)
+PG_DB_PASS       ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
 # Postgresql Database encoding
 PG_ENCODING      ?= en_US.UTF-8
 # port on localhost postgresql listen on

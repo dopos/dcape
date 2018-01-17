@@ -9,7 +9,7 @@ DCAPE_USED         ?= 0
 # Database name and database user name
 ENFIST_DB_TAG      ?= enfist
 # Database user password
-ENFIST_DB_PASS     ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c14; echo)
+ENFIST_DB_PASS     ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
 # dbrpc docker image version by dcape
 ENFIST_DBRPC_VER0   ?= 0.31
 # dbrpc docker image version
