@@ -10,7 +10,7 @@ CIS_WEBTAIL_VER0   ?= 0.33
 # Webtail Docker image version
 CIS_WEBTAIL_VER    ?= $(CIS_WEBTAIL_VER0)
 # Webhook Docker image version by dcape
-CIS_WEBHOOK_VER0   ?= 0.4
+CIS_WEBHOOK_VER0   ?= 0.5
 # Webtail Docker image version
 CIS_WEBHOOK_VER    ?= $(CIS_WEBHOOK_VER0)
 # Narra Docker image version by dcape
