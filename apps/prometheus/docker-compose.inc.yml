@@ -1,0 +1,14 @@
+  #------------------------------------------------------------------------
+
+  prometheus:
+    image: prom/prometheus:${PROMETHEUS_VER}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.frontend.entryPoints=http,https"
+      - "traefik.frontend.rule=Host:${PROMETHEUS_HOST}"
+    volumes:
+#     - ./apps/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./var/data/prometheus:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+
