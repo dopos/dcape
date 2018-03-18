@@ -8,18 +8,7 @@
 [4]: https://img.shields.io/github/license/dopos/dcape.svg
 [5]: LICENSE
 
-[Dcape](https://github.com/dopos/dcape) - это среда оркестрации docker-контейнеров для программистов. Она позволяет упростить разворачивание собственного или стороннего ПО на локальном компьютере, промышленном или облачном сервере. Для приложений, развернутых в среде **dcape**, обеспечивается автоматизация процессов на базе встроенных приложений:
-* работы с проектами (исходным кодом) через git - [gitea](https://gitea.io/) ([docker](https://store.docker.com/community/images/gitea/gitea))
-* запуск, остановка, обновление и удаление приложений, упакованных в образ docker - [webhook](https://github.com/adnanh/webhook) ([docker](https://store.docker.com/community/images/dopos/webhook))
-* www публикация списка запущенных приложений, данных встроенных приложений - cis ([в составе dcape](https://github.com/dopos/dcape/tree/master/apps/cis))
-* агрегация и проксирование www сервисов развернутых приложений - [traefik](https://traefik.io/) ([docker](https://hub.docker.com/_/traefik/))
-* управление приложениями (контейнерами и образами) - [portainer](https://portainer.io/) ([docker](https://hub.docker.com/r/portainer/portainer/))
-* агрегация и www доступ к логам событий приложений (запуск, остановка, обновление) - [webtail](https://github.com/LeKovr/webtail) ([docker](https://store.docker.com/community/images/lekovr/webtail))
-* хранение конфигураций приложений и баз данных, если приложению требуется СУБД - [postgresql](https://www.postgresql.org) ([docker](https://store.docker.com/images/postgres))
-* хранение файлов конфигураций запуска приложений (файлы`.env`) - [enfist](https://github.com/pgrpc/pgrpc-sql-enfist)
-* авторизованный доступ к тому, что публикуется на www через API gitea - [narra](https://github.com/dopos/narra) ([docker](https://store.docker.com/community/images/dopos/narra))
-
-Состав встроенных приложений конфигурируется по необходимости при инициализации **dcape**.
+[Dcape](https://github.com/dopos/dcape) - это среда оркестрации docker-контейнеров для программистов. Она позволяет упростить разворачивание собственного или стороннего ПО на локальном компьютере, промышленном или облачном сервере. Среду **dcape** формируют  сервисы встроенных приложений, которые автоматизируют задачи по запуску, обновлению, удалению, анализу и мониторингу разворачиваемых приложений. Состав встроенных приложений конфигурируется по необходимости при инициализации **dcape**.
 
 Для развертывания приложения в среде **dcape** достаточно составить два файла - `Makefile` и `docker-compose.yml`. Приложения, для которых эти файлы составлены, являются адаптированными для развертывания в среде **dcape**. Примеры можно посмотреть в списке [адаптированных приложений](https://github.com/dopos?q=dcape-app).
 
@@ -31,9 +20,9 @@
 * `docker-compose.yml` - конфигурация сервисов docker, используемых для сборки и запуска приложений
 * `Makefile` с командами создания файла конфигурации запуска `.env`, подготовки окружения приложения (БД и прочее), запуском сервисов через docker-compose
 
-Разворачивание приложения производится командой `make start`, которая путем исполнения целей из `Makefile`, подготавливает запуск приложения, финальной целью является запуск docker-compose с использованием переменных конфигурации запуска из файла `.env`. Инициирование запуска `make start` производится вебхуком сервиса git, при использовании промышленного или облачного сервера с **dcape**, или через терминал - при использовании **dcape** локально.
+Разворачивание приложения производится командой `make start-hook`, которая путем исполнения целей из `Makefile`, подготавливает запуск приложения, финальной целью является запуск docker-compose с использованием переменных конфигурации запуска из файла `.env`. Инициирование запуска `make start-hook` производится вебхуком сервиса git, при использовании промышленного или облачного сервера с **dcape**. Если **dcape** используется локально - разворачивание приложения осуществляется командой `make start`, запускаемой в терминале.
 
-Файл `.env` c переменными для `docker-compose.yml` и другими переменными для запуска приложения не размещается в репозитории, при первом деплое он создается командой `make .env` и сохраняется вебхуком в Хранилище конфигураций (enfist). После этого доступ к конфигурации запуска приложения осуществляется через это хранилище. Для каждой ветки репозитория создается своя конфигурация запуска.
+Файл `.env` c переменными для `docker-compose.yml` и другими переменными для запуска приложения не размещается в репозитории, при первом деплое он создается командой `make .env` и сохраняется вебхуком в Хранилище конфигураций (enfist). После этого, доступ к конфигурации запуска приложения осуществляется через это хранилище. Для каждой ветки репозитория создается своя конфигурация запуска.
 
 Насройка **dcape**, для разворачивания приложения, состоит из двух шагов:
 1. Настроить автоматическое обновление (webhook) в репозитории проекта
@@ -47,15 +36,15 @@
 
 Текущая версия **dcape** имеет в составе следующие встроенные приложения:
 
-* cis ([в составе dcape](https://github.com/dopos/dcape/tree/master/apps/cis)) - статический сайт, на котором размещены страницы встроенных приложений dcape. Для доступа к ним необходимо наличие учетной записи в gitea и участие в задаваемой в настройках команды (организации) gitea.
-* [gitea](https://gitea.io/) ([docker](https://store.docker.com/community/images/gitea/gitea)) - веб-интерфейс к git
-* [traefik](https://traefik.io/) ([docker](https://hub.docker.com/_/traefik/)) - прокси для доступа к www-сервисам контейнеров по заданному имени с поддержкой сертификатов Let's Encrypt
-* [portainer](https://portainer.io/) ([docker](https://hub.docker.com/r/portainer/portainer/)) - управление инфраструктурой docker
-* [webhook](https://github.com/adnanh/webhook) ([docker](https://store.docker.com/community/images/dopos/webhook)) - деплой программ по событию из gitea
-* [webtail](https://github.com/LeKovr/webtail) ([docker](https://store.docker.com/community/images/lekovr/webtail)) - web-интерфейс к логам контейнеров
+* cis ([в составе dcape](https://github.com/dopos/dcape/tree/master/apps/cis)) - статический сайт (на базе nginx), на котором публикуется информация, необходимая для работы с dcape: список разврнутых приложений, ключи доступа, и т.п. Для доступа к информации необходимо наличие учетной записи в gitea и участие в задаваемой в настройках команды (организации) gitea.
+* [gitea](https://gitea.io/) ([docker](https://store.docker.com/community/images/gitea/gitea)) - git совместимый сервис для работы с репозиториями
+* [traefik](https://traefik.io/) ([docker](https://hub.docker.com/_/traefik/)) - агрегация и проксирование www-сервисов развернутых приложений по заданному имени с поддержкой сертификатов Let's Encrypt
+* [portainer](https://portainer.io/) ([docker](https://hub.docker.com/r/portainer/portainer/)) - управление приложениями (контейнерами и образами)
+* [webhook](https://github.com/adnanh/webhook) ([docker](https://store.docker.com/community/images/dopos/webhook)) - деплой (запуск, обновление, удаление) приложений по событию из gitea
+* [webtail](https://github.com/LeKovr/webtail) ([docker](https://store.docker.com/community/images/lekovr/webtail)) - агрегация и www доступ к логам событий приложений (запуск, удаление, обновление)
 * [enfist](https://github.com/pgrpc/pgrpc-sql-enfist) - хранилище файлов .env в postgresql с JSON-RPC интерфейсом [dbrpc](https://github.com/LeKovr/dbrpc) ([docker](https://store.docker.com/community/images/lekovr/dbrpc))
 * [narra](https://github.com/dopos/narra) ([docker](https://store.docker.com/community/images/dopos/narra)) - сервис авторизации для nginx через API gitea
-* [postgresql](https://www.postgresql.org) ([docker](https://store.docker.com/images/postgres)) - хранение конфигураций приложений и БД, используемая приложениями
+* [postgresql](https://www.postgresql.org) ([docker](https://store.docker.com/images/postgres)) - хранение конфигураций приложений и баз данных, если приложению требуется СУБД
 
 **Служебные приложения dcape:**
 
