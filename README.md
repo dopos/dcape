@@ -94,7 +94,7 @@ curl -sSL https://raw.githubusercontent.com/dopos/dcape/master/install.sh | sh -
 * `make get TAG=name` - получить из хранилища конфигурацию для тега `name` и сохранить в файл `name.env`
 * `make set TAG=name` - загрузить файл `name.env` в хранилище с тегом `name`
 
-Тег содержит значение равное ключу БД Key-value хранилища (`организация--проект--ветка`)
+Тег содержит значение равное ключу БД Key-value хранилища `owner--branch--master` (`организация--проект--ветка`)
 
 ## Структура проекта
 
