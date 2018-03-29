@@ -13,7 +13,7 @@ DCFILES           = $(shell find apps/ -name $(DCINC) -print | sort)
 PROJECT_NAME     ?= dcape
 DOMAIN           ?= dev.lan
 APPS_SYS         ?= db
-APPS             ?= traefik portainer enfist cis
+APPS             ?= traefik portainer prometheus enfist cis
 
 # Postgresql Database image
 PG_IMAGE         ?= postgres:9.6-alpine
@@ -85,18 +85,18 @@ include apps/*/Makefile
 deps:
 	@echo "*** $@ ***"
 	@sudo apt-get update && sudo apt-get install -y \
-	  gawk wget curl apache2-utils openssh-client docker-engine
+	  gawk wget curl apache2-utils openssh-client docker-ce
 
 ## Init internet server with gitea
-init-master: APPS = traefik-acme gitea portainer enfist cis
+init-master: APPS = traefik-acme gitea portainer prometheus enfist cis
 init-master: init
 
 ## Init internet server without gitea
-init-slave: APPS = traefik-acme portainer enfist cis
+init-slave: APPS = traefik-acme portainer prometheus enfist cis
 init-slave: init
 
 ## Init local server
-init-local: APPS = traefik gitea portainer enfist cis
+init-local: APPS = traefik gitea portainer prometheus enfist cis
 init-local: init
 
 
