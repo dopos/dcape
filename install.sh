@@ -54,7 +54,7 @@ shift
 
 # arg parsing based on https://stackoverflow.com/a/14787208
 
-args=$(getopt -l "admin:,docker,extended,key:,locale,ntpdate,port:,swap:,tune,update" -o "a:dek:lnp:s:tu" -- "$@")
+args=$(getopt -l "admin:,cape:,docker,extended,key:,locale,ntpdate,port:,swap:,tune,update" -o "a:c:dek:lnp:s:tu" -- "$@")
 
 eval set -- "$args"
 
@@ -209,7 +209,7 @@ echo -n "* extended packages: "
 if [[ "$extended" ]] ; then
   echo -n "install..."
   apt-get -y remove apache2 python-samba samba-common
-  apt-get -y install mc wget make sudo ntpdate
+  apt-get -y install mc wget make sudo ntpdate git
   echo "Ok"
 else
   echo "skip"
@@ -274,7 +274,7 @@ if [[ "$port" ]] ; then
   echo -n "setup ssh with port $port..."
 
   # TODO
-  sed -i "/^Port 22/c Port \$port" /etc/ssh/sshd_config
+  sed -i "/^Port 22/c Port $port" /etc/ssh/sshd_config
 
   if [[ "$admin" ]] ; then
     echo -n "switch user..."
