@@ -16,7 +16,7 @@ CIS_WEBHOOK_VER    ?= $(CIS_WEBHOOK_VER0)
 # Narra Docker image version by dcape
 CIS_NARRA_VER0     ?= 0.3
 # Webtail Docker image version
-CIS_NARRA_VER    ?= $(CIS_NARRA_VER0)
+CIS_NARRA_VER      ?= $(CIS_NARRA_VER0)
 # CIS hostname prefix
 CIS_HOST_PREFIX    ?= cis
 # CIS hostname
