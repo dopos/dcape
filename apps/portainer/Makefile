@@ -6,7 +6,7 @@ SHELL                 = /bin/bash
 # DCAPE_USED==1 when called from upper Makefile
 DCAPE_USED           ?= 0
 # Portainer Docker image version by dcape
-PORTAINER_VER0       ?= 1.15.5
+PORTAINER_VER0       ?= 1.19.1
 # Portainer Docker image version
 PORTAINER_VER        ?= $(PORTAINER_VER0)
 # Portainer hostname prefix

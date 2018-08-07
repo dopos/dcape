@@ -6,6 +6,8 @@
     volumes:
       - ./var/data/gitea:/data
       - ./var/log/gitea:/data/log
+# add folder for store data (avatars and others), add after lose avatars after update and https://github.com/go-gitea/gitea/issues/4629
+      - ./var/data/gitea-app-data:/app/gitea/data
     restart: always
     depends_on:
       db:
@@ -17,4 +19,3 @@
       - "traefik.frontend.rule=Host:${GITEA_HOST}"
     environment:
       - TZ=${TZ}
-
