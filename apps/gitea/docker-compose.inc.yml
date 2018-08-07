@@ -6,6 +6,7 @@
     volumes:
       - ./var/data/gitea:/data
       - ./var/log/gitea:/data/log
+      - ./var/data/gitea-app-data:/app/gitea/data
     restart: always
     depends_on:
       db:
@@ -17,4 +18,3 @@
       - "traefik.frontend.rule=Host:${GITEA_HOST}"
     environment:
       - TZ=${TZ}
-
