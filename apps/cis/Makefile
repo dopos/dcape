@@ -6,11 +6,11 @@ SHELL               = /bin/bash
 # DCAPE_USED==1 when called from upper Makefile
 DCAPE_USED         ?= 0
 # Webtail Docker image version by dcape
-CIS_WEBTAIL_VER0   ?= 0.33
+CIS_WEBTAIL_VER0   ?= 0.34
 # Webtail Docker image version
 CIS_WEBTAIL_VER    ?= $(CIS_WEBTAIL_VER0)
 # Webhook Docker image version by dcape
-CIS_WEBHOOK_VER0   ?= 0.5
+CIS_WEBHOOK_VER0   ?= 0.7
 # Webtail Docker image version
 CIS_WEBHOOK_VER    ?= $(CIS_WEBHOOK_VER0)
 # Narra Docker image version by dcape
