@@ -1,10 +1,7 @@
   # ------------------------------------------------------------------------------
   enfist:
-    image: lekovr/dbrpc:${ENFIST_DBRPC_VER}
-#    image: dbrpc
+    image: apisite/enfist:${ENFIST_VER}
     restart: always
-#    ports:
-#      - "8080:8080"
     depends_on:
       db:
         condition: service_healthy
@@ -14,6 +11,11 @@
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     command:
-      --http_addr :8080 --db_connect ${ENFIST_DB_TAG}:${ENFIST_DB_PASS}@db:5432/${ENFIST_DB_TAG}?sslmode=disable
-      --db_schema rpc,public --db_reset_event disable --auth_header "X-Authorization"
-
+      /usr/bin/apisite --db_schema rpc --http_addr :8080
+    environment:
+      - PGHOST=db
+      - PGDATABASE=${ENFIST_DB_TAG}
+      - PGUSER=${ENFIST_DB_TAG}
+      - PGPASSWORD=${ENFIST_DB_PASS}
+      - PGSSLMODE=disable
+      - GIN_MODE=release
