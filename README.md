@@ -42,7 +42,7 @@
 * [portainer](https://portainer.io/) ([docker](https://hub.docker.com/r/portainer/portainer/)) - управление приложениями (контейнерами и образами)
 * [webhook](https://github.com/adnanh/webhook) ([docker](https://store.docker.com/community/images/dopos/webhook)) - деплой (запуск, обновление, удаление) приложений по событию из gitea
 * [webtail](https://github.com/LeKovr/webtail) ([docker](https://store.docker.com/community/images/lekovr/webtail)) - агрегация и www доступ к логам событий приложений (запуск, удаление, обновление)
-* [enfist](https://github.com/pgrpc/pgrpc-sql-enfist) - хранилище файлов .env в postgresql с JSON-RPC интерфейсом [dbrpc](https://github.com/LeKovr/dbrpc) ([docker](https://store.docker.com/community/images/lekovr/dbrpc))
+* [enfist](https://github.com/apisite/app-enfist) ([docker](https://store.docker.com/community/images/apisite/enfist)) - хранилище файлов .env в postgresql
 * [narra](https://github.com/dopos/narra) ([docker](https://store.docker.com/community/images/dopos/narra)) - сервис авторизации для nginx через API gitea
 * [postgresql](https://www.postgresql.org) ([docker](https://store.docker.com/images/postgres)) - хранение конфигураций приложений и баз данных, если приложению требуется СУБД
 
@@ -86,9 +86,9 @@ curl -sSL https://raw.githubusercontent.com/dopos/dcape/master/install.sh | sh -
 Этот файл используется `make start-hook` для разворачивания приложения и [docker-compose](https://docs.docker.com/compose/) для управления контейнерами приложения.
 В части переменных, используемых в `docker-compose.yml`, формат файла должен соответствовать [docker-compose env_file](https://docs.docker.com/compose/compose-file/compose-file-v2/#env_file).
 
-Конфигурации запуска приложений хранятся в БД в виде Key-value хранилища, где ключ формируется из адреса git репозитория `organization--name_of_repo--branch` (`организация--проект--ветка`), а значение - содержимое `.env` файла. Доступ к хранилищу закрыт паролем и осуществляется через JSON-RPC прокси [dbrpc](https://github.com/LeKovr/dbrpc).
+Конфигурации запуска приложений хранятся в БД в виде Key-value хранилища, где ключ формируется из адреса git репозитория `organization--name_of_repo--branch` (`организация--проект--ветка`), а значение - содержимое `.env` файла. Доступ к хранилищу закрыт паролем и осуществляется через фронтенд **cis**.
 
-Для работы с конфигурациями запуска в среде **dcape** используется [dcape-config-cli](https://github.com/dopos/dcape-config-cli).
+Кроме веб-интерфейса, работа с конфигурациями запуска может осуществляться через [dcape-config-cli](https://github.com/dopos/dcape-config-cli).
 Примеры команд, доступных после клонирования (git clone) и настройки (make .env) dcape-config-cli:
 
 * `make get TAG=name` - получить из хранилища конфигурацию для тега `name` и сохранить в файл `name.env`

@@ -1,14 +1,26 @@
 # Changelog
 
-## [0.11]
-Релиз: ??
+## v1.0.0-rc2 (2018-09-23)
+
+* Изменено
+  * apps/enfist: вместо [pgrpc](https://github.com/pgrpc/pgrpc-sql-enfist) теперь используется [apisite](https://github.com/apisite/app-enfist)
+
+### Установка обновления
+```
+git pull
+mv .env .env.bak
+make init
+make enfist-apply
+make up
+```
+
+## v1.0.0-rc1 (2017-10-22)
 
 * Изменено
   * apps/traefik*: в настройки вынесен редирект 80 -> 443
   * apps/traefik теперь не совместим по конфигу с apps/traefik-acme, при переключении необходим `make init`
 
-## [0.10]
-Релиз: 2017-10-19
+## v0.10 (2017-10-19)
 
 * Изменено
   * apps/cis: добавлено создание каталогов var/apps, var/log в cis-apply
@@ -34,7 +46,6 @@ make enfist-apply
 make dc CMD="up -d webtail"
 ```
 
-## [0.9]
-Релиз: 2017-10-16
+## v0.9 (2017-10-16)
 
 * Проект готов к ревью
