@@ -43,4 +43,4 @@ enfist-apply:
 	DCAPE_DB=$${PROJECT_NAME}_db_1 \
 	&& PGPASSWORD=$${ENFIST_DB_PASS} \
 	&& cat apps/enfist/migrate.sql | docker exec -i $$DCAPE_DB psql -U $$ENFIST_DB_TAG $$ENFIST_DB_TAG
-	$(MAKE) -s dc CMD="run enfist make poma-install"
+	$(MAKE) -s dc CMD="run --rm enfist make poma-install"
