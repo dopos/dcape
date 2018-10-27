@@ -19,6 +19,10 @@ GITEA_SSH_PORT     ?= 10022
 GITEA_HOST_PREFIX  ?= git
 # Gitea hostname
 GITEA_HOST         ?= $(GITEA_HOST_PREFIX).$(DOMAIN)
+# set to frontend entrys list ("http", "https" or both "http,https")
+FRONT_ENTRYS	   ?= http
+# enable redirection, if frontend entry set only to "https", set this var to "https"
+FRONT_REDIR        ?=
 
 # Internal gitea config path
 GITEA_INI_DIR      ?= var/data/gitea/gitea/conf
@@ -32,6 +36,10 @@ GITEA_VER=$(GITEA_VER)
 
 # App hostname
 GITEA_HOST=$(GITEA_HOST)
+# set frontend
+FRONT_ENTRYS=$(FRONT_ENTRYS)
+# enable redirection
+FRONT_REDIR=$(FRONT_REDIR)
 
 # Gitea ssh server port
 # You should change sshd port and set this to 22
