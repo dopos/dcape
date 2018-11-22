@@ -15,8 +15,15 @@ DOMAIN           ?= dev.lan
 APPS_SYS         ?= db
 APPS             ?= traefik portainer enfist cis
 
+
+# section env for use with pg_upgrade util
+# tag for current and new PG version - use only major version number
+PG_MAJOR_VER     ?= 9
+# tag for new PG image version
+PG_NEW_VER       ?= 11
+
 # Postgresql Database image
-PG_IMAGE         ?= postgres:9.6-alpine
+PG_IMAGE         ?= postgres:$(PG_MAJOR_VER).6-alpine
 # Postgresql Database superuser password
 PG_DB_PASS       ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
 # Postgresql Database encoding
@@ -27,7 +34,7 @@ PG_PORT_LOCAL    ?= 5433
 PG_SOURCE_SUFFIX ?=
 
 # Docker-compose image tag
-DC_VER           ?= 1.14.0
+DC_VER           ?= 1.21.2
 
 # Config store url
 ENFIST_URL       ?= http://enfist:8080/rpc
@@ -113,6 +120,16 @@ apply:
 	@echo "*** $@ $(APPS) ***"
 	@$(MAKE) -s dc CMD="up -d $(APPS_SYS)" || echo ""
 	@for f in $(shell echo $(APPS)) ; do $(MAKE) -s $${f}-apply ; done
+
+pg_upgrade:
+	@echo "*** $@ *** postgresql from $(PG_MAJOR_VER) to $(PG_NEW_VER)"
+	@echo -n "Checking PG is down..." ; \
+	DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
+	until [[ `docker inspect -f "{{.State.Health.Status}}" $$DCAPE_DB` == unhealthy ]] ; do sleep 1 ; echo -n "." ; done
+	@echo "Ok"
+
+
+@[$(shell docker ps | grep postgres)] && { echo " "}
 
 
 # build file from app templates
