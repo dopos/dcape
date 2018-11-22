@@ -134,8 +134,7 @@ pg_upgrade:
 	if [[ `docker ps | grep $$DCAPE_DB`]] ; then \
       echo "Postgres container not stop. Exit" && exit 1 ; \
     else
-      echo "Postgres container not run. Continue" ;
-	# create dir for new version database
+      echo "Postgres container not run. Continue"
 	@mkdir ./var/data/db_$$PG_NEW_VER
 	@docker run --rm \
       -v ./var/data/test_pgupgrade/db_$$PG_VER/data:/var/lib/postgresql/OLD/data \
