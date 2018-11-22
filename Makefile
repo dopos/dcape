@@ -24,7 +24,7 @@ PG_VER           ?= 9.6
 PG_NEW_VER       ?= 11
 
 # Postgresql Database image
-PG_IMAGE         ?= postgres:$(PG_VER).6-alpine
+PG_IMAGE         ?= postgres:$(PG_VER)-alpine
 # Postgresql Database superuser password
 PG_DB_PASS       ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
 # Postgresql Database encoding
@@ -132,16 +132,17 @@ pg_upgrade:
 	@echo -n "Checking PG is down..." ; \
 	DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
 	docker exec -i $$DCAPE_DB psql -U postgres -V && db_run=1 ; \
-	if [[ $db_run ]] ; then \
+	if [[ $$db_run ]] ; then \
       echo "Postgres container not stop. Exit" && exit 1 ; \
     else \
       echo "Postgres container not run. Continue" ; \
 	fi
-	@mkdir ./var/data/db_$$PG_NEW_VER
-	@docker run --rm \
-      -v ./var/data/test_pgupgrade/db_$$PG_VER/data:/var/lib/postgresql/OLD/data \
-      -v ./var/data/db_$$PG_NEW_VER/data:/var/lib/postgresql/NEW/data \
-      tianon/postgres-upgrade:$PG_VER-to-$PG_NEW_VER
+	@mkdir ./var/data/db_$$PG_NEW_VER ; \
+	docker pull tianon/postgres-upgrade:$$PG_VER-to-$$PG_NEW_VER ; \
+	docker run --rm \
+      -v $$PWD/var/data/db_$$PG_VER:/var/lib/postgresql/$$PG_VER/data \
+      -v $$PWD/var/data/db_$$PG_NEW_VER:/var/lib/postgresql/$$PG_NEW_VER/data \
+      tianon/postgres-upgrade:$$PG_VER-to-$$PG_NEW_VER
 	@echo "If the process succeeds, change the PG_VER variable to a new version and start dcape"
 
 

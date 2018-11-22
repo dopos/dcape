@@ -10,11 +10,11 @@ services:
   db:
     image: ${PG_IMAGE}
     volumes:
-      - ./var/data/db:/var/lib/postgresql/data
-      - ./var/data/db-backup:/opt/backup
-      - ./var/data/db-conf.d:/opt/conf.d
-      - ./var/data/db-shared:/opt/shared
-      - ./var/data/db-init:/docker-entrypoint-initdb.d/
+      - ./var/data/db_${PG_VER}:/var/lib/postgresql/data
+      - ./var/data/db_${PG_VER}-backup:/opt/backup
+      - ./var/data/db_${PG_VER}-conf.d:/opt/conf.d
+      - ./var/data/db_${PG_VER}-shared:/opt/shared
+      - ./var/data/db_${PG_VER}-init:/docker-entrypoint-initdb.d/
     ports:
       - "127.0.0.1:${PG_PORT_LOCAL}:5432"
     environment:
@@ -32,5 +32,3 @@ services:
       retries: 3
     stop_grace_period: 5s
     stop_signal: SIGINT
-
-
