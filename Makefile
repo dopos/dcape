@@ -129,7 +129,7 @@ pg_upgrade:
 	@echo "Ok"
 
 
-@[$(shell docker ps | grep postgres)] && { echo " "}
+
 
 
 # build file from app templates
