@@ -129,17 +129,20 @@ apply:
 
 pg_upgrade:
 	@echo "*** $@ *** postgresql from $(PG_VER) to $(PG_NEW_VER)"
-	@echo -n "Checking PG is down" ; \
+	@echo -n "Checking PG is down..." ; \
 	DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
-	if [[ `docker ps | grep $$DCAPE_DB`]] ; then \
+	docker exec -i $$DCAPE_DB psql -U postgres -V && db_run=1 ; \
+	if [[ $db_run ]] ; then \
       echo "Postgres container not stop. Exit" && exit 1 ; \
-    else
-      echo "Postgres container not run. Continue"
+    else \
+      echo "Postgres container not run. Continue" ; \
+	fi
 	@mkdir ./var/data/db_$$PG_NEW_VER
 	@docker run --rm \
       -v ./var/data/test_pgupgrade/db_$$PG_VER/data:/var/lib/postgresql/OLD/data \
       -v ./var/data/db_$$PG_NEW_VER/data:/var/lib/postgresql/NEW/data \
       tianon/postgres-upgrade:$PG_VER-to-$PG_NEW_VER
+	@echo "If the process succeeds, change the PG_VER variable to a new version and start dcape"
 
 
 # build file from app templates
