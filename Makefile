@@ -16,14 +16,15 @@ APPS_SYS         ?= db
 APPS             ?= traefik portainer enfist cis
 
 
-# section env for use with pg_upgrade util
-# tag for current and new PG version - use only major version number
-PG_MAJOR_VER     ?= 9
+# section env for use with pg_upgrade with tianon/docker-postgres-upgrade container
+# version tags must be selected so that the value match the version numbers supported
+# in this image
+PG_VER           ?= 9.6
 # tag for new PG image version
 PG_NEW_VER       ?= 11
 
 # Postgresql Database image
-PG_IMAGE         ?= postgres:$(PG_MAJOR_VER).6-alpine
+PG_IMAGE         ?= postgres:$(PG_VER).6-alpine
 # Postgresql Database superuser password
 PG_DB_PASS       ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
 # Postgresql Database encoding
@@ -58,6 +59,11 @@ APPS="$(shell echo $(APPS))"
 # create db cluster with this timezone
 # (also used by gitea container)
 TZ=$(TZ)
+
+# PG version tag
+PG_VER           ?= 9.6
+# tag for new PG image version
+PG_NEW_VER       ?= 11
 
 # Postgresql Database image
 PG_IMAGE=$(PG_IMAGE)
@@ -122,14 +128,19 @@ apply:
 	@for f in $(shell echo $(APPS)) ; do $(MAKE) -s $${f}-apply ; done
 
 pg_upgrade:
-	@echo "*** $@ *** postgresql from $(PG_MAJOR_VER) to $(PG_NEW_VER)"
-	@echo -n "Checking PG is down..." ; \
+	@echo "*** $@ *** postgresql from $(PG_VER) to $(PG_NEW_VER)"
+	@echo -n "Checking PG is down" ; \
 	DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
-	until [[ `docker inspect -f "{{.State.Health.Status}}" $$DCAPE_DB` == unhealthy ]] ; do sleep 1 ; echo -n "." ; done
-	@echo "Ok"
-
-
-
+	if [[ `docker ps | grep $$DCAPE_DB`]] ; then \
+      echo "Postgres container not stop. Exit" && exit 1 ; \
+    else
+      echo "Postgres container not run. Continue" ;
+	# create dir for new version database
+	@mkdir ./var/data/db_$$PG_NEW_VER
+	@docker run --rm \
+      -v ./var/data/test_pgupgrade/db_$$PG_VER/data:/var/lib/postgresql/OLD/data \
+      -v ./var/data/db_$$PG_NEW_VER/data:/var/lib/postgresql/NEW/data \
+      tianon/postgres-upgrade:$PG_VER-to-$PG_NEW_VER
 
 
 # build file from app templates
