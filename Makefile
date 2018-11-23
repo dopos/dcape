@@ -142,8 +142,8 @@ pg_upgrade:
 	docker run --rm \
       -v $$PWD/var/data/db_$$PG_VER:/var/lib/postgresql/$$PG_VER/data \
       -v $$PWD/var/data/db_$$PG_NEW_VER:/var/lib/postgresql/$$PG_NEW_VER/data \
-      tianon/postgres-upgrade:$$PG_VER-to-$$PG_NEW_VER
-	@echo "If the process succeeds, change the PG_VER variable to a new version and start dcape"
+      tianon/postgres-upgrade:$$PG_VER-to-$$PG_NEW_VER ; \
+	@echo "If the process succeeds, change the PG_VER variable to a new version, pg_hba.conf and start dcape. For more info see https://github.com/dopos/dcape/blob/master/POSTGRES.md"
 
 
 # build file from app templates
