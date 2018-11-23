@@ -132,10 +132,10 @@ pg_upgrade:
 	@echo -n "Checking PG is down..." ; \
 	DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
 	docker exec -i $$DCAPE_DB psql -U postgres -V && db_run=1 ; \
-	if [[ $$db_run ]] ; then \
-		echo "Postgres container not stop. Exit" && exit 1 ; \
-	else \
+	if [[ `docker inspect -f "{{.State.Running}}" $$DCAPE_DB` == false ]] ; then \
 		echo "Postgres container not run. Continue" ; \
+	else \
+		echo "Postgres container not stop. Exit" && exit 1 ; \
 	fi
 	@mkdir ./var/data/db_$$PG_NEW_VER ; \
 	docker pull tianon/postgres-upgrade:$$PG_VER-to-$$PG_NEW_VER ; \
