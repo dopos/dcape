@@ -140,7 +140,7 @@ pg_upgrade:
 	docker exec -i $$DCAPE_DB psql -U postgres -V && db_run=1 ; \
 	if [[ $$db_run ]] ; then \
 		echo "Postgres container not stop. Exit" && exit 1 ; \
-		else \
+	else \
 		echo "Postgres container not run. Continue" ; \
 	fi
 	@mkdir ./var/data/db_$$PG_NEW_VER ; \
