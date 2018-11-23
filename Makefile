@@ -15,6 +15,8 @@ DOMAIN           ?= dev.lan
 APPS_SYS         ?= db
 APPS             ?= traefik portainer enfist cis
 
+# dcape directory
+PWD              ?= $(PWD)
 
 # section env for use with pg_upgrade with tianon/docker-postgres-upgrade container
 # version tags must be selected so that the value match the version numbers supported
