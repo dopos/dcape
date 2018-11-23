@@ -49,6 +49,9 @@ define CONFIG_DEF
 
 # General settings
 
+# dcape directory
+PWD=$(PWD)
+
 # containers name prefix
 PROJECT_NAME=$(PROJECT_NAME)
 
