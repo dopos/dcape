@@ -19,10 +19,10 @@ APPS             ?= traefik portainer enfist cis
 PWD              ?= $(PWD)
 
 # section env for use with pg_upgrade with tianon/docker-postgres-upgrade container
-# version tags must be selected so that the value match the version numbers supported
-# in this image
+# PG version number - ATTENTION:number only from existing on docker-image tags
+# https://hub.docker.com/r/tianon/postgres-upgrade/tags/
 PG_VER           ?= 9.6
-# tag for new PG image version
+# number for new PG image version - also number from available in tags
 PG_NEW_VER       ?= 11
 
 # Postgresql Database image
@@ -65,10 +65,11 @@ APPS="$(shell echo $(APPS))"
 # (also used by gitea container)
 TZ=$(TZ)
 
-# PG version tag
-PG_VER           ?= 9.6
-# tag for new PG image version
-PG_NEW_VER       ?= 11
+# PG version number - ATTENTION:number only from existing on docker-image tags
+# https://hub.docker.com/r/tianon/postgres-upgrade/tags/
+PG_VER=$(PG_VER)
+# Number for new PG image version - also number from available in tags
+PG_NEW_VER=$(PG_NEW_VER)
 
 # Postgresql Database image
 PG_IMAGE=$(PG_IMAGE)
