@@ -21,7 +21,7 @@ services:
       - POSTGRES_PASSWORD=${PG_DB_PASS}
       - TZ=${TZ}
       - LANG=${PG_ENCODING}
-      - DCAPE_DB_DUMP_DEST=${PWD}/var/data/db_${PG_VER}-backup
+      - DCAPE_DB_DUMP_DEST=./var/data/db_${PG_VER}-backup
     restart: unless-stopped
     labels:
       - "traefik.enable=false"
