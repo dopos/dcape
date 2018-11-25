@@ -128,22 +128,28 @@ apply:
 	@for f in $(shell echo $(APPS)) ; do $(MAKE) -s $${f}-apply ; done
 
 pg_upgrade:
-	@echo "*** $@ *** postgresql from $(PG_VER) to $(PG_NEW_VER)"
-	@echo -n "Checking PG is down..." ; \
-	DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
-	docker exec -i $$DCAPE_DB psql -U postgres -V && db_run=1 ; \
-	if [[ `docker inspect -f "{{.State.Running}}" $$DCAPE_DB` == true ]] ; then \
-		echo "Postgres container not stop. Exit" && exit 1 ; \
-	else \
-		echo "Postgres container not run. Continue" ; \
-	fi
-	@mkdir ./var/data/db_$$PG_NEW_VER ; \
-	docker pull tianon/postgres-upgrade:$$PG_VER-to-$$PG_NEW_VER ; \
-	docker run --rm \
-      -v $$PWD/var/data/db_$$PG_VER:/var/lib/postgresql/$$PG_VER/data \
-      -v $$PWD/var/data/db_$$PG_NEW_VER:/var/lib/postgresql/$$PG_NEW_VER/data \
-      tianon/postgres-upgrade:$$PG_VER-to-$$PG_NEW_VER ; \
-	@echo "If the process succeeds, change the PG_VER variable to a new version, pg_hba.conf and start dcape. For more info see https://github.com/dopos/dcape/blob/master/POSTGRES.md"
+<------>@echo "*** $@ *** " ; \
+<------>DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
+<------>PG_NEW=`docker inspect --type=image $$PG_IMAGE | jq -r '.[0].ContainerConfig.Env[] | capture("PG_MAJOR=(?<a>.+)") | .a'`  ; \
+<------>PG_OLD=`cat ./var/data/db/PG_VERSION` ; \
+<------>echo "*** $@ *** from $$PG_OLD to $$PG_NEW" ; \
+<------>echo -n "Checking PG is down..." ; \
+<------>if [[ `docker inspect -f "{{.State.Running}}" $$DCAPE_DB` == true ]] ; then \
+<------><------>echo "Postgres container not stop. Exit" && exit 1 ; \
+<------>else \
+<------><------>echo "Postgres container not run. Continue" ; \
+<------>fi ; \
+<------>echo "Move current data postres directory to ./var/data/db_$$PG_OLD" ; \
+<------>mkdir ./var/data/db_$$PG_OLD ; \
+<------>mv ./var/data/db/* ./var/data/db_$$PG_OLD/ ; \
+<------>docker pull tianon/postgres-upgrade:$$PG_OLD-to-$$PG_NEW ; \
+<------>docker run --rm \
+      		-v $$PWD/var/data/db_$$PG_OLD:/var/lib/postgresql/$$PG_OLD/data \
+      		-v $$PWD/var/data/db:/var/lib/postgresql/$$PG_NEW/data \
+      		tianon/postgres-upgrade:$$PG_OLD-to-$$PG_NEW ; \
+<------>echo "If the process succeeds, edit pg_hba.conf, other conf and start postgres container or dcape. \
+<------>   For more info see https://github.com/dopos/dcape/blob/master/POSTGRES.md"
+
 
 
 # build file from app templates

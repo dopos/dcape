@@ -10,18 +10,18 @@ services:
   db:
     image: ${PG_IMAGE}
     volumes:
-      - ./var/data/db_${PG_VER}:/var/lib/postgresql/data
-      - ./var/data/db_${PG_VER}-backup:/opt/backup
-      - ./var/data/db_${PG_VER}-conf.d:/opt/conf.d
-      - ./var/data/db_${PG_VER}-shared:/opt/shared
-      - ./var/data/db_${PG_VER}-init:/docker-entrypoint-initdb.d/
+      - ./var/data/db:/var/lib/postgresql/data
+      - ./var/data/db-backup:/opt/backup
+      - ./var/data/db-conf.d:/opt/conf.d
+      - ./var/data/db-shared:/opt/shared
+      - ./var/data/db-init:/docker-entrypoint-initdb.d/
     ports:
       - "127.0.0.1:${PG_PORT_LOCAL}:5432"
     environment:
       - POSTGRES_PASSWORD=${PG_DB_PASS}
       - TZ=${TZ}
       - LANG=${PG_ENCODING}
-      - DCAPE_DB_DUMP_DEST=./var/data/db_${PG_VER}-backup
+      - DCAPE_DB_DUMP_DEST=./var/data/db-backup
     restart: unless-stopped
     labels:
       - "traefik.enable=false"
