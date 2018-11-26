@@ -128,27 +128,27 @@ apply:
 	@for f in $(shell echo $(APPS)) ; do $(MAKE) -s $${f}-apply ; done
 
 pg_upgrade:
-<------>@echo "*** $@ *** " ; \
-<------>DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
-<------>PG_OLD=`cat ./var/data/db/PG_VERSION` ; \
-<------>PG_NEW=`docker inspect --type=image $$PG_IMAGE | jq -r '.[0].ContainerConfig.Env[] | capture("PG_MAJOR=(?<a>.+)") | .a'`  ; \
-<------>echo "*** $@ *** from $$PG_OLD to $$PG_NEW" ; \
-<------>echo -n "Checking PG is down..." ; \
-<------>if [[ `docker inspect -f "{{.State.Running}}" $$DCAPE_DB` == true ]] ; then \
-<------><------>echo "Postgres container not stop. Exit" && exit 1 ; \
-<------>else \
-<------><------>echo "Postgres container not run. Continue" ; \
-<------>fi ; \
-<------>echo "Move current data postres directory to ./var/data/db_$$PG_OLD" ; \
-<------>mkdir ./var/data/db_$$PG_OLD ; \
-<------>mv ./var/data/db/* ./var/data/db_$$PG_OLD/ ; \
-<------>docker pull tianon/postgres-upgrade:$$PG_OLD-to-$$PG_NEW ; \
-<------>docker run --rm \
+		@echo "*** $@ *** " ; \
+		DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
+		PG_OLD=`cat ./var/data/db/PG_VERSION` ; \
+		PG_NEW=`docker inspect --type=image $$PG_IMAGE | jq -r '.[0].ContainerConfig.Env[] | capture("PG_MAJOR=(?<a>.+)") | .a'`  ; \
+		echo "*** $@ *** from $$PG_OLD to $$PG_NEW" ; \
+		echo -n "Checking PG is down..." ; \
+		if [[ `docker inspect -f "{{.State.Running}}" $$DCAPE_DB` == true ]] ; then \
+			echo "Postgres container not stop. Exit" && exit 1 ; \
+		else \
+			echo "Postgres container not run. Continue" ; \
+		fi ; \
+		echo "Move current data postres directory to ./var/data/db_$$PG_OLD" ; \
+		mkdir ./var/data/db_$$PG_OLD ; \
+		mv ./var/data/db/* ./var/data/db_$$PG_OLD/ ; \
+		docker pull tianon/postgres-upgrade:$$PG_OLD-to-$$PG_NEW ; \
+		docker run --rm \
       		-v $$PWD/var/data/db_$$PG_OLD:/var/lib/postgresql/$$PG_OLD/data \
       		-v $$PWD/var/data/db:/var/lib/postgresql/$$PG_NEW/data \
       		tianon/postgres-upgrade:$$PG_OLD-to-$$PG_NEW ; \
-<------>echo "If the process succeeds, edit pg_hba.conf, other conf and start postgres container or dcape. \
-<------>   For more info see https://github.com/dopos/dcape/blob/master/POSTGRES.md"
+		echo "If the process succeeds, edit pg_hba.conf, other conf and start postgres container or dcape. \
+   			For more info see https://github.com/dopos/dcape/blob/master/POSTGRES.md"
 
 
 # build file from app templates
