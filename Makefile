@@ -15,7 +15,6 @@ DOMAIN           ?= dev.lan
 APPS_SYS         ?= db
 APPS             ?= traefik portainer enfist cis
 
-
 # Postgresql Database image
 PG_IMAGE         ?= postgres:9.6-alpine
 # Postgresql Database superuser password
@@ -137,7 +136,6 @@ pg_upgrade:
     	tianon/postgres-upgrade:$$PG_OLD-to-$$PG_NEW ; \
 	echo "If the process succeeds, edit pg_hba.conf, other conf and start postgres container or dcape. \
    		For more info see https://github.com/dopos/dcape/blob/master/POSTGRES.md"
-
 
 # build file from app templates
 docker-compose.yml: $(DCINC) $(DCFILES)
