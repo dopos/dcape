@@ -126,7 +126,7 @@ pg_upgrade:
 	else \
 		echo "Postgres container not run. Continue" ; \
 	fi ; \
-	echo "Move current data postres directory to ./var/data/db_$$PG_OLD" ; \
+	echo "Move current postgres data directory to ./var/data/db_$$PG_OLD" ; \
 	mkdir ./var/data/db_$$PG_OLD ; \
 	mv ./var/data/db/* ./var/data/db_$$PG_OLD/ ; \
 	docker pull tianon/postgres-upgrade:$$PG_OLD-to-$$PG_NEW ; \
