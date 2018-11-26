@@ -15,15 +15,9 @@ DOMAIN           ?= dev.lan
 APPS_SYS         ?= db
 APPS             ?= traefik portainer enfist cis
 
-# section env for use with pg_upgrade with tianon/docker-postgres-upgrade container
-# PG version number - ATTENTION:number only from existing on docker-image tags
-# https://hub.docker.com/r/tianon/postgres-upgrade/tags/
-PG_VER           ?= 9.6
-# number for new PG image version - also number from available in tags
-PG_NEW_VER       ?= 11
 
 # Postgresql Database image
-PG_IMAGE         ?= postgres:$(PG_VER)-alpine
+PG_IMAGE         ?= postgres:9.6-alpine
 # Postgresql Database superuser password
 PG_DB_PASS       ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
 # Postgresql Database encoding
@@ -58,12 +52,6 @@ APPS="$(shell echo $(APPS))"
 # create db cluster with this timezone
 # (also used by gitea container)
 TZ=$(TZ)
-
-# PG version number - ATTENTION:number only from existing on docker-image tags
-# https://hub.docker.com/r/tianon/postgres-upgrade/tags/
-PG_VER=$(PG_VER)
-# Number for new PG image version - also number from available in tags
-PG_NEW_VER=$(PG_NEW_VER)
 
 # Postgresql Database image
 PG_IMAGE=$(PG_IMAGE)
