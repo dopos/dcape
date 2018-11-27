@@ -114,6 +114,7 @@ apply:
 	@$(MAKE) -s dc CMD="up -d $(APPS_SYS)" || echo ""
 	@for f in $(shell echo $(APPS)) ; do $(MAKE) -s $${f}-apply ; done
 
+# Upgrade postgres major version with pg_upgrade
 pg_upgrade:
 	@echo "*** $@ *** " ; \
 	DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
@@ -136,6 +137,24 @@ pg_upgrade:
     	tianon/postgres-upgrade:$$PG_OLD-to-$$PG_NEW ; \
 	echo "If the process succeeds, edit pg_hba.conf, other conf and start postgres container or dcape. \
    		For more info see https://github.com/dopos/dcape/blob/master/POSTGRES.md"
+
+# Upgrade postgres major version with pg_dumpall-psql
+# Create dump for claster Postgres
+pg_dumpall:
+	@echo "Start $@ to pg_dumpall_$${PROJECT_NAME}_`date +"%d.%m.%Y"`.sql.gz" ;\
+	DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
+	docker exec -u postgres $$DCAPE_DB pg_dumpall | gzip -7 -c > \
+		./var/data/db-backup/pg_dumpall_$${PROJECT_NAME}_`date +"%d.%m.%Y"`.sql.gz
+
+# Load dump for claster Postgres
+pg_load_dumpall:
+	@echo "Start $@ ..." ; \
+	echo "Load dump file: pg_dumpall_$${PROJECT_NAME}_`date +"%d.%m.%Y"`.sql.gz" ;\
+	docker exec -u postgres -e PROJECT_NAME=$${PROJECT_NAME} $${PROJECT_NAME}_db_1 \
+		bash -c 'zcat /opt/backup/pg_dumpall_$${PROJECT_NAME}_`date +"$d.%m.%Y"`.sql.gz | psql' ; \
+	echo "Load dump complete. Start databases ANALYZE." ; \
+	docker exec -u postgres $${PROJECT_NAME}_db_1 psql -c "ANALYZE" && \
+		echo "ANALYZE complete."
 
 # build file from app templates
 docker-compose.yml: $(DCINC) $(DCFILES)
