@@ -137,8 +137,8 @@ pg_upgrade:
     	-v $$PWD/var/data/db_$$PG_OLD:/var/lib/postgresql/$$PG_OLD/data \
     	-v $$PWD/var/data/db:/var/lib/postgresql/$$PG_NEW/data \
     	tianon/postgres-upgrade:$$PG_OLD-to-$$PG_NEW ; \
-	cp ./var/data/db_$$PG_OLD/postgresql.conf ./var/data/db_$$PG_OLD/postgresql_store.conf ; \
-	sed -i "s%include_dir = '/opt/conf.d'%#include_dir = '/opt/conf.d'%" ./var/data/db_$$PG_OLD/postgresql.conf ; \
+	cp -f ./var/data/db_$$PG_OLD/pg_hba.conf ./var/data/db/pg_hba.conf ; \
+	cp -f ./var/data/db_$$PG_OLD/postgresql_store.conf ./var/data/db/postgresql.conf ; \
 	echo "If the process succeeds, edit pg_hba.conf, other conf and start postgres container or dcape. \
    		For more info see https://github.com/dopos/dcape/blob/master/POSTGRES.md"
 
