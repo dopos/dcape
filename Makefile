@@ -130,11 +130,15 @@ pg_upgrade:
 	echo "Move current postgres data directory to ./var/data/db_$$PG_OLD" ; \
 	mkdir ./var/data/db_$$PG_OLD ; \
 	mv ./var/data/db/* ./var/data/db_$$PG_OLD/ ; \
+	cp ./var/data/db_$$PG_OLD/postgresql.conf ./var/data/db_$$PG_OLD/postgresql_store.conf ; \
+	sed -i "s%include_dir = '/opt/conf.d'%#include_dir = '/opt/conf.d'%" ./var/data/db_$$PG_OLD/postgresql.conf ; \
 	docker pull tianon/postgres-upgrade:$$PG_OLD-to-$$PG_NEW ; \
 	docker run --rm \
     	-v $$PWD/var/data/db_$$PG_OLD:/var/lib/postgresql/$$PG_OLD/data \
     	-v $$PWD/var/data/db:/var/lib/postgresql/$$PG_NEW/data \
     	tianon/postgres-upgrade:$$PG_OLD-to-$$PG_NEW ; \
+	cp ./var/data/db_$$PG_OLD/postgresql.conf ./var/data/db_$$PG_OLD/postgresql_store.conf ; \
+	sed -i "s%include_dir = '/opt/conf.d'%#include_dir = '/opt/conf.d'%" ./var/data/db_$$PG_OLD/postgresql.conf ; \
 	echo "If the process succeeds, edit pg_hba.conf, other conf and start postgres container or dcape. \
    		For more info see https://github.com/dopos/dcape/blob/master/POSTGRES.md"
 
