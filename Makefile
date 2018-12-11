@@ -122,7 +122,7 @@ pg_upgrade:
 	PG_NEW=`docker inspect --type=image $$PG_IMAGE | jq -r '.[0].ContainerConfig.Env[] | capture("PG_MAJOR=(?<a>.+)") | .a'`  ; \
 	echo "*** $@ *** from $$PG_OLD to $$PG_NEW" ; \
 	echo -n "Checking PG is down..." ; \
-	if [[ `docker inspect -f "{{.State.Running}}" $$DCAPE_DB` == true ]] ; then \
+	if [[ `docker inspect -f "{{.State.Running}}" $$DCAPE_DB 2>/dev/null` == true ]] ; then \
 		echo "Postgres container not stop. Exit" && exit 1 ; \
 	else \
 		echo "Postgres container not run. Continue" ; \
