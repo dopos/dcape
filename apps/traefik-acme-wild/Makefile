@@ -15,7 +15,7 @@ TRAEFIK_ACME_EMAIL ?= admin@$(DOMAIN)
 # Traefik hosts default entrypoint (eg: http,https)
 TRAEFIK_ENTRY_DEFAULT ?= http
 # Traefik port 80 serving rule (eg: 80 Redirect.EntryPoint:https)
-TRAEFIK_ENTRY_HTTP ?= 80
+TRAEFIK_ENTRY_HTTP ?= 80 Redirect.EntryPoint:https
 
 # Choosing a method to generate wildcards cert
 DNS_CHALLENGE_PROVIDER ?= manual
@@ -23,8 +23,6 @@ DNS_CHALLENGE_PROVIDER ?= manual
 DNSCHALLENGE_DELAYBEFORECHECK ?= 800
 # Acme CA server, use this value for DNS_CHALLENGE_PROVIDER=manual
 ACME_CASERVER 		?= https://acme-v01.api.letsencrypt.org/directory
-# Set redirect for http
-REDIRECT_ENTRYPOINT_FOR_HTTP ?= https
 
 
 define CONFIG_TRAEFIKA
@@ -47,8 +45,6 @@ DNS_CHALLENGE_PROVIDER=$(DNS_CHALLENGE_PROVIDER)
 DNSCHALLENGE_DELAYBEFORECHECK=$(DNSCHALLENGE_DELAYBEFORECHECK)
 # Acme CA server
 ACME_CASERVER=$(ACME_CASERVER)
-# Set redirect for http
-REDIRECT_ENTRYPOINT_FOR_HTTP=$(REDIRECT_ENTRYPOINT_FOR_HTTP)
 
 endef
 export CONFIG_TRAEFIKA
