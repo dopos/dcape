@@ -4,11 +4,16 @@
     command:
       --web --docker --docker.watch --docker.exposedbydefault=false --logLevel=INFO
       --acme --acme.acmelogging=true --acme.email=${TRAEFIK_ACME_EMAIL}
-      --acme.onhostrule
-      --acme.storage=/acme/certs.json --acme.httpChallenge.entrypoint=http
+      --acme.domains='*.'${DOMAIN}
+      --acme.dnschallenge.provider=true
+      --acme.tlsconfig=true
+      --acme.dnschallenge.provider=${DNS_CHALLENGE_PROVIDER}
+      --acme.dnschallenge.delaybeforecheck=${DNSCHALLENGE_DELAYBEFORECHECK}
+      --acme.caserver=${ACME_CASERVER}
+      --acme.storage=/acme/certs.json
       --acme.entrypoint=https
       --defaultEntryPoints=${TRAEFIK_ENTRY_DEFAULT}
-      --entryPoints='Name:http Address::${TRAEFIK_ENTRY_HTTP}'
+      --entryPoints='Name:http Address::${TRAEFIK_ENTRY_HTTP} Redirect.EntryPoint:${REDIRECT_ENTRYPOINT_FOR_HTTP}'
       --entryPoints='Name:https Address::443 TLS'
     restart: always
     labels:
@@ -20,7 +25,6 @@
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - /dev/null:/traefik.toml
       - ./var/data/acme:/acme
     networks:
       default:
