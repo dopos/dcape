@@ -15,7 +15,7 @@ TRAEFIK_ACME_EMAIL ?= admin@$(DOMAIN)
 # Traefik hosts default entrypoint (eg: http,https)
 TRAEFIK_ENTRY_DEFAULT ?= http
 # Traefik port 80 serving rule (eg: 80 Redirect.EntryPoint:https)
-TRAEFIK_ENTRY_HTTP ?= 80
+TRAEFIK_ENTRY_HTTP ?= 80 Redirect.EntryPoint:https
 
 define CONFIG_TRAEFIKA
 # ------------------------------------------------------------------------------

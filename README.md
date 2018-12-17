@@ -168,6 +168,22 @@ make deps
 
 На этом этапе задается список приложений, формируется файл настроек **dcape** (файл `.env`) и вспомогательные файлы.
 Выбор варианта команды `make init` зависит от требуемой конфигурации среды (состава встроенных приложений).
+
+### Использование TLS
+Dcape поддерживает протокол TLS с использованием ключей [Let's Encrypt](https://ru.wikipedia.org/wiki/Let%E2%80%99s_Encrypt).
+При инициализации Dcape, поддержку TLS можно сконфигурировать тремя способами:
+* `local mode` - локальная установка, использование DCAPE на локальном компьютере без поддержки TLS.
+* `develop mode` - установка для деплоя приложений разработчиками (`develop mode`),
+использование TLS c wilcards сертификатом от Let's Encrypt для всех веб сервисов dcape и приложений.
+* `production mode` - установка с использованием индивидуальных сертификатов Let's Encrypt для каждого веб сервиса.
+Dcape поддерживает автоматическую генерацию сертификатов и валидацию домена для индивидуальных сертификатов.
+Для wildcards сертификатов, автоматическая генерация сертификатов и валидация доменов поддерживается для DNS
+[провайдеров](https://docs.traefik.io/configuration/acme/#provider) с поддержкой API.
+По умолчанию, при инициализации, конфигурируется автоматизированная генерация (перегенерация) сертификатов, при которой автоматически запускается генерация сертификата, в лог файл выдается хеш, который необходимо
+внести в поле домена со специальным именем типа `TXT`.
+Wildcards генерируется для домена: `*.$DOMAIN`, где DOMAIN="домен для которого разворачивается DCAPE"
+
+
 Примеры команды:
 
 ```
@@ -175,7 +191,16 @@ make deps
 make init
 
 # сайт, доступный извне, с сертификатами от Let's Encrypt
-make init-master DOMAIN=your.host TRAEFIK_ACME_EMAIL=admin@your.host
+make init-master-prod DOMAIN=your.host TRAEFIK_ACME_EMAIL=admin@your.host
+
+# сайт, доступный извне, с сертификатами от Let's Encrypt, без gitea.
+make init-slave-prod DOMAIN=your.host TRAEFIK_ACME_EMAIL=admin@your.host
+
+# сайт, доступный извне, с сертификатом wildcards от Let's Encrypt
+make init-master-develop DOMAIN=your.host TRAEFIK_ACME_EMAIL=admin@your.host
+
+# сайт, доступный извне, с сертификатом wildcards от Let's Encrypt, без gitea.
+make init-slave-develop DOMAIN=your.host TRAEFIK_ACME_EMAIL=admin@your.host
 
 # свой список приложений
 make init APPS="gitea portainer" DOMAIN=example.com

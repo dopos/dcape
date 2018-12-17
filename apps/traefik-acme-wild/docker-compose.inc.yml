@@ -13,7 +13,7 @@
       --acme.storage=/acme/certs.json
       --acme.entrypoint=https
       --defaultEntryPoints=${TRAEFIK_ENTRY_DEFAULT}
-      --entryPoints='Name:http Address::${TRAEFIK_ENTRY_HTTP} Redirect.EntryPoint:${REDIRECT_ENTRYPOINT_FOR_HTTP}'
+      --entryPoints='Name:http Address::${TRAEFIK_ENTRY_HTTP}'
       --entryPoints='Name:https Address::443 TLS'
     restart: always
     labels:

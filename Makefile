@@ -87,13 +87,21 @@ deps:
 	@sudo apt-get update && sudo apt-get install -y \
 	  gawk wget curl apache2-utils openssh-client docker-engine
 
-## Init internet server with gitea
-init-master: APPS = traefik-acme gitea portainer enfist cis
-init-master: init
+## Init internet server with gitea and personal letsencrypt cert for all apps (redirect http to https)
+init-master-prod: APPS = traefik-acme gitea portainer enfist cis
+init-master-prod: init
 
-## Init internet server without gitea
-init-slave: APPS = traefik-acme portainer enfist cis
-init-slave: init
+## Init internet server without gitea and personal letsencrypt cert for all apps (redirect http to https)
+init-slave-prod: APPS = traefik-acme portainer enfist cis
+init-slave-prod: init
+
+## Init internet server with gitea and one woldcards cert for all apps (redirect http to https)
+init-master-develop: APPS = traefik-acme-wild gitea portainer enfist cis
+init-master-develop: init
+
+## Init internet server without gitea and one wildcards cert for all apps (redirect http to https)
+init-slave-develop: APPS = traefik-acme-wild portainer enfist cis
+init-slave-develop: init
 
 ## Init local server
 init-local: APPS = traefik gitea portainer enfist cis
