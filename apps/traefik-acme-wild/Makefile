@@ -49,10 +49,10 @@ ACME_CASERVER=$(ACME_CASERVER)
 endef
 export CONFIG_TRAEFIKA
 
-traefik-acme-init:
+traefik-acme-wild-init:
 	@grep Traefik-acme .env > /dev/null || echo "$$CONFIG_TRAEFIKA" >> .env
 	@if [[ "$$TRAEFIK_VER0" != "$$TRAEFIK_VER" ]] ; then \
 	  echo "Warning: TRAEFIK_VER in dcape ($$TRAEFIK_VER0) differs from yours ($$TRAEFIK_VER)" ; \
 	fi
 
-traefik-acme-apply:
+traefik-acme-wild-apply:
