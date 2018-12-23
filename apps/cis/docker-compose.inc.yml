@@ -47,11 +47,11 @@
       - ./var/data/cis/hook:/hook:ro
       - ./var:${DCAPE_ROOT}/var
     command: -hooks /etc/webhook/local.json -hooks /etc/webhook/remote.json -hotreload -nopanic -verbose
+    hostname: ${DOMAIN}
     environment:
       - DEPLOY_ROOT=${DCAPE_ROOT}/var
       - DEPLOY_PASS=${CIS_DEPLOY_PASS}
       - GIT_SSH_COMMAND=ssh -i /hook -o StrictHostKeyChecking=no
-      - DOMAIN=${DOMAIN}
 
   # ------------------------------------------------------------------------------
   traefik-fl:
