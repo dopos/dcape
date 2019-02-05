@@ -51,6 +51,7 @@
       - DEPLOY_ROOT=${DCAPE_ROOT}/var
       - DEPLOY_PASS=${CIS_DEPLOY_PASS}
       - GIT_SSH_COMMAND=ssh -i /hook -o StrictHostKeyChecking=no
+      - DCAPE_DOMAIN=${DOMAIN}
 
   # ------------------------------------------------------------------------------
   traefik-fl:
