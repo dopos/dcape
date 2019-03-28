@@ -149,7 +149,7 @@ down: dc
 ## for manual provider and DNS challenge (not use vars for manual provider)
 wild: 
 wild: CMD=run traefik-acme-wild
-wild:
+wild: dc
 
 # ------------------------------------------------------------------------------
 
