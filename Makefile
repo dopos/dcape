@@ -148,7 +148,7 @@ down: dc
 ## separate start of traefik in the interactive mode, is used for get wild cert
 ## for manual provider and DNS challenge (not use vars for manual provider)
 wild: 
-wild: CMD=run traefik-acme-wild
+wild: CMD=run --rm traefik-acme-wild
 wild: dc
 
 # ------------------------------------------------------------------------------
