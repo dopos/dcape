@@ -8,7 +8,6 @@
       --acme.dnschallenge.provider=true
       --acme.tlsconfig=true
       --acme.dnschallenge.provider=${DNS_CHALLENGE_PROVIDER}
-      --acme.dnschallenge.delaybeforecheck=${DNSCHALLENGE_DELAYBEFORECHECK}
       --acme.caserver=${ACME_CASERVER}
       --acme.storage=/acme/certs.json
       --acme.entrypoint=https

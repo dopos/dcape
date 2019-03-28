@@ -19,8 +19,6 @@ TRAEFIK_ENTRY_HTTP ?= 80 Redirect.EntryPoint:https
 
 # Choosing a method to generate wildcards cert
 DNS_CHALLENGE_PROVIDER ?= manual
-# Set delay for wait before check exist cert after send request to provider
-DNSCHALLENGE_DELAYBEFORECHECK ?= 800
 # Acme CA server, use this value for DNS_CHALLENGE_PROVIDER=manual
 ACME_CASERVER 		?= https://acme-v01.api.letsencrypt.org/directory
 
@@ -41,8 +39,6 @@ TRAEFIK_ENTRY_HTTP=$(TRAEFIK_ENTRY_HTTP)
 
 # Choosing a methos to generate a wildcards certificate
 DNS_CHALLENGE_PROVIDER=$(DNS_CHALLENGE_PROVIDER)
-# Set delay for wait before check exist cert after send request to provider
-DNSCHALLENGE_DELAYBEFORECHECK=$(DNSCHALLENGE_DELAYBEFORECHECK)
 # Acme CA server
 ACME_CASERVER=$(ACME_CASERVER)
 
