@@ -11,7 +11,7 @@
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     command:
-      /usr/bin/apisite --db_schema rpc --http_addr :8080
+      /usr/bin/apisite --db.schema rpc --http_addr :8080
     environment:
       - PGHOST=db
       - PGDATABASE=${ENFIST_DB_TAG}
