@@ -1,4 +1,4 @@
-# Traefik-acme init Makefile
+# Traefik-acme-dev init Makefile
 # This file included by ../../Makefile
 
 SHELL               	= /bin/bash
@@ -38,10 +38,10 @@ REDIR_ENTRY=$(REDIR_ENTRY)
 endef
 export CONFIG_TRAEFIKA
 
-traefik-acme-init:
+traefik-acme-dev-init:
 	@grep Traefik-acme .env > /dev/null || echo "$$CONFIG_TRAEFIKA" >> .env
 	@if [[ "$$TRAEFIK_VER0" != "$$TRAEFIK_VER" ]] ; then \
 	  echo "Warning: TRAEFIK_VER in dcape ($$TRAEFIK_VER0) differs from yours ($$TRAEFIK_VER)" ; \
 	fi
 
-traefik-acme-apply:
+traefik-acme-dev-apply:
