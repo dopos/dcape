@@ -1,5 +1,5 @@
   # ------------------------------------------------------------------------------
-  traefik-acme:
+  traefik-acme-dev:
     image: traefik:${TRAEFIK_VER}
     command:
       --web --docker --docker.watch --docker.exposedbydefault=false --logLevel=INFO
