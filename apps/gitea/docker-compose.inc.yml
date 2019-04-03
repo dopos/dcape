@@ -16,6 +16,7 @@
       - "traefik.enable=true"
       - "traefik.port=3000"
       - "traefik.frontend.entryPoints=http,https"
+      - "traefik.frontend.redirect.entryPoint=${REDIR_ENTRY}"
       - "traefik.frontend.rule=Host:${GITEA_HOST}"
     environment:
       - TZ=${TZ}

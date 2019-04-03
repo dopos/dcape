@@ -95,13 +95,21 @@ init-master-prod: init
 init-slave-prod: APPS = traefik-acme portainer enfist cis
 init-slave-prod: init
 
+## Init internet server with gitea and ssl for build-in apps (redirect http to https)
+init-master-dev: APPS = traefik-acme-dev gitea portainer enfist cis
+init-master-dev: init
+
+## Init internet server without gitea and ssl for built-in apps (redirect http to https)
+init-slave-dev: APPS = traefik-acme-dev portainer enfist cis
+init-slave-dev: init
+
 ## Init internet server with gitea and one woldcards cert for all apps (redirect http to https)
-init-master-develop: APPS = traefik-acme-wild gitea portainer enfist cis
-init-master-develop: init
+init-master-wild: APPS = traefik-acme-wild gitea portainer enfist cis
+init-master-wild: init
 
 ## Init internet server without gitea and one wildcards cert for all apps (redirect http to https)
-init-slave-develop: APPS = traefik-acme-wild portainer enfist cis
-init-slave-develop: init
+init-slave-wild: APPS = traefik-acme-wild portainer enfist cis
+init-slave-wild: init
 
 ## Init local server
 init-local: APPS = traefik gitea portainer enfist cis
