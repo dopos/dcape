@@ -27,7 +27,7 @@ PG_PORT_LOCAL    ?= 5433
 PG_SOURCE_SUFFIX ?=
 
 # Docker-compose image tag
-DC_VER           ?= 1.21.2
+DC_VER           ?= 1.23.2
 
 # Config store url
 ENFIST_URL       ?= http://enfist:8080/rpc
