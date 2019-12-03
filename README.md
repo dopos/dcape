@@ -72,7 +72,7 @@
 ```
 curl -sSL https://raw.githubusercontent.com/dopos/dcape/master/install.sh | sh -s \
  192.168.0.1 -a op -p 32 -s 1Gb -delntu \
- -cape 'APPS="traefik-acme gitea portainer enfist cis" DOMAIN=your.domain TRAEFIK_ACME_EMAIL=admin@your.domain'
+ -c 'APPS="traefik-acme gitea portainer enfist cis" DOMAIN=your.domain TRAEFIK_ACME_EMAIL=admin@your.domain'
 
 ```
 
