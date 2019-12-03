@@ -85,7 +85,7 @@ include apps/*/Makefile
 deps:
 	@echo "*** $@ ***"
 	@sudo apt-get update && sudo apt-get install -y \
-	  gawk wget curl apache2-utils openssh-client docker-engine
+	  gawk wget curl apache2-utils openssh-client
 
 ## Init internet server with gitea and personal letsencrypt cert for all apps (redirect http to https)
 init-master-prod: APPS = traefik-acme gitea portainer enfist cis
