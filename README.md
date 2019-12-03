@@ -160,7 +160,7 @@ sudo mkdir dcape && sudo chown $USER dcape
 git clone https://github.com/dopos/dcape.git
 cd dcape
 
-# gawk wget curl apache2-utils openssh-client docker-engine
+# gawk wget curl apache2-utils openssh-client
 make deps
 ```
 
