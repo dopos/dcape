@@ -205,6 +205,61 @@ wild: CMD=run --rm traefik-acme-wild
 wild: dc
 
 # ------------------------------------------------------------------------------
+# Upgrade postgres databases via pipeline
+upgrade-pg-via-pipe:
+	@echo "*** $@ *** " ; \
+    DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
+    docker pull $$PG_IMAGE ; \
+    PG_NEW=`docker inspect --type=image $$PG_IMAGE | jq -r '.[0].ContainerConfig.Env[] | capture("PG_MAJOR=(?<a>.+)") | .a'`  ; \
+    echo "Preparing the container with the new postgres version" ; \
+    PG_PORT_NEW=$(shell expr $(PG_PORT_LOCAL) + 1) ; \
+    DCAPE_DB_NEW="dcape_db_new" ; \
+		echo "Deny connections from hosts" ; \
+		sed -i 's/host all all all md5/#host all all all md5/' $$PWD/var/data/db/pg_hba.conf ; \
+    docker run --rm -d \
+			--name dcape_db_new \
+			-v $$PWD/var/data/db_$$PG_NEW:/var/lib/postgresql/data \
+			-e "TZ=$$TZ" \
+			-e "LANG=$$PG_ENCODING" \
+			--network="d4s_default" \
+			-p "$$PG_PORT_NEW:5432" \
+			$$PG_IMAGE ; \
+    echo -n "Checking for new version PG is ready..." ; \
+      until [[ `docker inspect -f "{{.State.Running}}" $$DCAPE_DB_NEW` == true ]] ; do sleep 1 ; echo -n "." ; done
+	@echo "Ok. Run the migration on all databases" ; \
+	  PG_NEW=`docker inspect --type=image $$PG_IMAGE | jq -r '.[0].ContainerConfig.Env[] | capture("PG_MAJOR=(?<a>.+)") | .a'`  ; \
+    DCAPE_DB_NEW="dcape_db_new" ; \
+	  docker exec -i -u postgres $$DCAPE_DB_NEW /bin/bash -c "echo "db:5432:*:postgres:$$PG_DB_PASS" > ~/.pgpass && chmod 0600 ~/.pgpass" ; \
+	  docker exec -i -u postgres $$DCAPE_DB_NEW /bin/bash -c	"pg_dumpall -h db -p 5432 | psql && echo "Migration complete." " ; \
+	  docker stop $$DCAPE_DB_NEW ; \
+	  docker stop $$DCAPE_DB ; \
+	  mv ./var/data/db ./var/data/db_previous_version ; \
+	  cp ./var/data/db_/postgresql.conf ./var/data/db_$$PG_OLD/postgresql_store.conf ; \
+
+	# echo "If the process succeeds, edit pg_hba.conf, other conf and start postgres container or dcape. \
+  #  		For more info see https://github.com/dopos/dcape/blob/master/POSTGRES.md"
+
+
+# Upgrade postgres major version with pg_dumpall-psql
+# Create dump for claster Postgres
+pg_dumpall:
+	@echo "Start $@ to pg_dumpall_$${PROJECT_NAME}_`date +"%d.%m.%Y"`.sql.gz" ;\
+	DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
+	docker exec -u postgres $$DCAPE_DB pg_dumpall | gzip -7 -c > \
+		./var/data/db-backup/pg_dumpall_$${PROJECT_NAME}_`date +"%d.%m.%Y"`.sql.gz
+
+# Load dump for claster Postgres
+pg_load_dumpall:
+	@echo "Start $@ ..." ; \
+	echo "Load dump file: pg_dumpall_$${PROJECT_NAME}_`date +"%d.%m.%Y"`.sql.gz" ;\
+	docker exec -u postgres -e PROJECT_NAME=$${PROJECT_NAME} $${PROJECT_NAME}_db_1 \
+		bash -c 'zcat /opt/backup/pg_dumpall_$${PROJECT_NAME}_`date +"$d.%m.%Y"`.sql.gz | psql' ; \
+	echo "Load dump complete. Start databases ANALYZE." ; \
+	docker exec -u postgres $${PROJECT_NAME}_db_1 psql -c "ANALYZE" && \
+		echo "ANALYZE complete."
+
+
+
 
 # $$PWD используется для того, чтобы текущий каталог был доступен в контейнере по тому же пути
 # и относительные тома новых контейнеров могли его использовать
