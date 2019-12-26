@@ -44,7 +44,7 @@
 * [webtail](https://github.com/LeKovr/webtail) ([docker](https://store.docker.com/community/images/lekovr/webtail)) - агрегация и www доступ к логам событий приложений (запуск, удаление, обновление)
 * [enfist](https://github.com/apisite/app-enfist) ([docker](https://store.docker.com/community/images/apisite/enfist)) - хранилище файлов .env в postgresql
 * [narra](https://github.com/dopos/narra) ([docker](https://store.docker.com/community/images/dopos/narra)) - сервис авторизации для nginx через API gitea
-* [postgresql](https://www.postgresql.org) ([docker](https://store.docker.com/images/postgres)) - хранение конфигураций приложений и баз данных, если приложению требуется СУБД. Подробности в описании работы кластера БД [Postgres](POSTGRES.md) 
+* [postgresql](https://www.postgresql.org) ([docker](https://store.docker.com/images/postgres)) - хранение конфигураций приложений и баз данных, если приложению требуется СУБД. Детали в инструкции по работе с [Postgres](POSTGRES.md)
 
 **Служебные приложения dcape:**
 
@@ -72,7 +72,7 @@
 ```
 curl -sSL https://raw.githubusercontent.com/dopos/dcape/master/install.sh | sh -s \
  192.168.0.1 -a op -p 32 -s 1Gb -delntu \
- -cape 'APPS="traefik-acme gitea portainer enfist cis" DOMAIN=your.domain TRAEFIK_ACME_EMAIL=admin@your.domain'
+ -c 'APPS="traefik-acme gitea portainer enfist cis" DOMAIN=your.domain TRAEFIK_ACME_EMAIL=admin@your.domain'
 
 ```
 
@@ -160,7 +160,7 @@ sudo mkdir dcape && sudo chown $USER dcape
 git clone https://github.com/dopos/dcape.git
 cd dcape
 
-# gawk wget curl apache2-utils openssh-client docker-engine
+# gawk wget curl apache2-utils openssh-client
 make deps
 ```
 

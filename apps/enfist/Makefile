@@ -11,7 +11,7 @@ ENFIST_DB_TAG      ?= enfist
 # Database user password
 ENFIST_DB_PASS     ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
 # apisite/app-enfist docker image version by dcape
-ENFIST_VER0        ?= 0.6
+ENFIST_VER0        ?= 0.6.2
 # apisite/app-enfist docker image version
 ENFIST_VER         ?= $(ENFIST_VER0)
 
