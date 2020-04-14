@@ -115,7 +115,6 @@ init-slave-wild: init
 init-local: APPS = traefik gitea portainer enfist cis
 init-local: init
 
-
 ## Initially create .enc file with defaults
 init:
 	@echo "*** $@ $(APPS) ***"
@@ -129,52 +128,6 @@ apply:
 	@echo "*** $@ $(APPS) ***"
 	@$(MAKE) -s dc CMD="up -d $(APPS_SYS)" || echo ""
 	@for f in $(shell echo $(APPS)) ; do $(MAKE) -s $${f}-apply ; done
-
-# Upgrade postgres major version with pg_upgrade
-pg_upgrade:
-	@echo "*** $@ *** " ; \
-	DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
-	PG_OLD=`cat ./var/data/db/PG_VERSION` ; \
-	PG_NEW=`docker inspect --type=image $$PG_IMAGE | jq -r '.[0].ContainerConfig.Env[] | capture("PG_MAJOR=(?<a>.+)") | .a'`  ; \
-	echo "*** $@ *** from $$PG_OLD to $$PG_NEW" ; \
-	echo -n "Checking PG is down..." ; \
-	if [[ `docker inspect -f "{{.State.Running}}" $$DCAPE_DB 2>/dev/null` == true ]] ; then \
-		echo "Postgres container not stop. Exit" && exit 1 ; \
-	else \
-		echo "Postgres container not run. Continue" ; \
-	fi ; \
-	echo "Move current postgres data directory to ./var/data/db_$$PG_OLD" ; \
-	mkdir ./var/data/db_$$PG_OLD ; \
-	mv ./var/data/db/* ./var/data/db_$$PG_OLD/ ; \
-	cp ./var/data/db_$$PG_OLD/postgresql.conf ./var/data/db_$$PG_OLD/postgresql_store.conf ; \
-	sed -i "s%include_dir = '/opt/conf.d'%#include_dir = '/opt/conf.d'%" ./var/data/db_$$PG_OLD/postgresql.conf ; \
-	docker pull tianon/postgres-upgrade:$$PG_OLD-to-$$PG_NEW ; \
-	docker run --rm \
-    	-v $$PWD/var/data/db_$$PG_OLD:/var/lib/postgresql/$$PG_OLD/data \
-    	-v $$PWD/var/data/db:/var/lib/postgresql/$$PG_NEW/data \
-    	tianon/postgres-upgrade:$$PG_OLD-to-$$PG_NEW ; \
-	cp -f ./var/data/db_$$PG_OLD/pg_hba.conf ./var/data/db/pg_hba.conf ; \
-	cp -f ./var/data/db_$$PG_OLD/postgresql_store.conf ./var/data/db/postgresql.conf ; \
-	echo "If the process succeeds, edit pg_hba.conf, other conf and start postgres container or dcape. \
-   		For more info see https://github.com/dopos/dcape/blob/master/POSTGRES.md"
-
-# Upgrade postgres major version with pg_dumpall-psql
-# Create dump for claster Postgres
-pg_dumpall:
-	@echo "Start $@ to pg_dumpall_$${PROJECT_NAME}_`date +"%d.%m.%Y"`.sql.gz" ;\
-	DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
-	docker exec -u postgres $$DCAPE_DB pg_dumpall | gzip -7 -c > \
-		./var/data/db-backup/pg_dumpall_$${PROJECT_NAME}_`date +"%d.%m.%Y"`.sql.gz
-
-# Load dump for claster Postgres
-pg_load_dumpall:
-	@echo "Start $@ ..." ; \
-	echo "Load dump file: pg_dumpall_$${PROJECT_NAME}_`date +"%d.%m.%Y"`.sql.gz" ;\
-	docker exec -u postgres -e PROJECT_NAME=$${PROJECT_NAME} $${PROJECT_NAME}_db_1 \
-		bash -c 'zcat /opt/backup/pg_dumpall_$${PROJECT_NAME}_`date +"$d.%m.%Y"`.sql.gz | psql' ; \
-	echo "Load dump complete. Start databases ANALYZE." ; \
-	docker exec -u postgres $${PROJECT_NAME}_db_1 psql -c "ANALYZE" && \
-		echo "ANALYZE complete."
 
 # build file from app templates
 docker-compose.yml: $(DCINC) $(DCFILES)
@@ -204,61 +157,85 @@ wild:
 wild: CMD=run --rm traefik-acme-wild
 wild: dc
 
-# ------------------------------------------------------------------------------
-# Upgrade postgres databases via pipeline
-upgrade-pg-via-pipe:
-	@echo "*** $@ *** " ; \
-    DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
-    docker pull $$PG_IMAGE ; \
-    PG_NEW=`docker inspect --type=image $$PG_IMAGE | jq -r '.[0].ContainerConfig.Env[] | capture("PG_MAJOR=(?<a>.+)") | .a'`  ; \
-    echo "Preparing the container with the new postgres version" ; \
-    PG_PORT_NEW=$(shell expr $(PG_PORT_LOCAL) + 1) ; \
-    DCAPE_DB_NEW="dcape_db_new" ; \
-		echo "Deny connections from hosts" ; \
-		sed -i 's/host all all all md5/#host all all all md5/' $$PWD/var/data/db/pg_hba.conf ; \
-    docker run --rm -d \
-			--name dcape_db_new \
-			-v $$PWD/var/data/db_$$PG_NEW:/var/lib/postgresql/data \
-			-e "TZ=$$TZ" \
-			-e "LANG=$$PG_ENCODING" \
-			--network="d4s_default" \
-			-p "$$PG_PORT_NEW:5432" \
-			$$PG_IMAGE ; \
-    echo -n "Checking for new version PG is ready..." ; \
-      until [[ `docker inspect -f "{{.State.Running}}" $$DCAPE_DB_NEW` == true ]] ; do sleep 1 ; echo -n "." ; done
-	@echo "Ok. Run the migration on all databases" ; \
-	  PG_NEW=`docker inspect --type=image $$PG_IMAGE | jq -r '.[0].ContainerConfig.Env[] | capture("PG_MAJOR=(?<a>.+)") | .a'`  ; \
-    DCAPE_DB_NEW="dcape_db_new" ; \
-	  docker exec -i -u postgres $$DCAPE_DB_NEW /bin/bash -c "echo "db:5432:*:postgres:$$PG_DB_PASS" > ~/.pgpass && chmod 0600 ~/.pgpass" ; \
-	  docker exec -i -u postgres $$DCAPE_DB_NEW /bin/bash -c	"pg_dumpall -h db -p 5432 | psql && echo "Migration complete." " ; \
-	  docker stop $$DCAPE_DB_NEW ; \
-	  docker stop $$DCAPE_DB ; \
-	  mv ./var/data/db ./var/data/db_previous_version ; \
-	  cp ./var/data/db_/postgresql.conf ./var/data/db_$$PG_OLD/postgresql_store.conf ; \
 
-	# echo "If the process succeeds, edit pg_hba.conf, other conf and start postgres container or dcape. \
-  #  		For more info see https://github.com/dopos/dcape/blob/master/POSTGRES.md"
+# ------------------------------------------------------------------------------
+# Upgrade postgres databases via pipeline (pg_dumpall | psql), bacause using pg_dump 
+# we get error if the cluster has databases with different encodings
+# for upgrade: 1. set PG_IMAGE on new postgres container:version;
+# 2. make pg_upgrade_wpipe; 3. its all - check new pg, if Ok remove dir: ./var/data/<db_previous_version>
+pg_upgrade_wpipe:
+	@echo "*** $@ *** " ; \
+	  DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
+	  DCAPE_DB_NEW="dcape_db_new" ; \
+	  PG_PORT_NEW=$(shell expr $(PG_PORT_LOCAL) + 1) ; \
+	  PG_NEW_MAJOR_VER=`docker inspect --type=image $$PG_IMAGE | jq -r '.[0].ContainerConfig.Env[] | capture("PG_MAJOR=(?<a>.+)") | .a'`  ; \
+	  PG_USE_MAJOR_VER=`docker inspect $$DCAPE_DB | jq -r '.[0].Config.Env[] | capture("PG_MAJOR=(?<a>[0-9]+)") | .a'` ; \
+	  echo "Prepare to upgrade the Postgres container PG_VER_USE=$$PG_USE_MAJOR_VER  ->  PG_VER_NEW=$$PG_NEW_MAJOR_VER" ; \
+	  if [[ $$PG_USE_MAJOR_VER == $$PG_NEW_MAJOR_VER ]] ; then \
+	    echo "Error, the PG_IMAGE variable contains the same version that is already use. To upgrade you need to set the new version in the PG_IMAGE variable." && \
+	    exit 1 ; \
+	  fi ; \
+	  docker pull $$PG_IMAGE ; \
+	  echo "Preparing the container with the new postgres version" ; \
+	  echo "Deny connections from hosts" ; \
+	  sed -i 's/host all all all md5/#host all all all md5/' $$PWD/var/data/db/pg_hba.conf ; \
+	  echo "Start container with new Postgres..." ; \
+	  docker run --rm -d \
+	    --name $$DCAPE_DB_NEW \
+	    -v $$PWD/var/data/db_$$PG_NEW_MAJOR_VER:/var/lib/postgresql/data \
+	    -e "TZ=$$TZ" \
+	    -e "LANG=$$PG_ENCODING" \
+	    -e "POSTGRES_HOST_AUTH_METHOD=trust" \
+	    --network=$$PROJECT_NAME"_default" \
+	    -p "$$PG_PORT_NEW:5432" \
+	    $$PG_IMAGE ; \
+	  echo -n "Checking for new version Postgres is ready..."  ; \
+	  retries=5 ;\
+	  until docker exec -i -u postgres $$DCAPE_DB_NEW /bin/bash -c "psql -c '\l'" > /dev/null 2>&1 || [ $$retries -eq 0 ]; do sleep 1; ((retries--)); echo -n "."; done ; \
+	  if [ $$retries -eq 0 ]; then \
+	    echo "Error." ;\
+	    echo "Something went wrong. PG not ready intil 5 seconds." ;\
+	    exit 1 ;\
+	  else \
+	    echo "Ok." ; \
+	  fi ;\
+	  echo "Start database migration to a new Postgres." ;\
+	  docker exec -i -u postgres $$DCAPE_DB_NEW /bin/bash -c "pg_dumpall -h db -p 5432 | psql -a " || exit 1 ;\
+	  echo "Stopping PG_$$PG_USE_MAJOR_VER and PG_$$PG_NEW_MAJOR_VER Postgres container for reconfigure" ; \
+	  docker stop $$DCAPE_DB_NEW $$DCAPE_DB || exit 1 ; \
+	  echo "Create reserv copy with PG_USE datadir (move to db_$$PG_USE_MAJOR_VER dir)" ; \
+	  WDIR="./var/data/" ; \
+	  mv $$WDIR/db $$WDIR/db_$$PG_USE_MAJOR_VER ; \
+	  echo "Change using postgresql datadir to PG_NEW" ; \
+	  mv $$WDIR/db_$$PG_NEW_MAJOR_VER $$WDIR/db ; \
+	  echo "Disable default configs file from PG_NEW (move postgres.conf and pg_hba.conf to files with .c2f extension)" ; \
+	  mv $$WDIR/db/postgresql.conf $$WDIR/db/postgresql_default.c2f ; \
+	  mv $$WDIR/db/pg_hba.conf $$WDIR/pg_hba_default.c2f ; \
+	  echo "Copy config files from PG_USE version (postgresql.conf and pg_hba.conf)" ; \
+	  cp $$WDIR/db_$$PG_USE_MAJOR_VER/postgresql.conf $$WDIR/db ; \
+	  cp $$WDIR/db_$$PG_USE_MAJOR_VER/pg_hba.conf $$WDIR/db ;\
+	  echo "The upgrade is complete, config file (postgresql.conf, pg_hba.conf) moved from old to new version." ; \
+	  echo "Postgres is down, but ready for start. For start Postgres use command: make dc CMD=\"up -d db\"" ; \
+	  echo "For more info see https://github.com/dopos/dcape/blob/master/POSTGRES.md"
 
 
 # Upgrade postgres major version with pg_dumpall-psql
 # Create dump for claster Postgres
 pg_dumpall:
 	@echo "Start $@ to pg_dumpall_$${PROJECT_NAME}_`date +"%d.%m.%Y"`.sql.gz" ;\
-	DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
-	docker exec -u postgres $$DCAPE_DB pg_dumpall | gzip -7 -c > \
+	  DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
+	  docker exec -u postgres $$DCAPE_DB pg_dumpall | gzip -7 -c > \
 		./var/data/db-backup/pg_dumpall_$${PROJECT_NAME}_`date +"%d.%m.%Y"`.sql.gz
 
 # Load dump for claster Postgres
 pg_load_dumpall:
 	@echo "Start $@ ..." ; \
-	echo "Load dump file: pg_dumpall_$${PROJECT_NAME}_`date +"%d.%m.%Y"`.sql.gz" ;\
-	docker exec -u postgres -e PROJECT_NAME=$${PROJECT_NAME} $${PROJECT_NAME}_db_1 \
+	  echo "Load dump file: pg_dumpall_$${PROJECT_NAME}_`date +"%d.%m.%Y"`.sql.gz" ;\
+	  docker exec -u postgres -e PROJECT_NAME=$${PROJECT_NAME} $${PROJECT_NAME}_db_1 \
 		bash -c 'zcat /opt/backup/pg_dumpall_$${PROJECT_NAME}_`date +"$d.%m.%Y"`.sql.gz | psql' ; \
-	echo "Load dump complete. Start databases ANALYZE." ; \
-	docker exec -u postgres $${PROJECT_NAME}_db_1 psql -c "ANALYZE" && \
+	  echo "Load dump complete. Start databases ANALYZE." ; \
+	  docker exec -u postgres $${PROJECT_NAME}_db_1 psql -c "ANALYZE" && \
 		echo "ANALYZE complete."
-
-
 
 
 # $$PWD используется для того, чтобы текущий каталог был доступен в контейнере по тому же пути
