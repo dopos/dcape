@@ -39,6 +39,10 @@ TRAEFIK_ENTRY_HTTP=$(TRAEFIK_ENTRY_HTTP)
 
 # Choosing a methos to generate a wildcards certificate
 DNS_CHALLENGE_PROVIDER=$(DNS_CHALLENGE_PROVIDER)
+
+# Must be set for provider api auto works
+DNS_CHALLENGE_RESOLVER=$(DNS_CHALLENGE_RESOLVER)
+
 # Acme CA server
 ACME_CASERVER=$(ACME_CASERVER)
 
