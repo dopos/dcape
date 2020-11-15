@@ -44,7 +44,7 @@
 * [webtail](https://github.com/LeKovr/webtail) ([docker](https://store.docker.com/community/images/lekovr/webtail)) - агрегация и www доступ к логам событий приложений (запуск, удаление, обновление)
 * [enfist](https://github.com/apisite/app-enfist) ([docker](https://store.docker.com/community/images/apisite/enfist)) - хранилище файлов .env в postgresql
 * [narra](https://github.com/dopos/narra) ([docker](https://store.docker.com/community/images/dopos/narra)) - сервис авторизации для nginx через API gitea
-* [postgresql](https://www.postgresql.org) ([docker](https://store.docker.com/images/postgres)) - хранение конфигураций приложений и баз данных, если приложению требуется СУБД. Детали в инструкции по работе с [Postgres](POSTGRES.md)
+* [postgresql](https://www.postgresql.org) ([docker](https://store.docker.com/images/postgres)) - хранение конфигураций приложений и баз данных, если приложению требуется СУБД. Детали в инструкции по работе с [Postgres](https://github.com/dopos/dcape-pg-upgrade)
 
 **Служебные приложения dcape:**
 
