@@ -2,12 +2,12 @@
   traefik-acme-wild:
     image: traefik:${TRAEFIK_VER}
     command:
-      --web --docker --docker.watch --docker.exposedbydefault=false --logLevel=INFO
+      --api --docker --docker.watch --docker.exposedbydefault=false --logLevel=INFO
       --acme --acme.acmelogging=true --acme.email=${TRAEFIK_ACME_EMAIL}
       --acme.domains='*.'${DOMAIN}
-      --acme.dnschallenge.provider=true
       --acme.tlsconfig=true
       --acme.dnschallenge.provider=${DNS_CHALLENGE_PROVIDER}
+      --acme.dnschallenge.resolvers=${DNS_CHALLENGE_RESOLVER}
       --acme.caserver=${ACME_CASERVER}
       --acme.storage=/acme/certs.json
       --acme.entrypoint=https
@@ -15,6 +15,9 @@
       --entryPoints='Name:http Address::${TRAEFIK_ENTRY_HTTP}'
       --entryPoints='Name:https Address::443 TLS'
     restart: always
+    environment:
+      #- PDNS_API_KEY=${PDNS_API_KEY}
+      #- PDNS_API_URL=${PDNS_API_URL}
     labels:
       - "traefik.enable=false"
     ports:
