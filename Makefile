@@ -25,6 +25,8 @@ PG_ENCODING      ?= en_US.UTF-8
 PG_PORT_LOCAL    ?= 5433
 # Dump name suffix to load on db-create
 PG_SOURCE_SUFFIX ?=
+# shared memory
+PG_SHM_SIZE      ?= 64mb
 
 # Docker-compose image tag
 DC_VER           ?= 1.23.2
@@ -60,6 +62,8 @@ PG_DB_PASS=$(PG_DB_PASS)
 PG_ENCODING=$(PG_ENCODING)
 # port on localhost postgresql listen on
 PG_PORT_LOCAL=$(PG_PORT_LOCAL)
+# shared memory
+PG_SHM_SIZE=$(PG_SHM_SIZE)
 
 endef
 export CONFIG_DEF
@@ -305,8 +309,8 @@ db-create: docker-wait
 	&& varname=$(NAME)_DB_PASS && pass=$${!varname} \
 	&& varname=$(NAME)_DB_TAG && dbname=$${!varname} \
 	&& DCAPE_DB=$${PROJECT_NAME}_db_1 \
-	&& docker exec -i $$DCAPE_DB psql -U postgres -c "CREATE USER \"$$dbname\" WITH PASSWORD '$$pass';" \
-	&& docker exec -i $$DCAPE_DB psql -U postgres -c "CREATE DATABASE \"$$dbname\" OWNER \"$$dbname\";" || db_exists=1 ; \
+	&& docker exec -i $$DCAPE_DB psql -U postgres -c "CREATE USER \"$$dbname\" WITH PASSWORD '$$pass';" 2> >(grep -v "already exists" >&2) \
+	&& docker exec -i $$DCAPE_DB psql -U postgres -c "CREATE DATABASE \"$$dbname\" OWNER \"$$dbname\";" 2> >(grep -v "already exists" >&2) || db_exists=1 ; \
 	if [[ ! "$$db_exists" ]] && [[ "$(PG_SOURCE_SUFFIX)" ]] ; then \
 	    echo "$$IMPORT_SCRIPT" | docker exec -i $$DCAPE_DB bash -s - $$dbname $$dbname $$pass $$dbname$(PG_SOURCE_SUFFIX) \
 	    && docker exec -i $$DCAPE_DB psql -U postgres -c "COMMENT ON DATABASE \"$$dbname\" IS 'SOURCE $$dbname$(PG_SOURCE_SUFFIX)';" \
@@ -324,6 +328,10 @@ db-drop:
 psql:
 	@DCAPE_DB=$${PROJECT_NAME}_db_1 \
 	&& docker exec -it $$DCAPE_DB psql -U postgres
+
+## Run local psql
+psql-local:
+	@psql -h localhost
 
 # ------------------------------------------------------------------------------
 # .env file store
