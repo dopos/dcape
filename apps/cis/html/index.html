@@ -31,13 +31,14 @@
             You must authenticate with Gitea account for access these pages.
           </div>
           <div id="user" style="display: none">
-            You authenticated for access these pages.
+            <p>
+            You are authenticated for access these pages. <a href="/logout">Delete auth cookie</a>
+            </p>
             <div id="key_off">
               <button onclick="keyShow()">Show config access key</button>
             </div>
             <div id="key_on" style="display: none">
               <button onclick="keyHide()">Hide config access key</button>
-              <a href="/logout">Delete auth cookie</a>
               <input class="u-full-width" type="text" id="key" />
             </div>
           </div>
@@ -45,11 +46,7 @@
             <li><a href="/logs/" target="_blank">Application logs</a>
             <li><a href="/conf/" target="_blank">Config store</a>
             <li><a href="/dashboard/" target="_blank">Traefik dashboard</a>
-            <li><a href="/hook.pub">Hook public key</a> (for use in Gitea remove last CR)</li>
-          </ul>
-        </p>
-        <h5>Hosted projects</h5>
-          <ul id='sites'>
+            <li><a href="/hook.pub">Hook public key</a></li>
           </ul>
         </p>
       </div>
@@ -76,6 +73,7 @@
     document.getElementById('key_off').style.display = "none";
     document.getElementById('key_on').style.display = "block";
   }
+
   function keyHide() {
     document.getElementById('key_off').style.display = "block";
     document.getElementById('key_on').style.display = "none";
@@ -83,25 +81,7 @@
 
   function ready() {
     document.title = location.host + ' - ' + document.title;
-    var json_obj = JSON.parse(Get("/frontends.json"));
-    var ul = document.getElementById('sites');
-    for (var key in json_obj) {
-      if (key == 'cis') continue; // we already at this site
-      var sites = json_obj[key];
-      var sitesLength = sites.length;
-      var port = "";
-      if (location.port != '') port = ':' + location.port;
-      for (var i = 0; i < sitesLength; i++) {
-        var a = document.createElement('a');
-        a.href = 'http://' + sites[i] + port + '/';
-        a.innerHTML = key + ' (' + sites[i] + ')';
-        a.setAttribute('target', '_blank');
-        var li = document.createElement('li');
-        li.appendChild(a);
-        ul.appendChild(li);
-      }
-    }
-    var token = getCookie('narra_token');
+     var token = getCookie('narra_token');
     if (token != undefined) {
       document.getElementById('key').value = token;
       document.getElementById('user').style.display = "block";

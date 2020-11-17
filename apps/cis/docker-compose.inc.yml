@@ -1,19 +1,13 @@
   # ------------------------------------------------------------------------------
   cis:
-    image: nginx:1.13-alpine
+    image: nginx:1.19.4-alpine
     restart: always
+    depends_on:
+      - narra
+      - webtail
     labels:
       - "traefik.enable=true"
-      - "traefik.frontend.entryPoints=http,https"
-      - "traefik.frontend.redirect.entryPoint=${REDIR_ENTRY}"
-      - "traefik.frontend.rule=Host:${CIS_HOST}"
-      - "traefik.port=80"
-    depends_on:
-      - webtail
-      - webhook
-      - traefik-fl
-      - enfist
-      - narra
+      - "traefik.http.routers.cis.rule=Host(`${CIS_HOST}`)"
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
@@ -21,54 +15,36 @@
       - ./apps/cis/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./var/data/cis/hook.pub:/data/hook.pub:ro
 
+  # ------------------------------------------------------------------------------
+  narra:
+  #  image: dopos/narra:${CIS_NARRA_VER}
+    image: nara2
+    restart: always
+    command:
+      --as.host http://${GITEA_HOST} --as.cookie_sign ${CIS_SIGN_KEY} --as.cookie_crypt ${CIS_CRYPT_KEY}
+      --as.client_id ${AUTH_CLIENT_ID} --as.client_key ${AUTH_CLIENT_KEY}
+      --as.my_url=http://${CIS_HOST} --as.do401 --as.url_header X-Forwarded-Uri
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.narra.rule=Host(`${CIS_HOST}`) && Path(`/login`,`/auth`)"
+      - "traefik.http.services.narra.loadbalancer.server.port=8080"
+      - "traefik.http.middlewares.narra.forwardauth.address=http://${CIS_HOST}/auth"
+      - "traefik.http.middlewares.narra.forwardauth.authResponseHeaders=X-Username"
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
 
   # ------------------------------------------------------------------------------
   webtail:
     image: lekovr/webtail:${CIS_WEBTAIL_VER}
     restart: always
+    command: --root /var/log/webhook --log_level debug
     labels:
-      - "traefik.enable=false"
+      - "traefik.enable=true"
+      - "traefik.http.routers.webtail.rule=Host(`${CIS_HOST}`) && PathPrefix(`/logs/`)"
+      - "traefik.http.middlewares.webtail-prefix.stripprefix.prefixes=/logs"
+      - "traefik.http.routers.webtail.middlewares=narra,webtail-prefix@docker"
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - ./var/log:/var/log
-    command: --root /var/log/webhook --log_level debug
-
-  # ------------------------------------------------------------------------------
-  webhook:
-    image: dopos/webhook:${CIS_WEBHOOK_VER}
-    restart: always
-    labels:
-      - "traefik.enable=false"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/cron.d:/etc/cron.d
-      - ./var/data/cis/hook:/hook:ro
-      - ./var:${DCAPE_ROOT}/var
-    command: -hooks /etc/webhook/local.json -hooks /etc/webhook/remote.json -hotreload -nopanic -verbose
-    environment:
-      - DEPLOY_ROOT=${DCAPE_ROOT}/var
-      - DEPLOY_PASS=${CIS_DEPLOY_PASS}
-      - GIT_SSH_COMMAND=ssh -i /hook -o StrictHostKeyChecking=no
-      - DCAPE_DOMAIN=${DOMAIN}
-
-  # ------------------------------------------------------------------------------
-  traefik-fl:
-    image: dopos/traefik-fl:0.2
-    restart: always
-    labels:
-      - "traefik.enable=false"
-
-  # ------------------------------------------------------------------------------
-  narra:
-    image: dopos/narra:${CIS_NARRA_VER}
-    restart: always
-    labels:
-      - "traefik.enable=false"
-    volumes:
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-    command:
-      --gitea_host ${CIS_GITEA_HOST} --cookie_sign ${CIS_SIGN_KEY} --cookie_crypt ${CIS_CRYPT_KEY} --gitea_org ${CIS_GITEA_ORG}

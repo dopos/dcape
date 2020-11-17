@@ -5,13 +5,13 @@
     depends_on:
       db:
         condition: service_healthy
-    labels:
-      - "traefik.enable=false"
-    volumes:
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
     command:
       /usr/bin/apisite --db.schema rpc --http_addr :8080
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.enfist.rule=Host(`${CIS_HOST}`) && PathPrefix(`/conf/`)"
+      - "traefik.http.middlewares.enfist-prefix.stripprefix.prefixes=/conf"
+      - "traefik.http.routers.enfist.middlewares=narra,enfist-prefix@docker"
     environment:
       - PGHOST=db
       - PGDATABASE=${ENFIST_DB_TAG}
@@ -19,3 +19,6 @@
       - PGPASSWORD=${ENFIST_DB_PASS}
       - PGSSLMODE=disable
       - GIN_MODE=release
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro

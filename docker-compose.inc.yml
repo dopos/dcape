@@ -9,27 +9,27 @@ services:
   # ------------------------------------------------------------------------------
   db:
     image: ${PG_IMAGE}
+    restart: always
+    ports:
+      - "127.0.0.1:${PG_PORT_LOCAL}:5432"
+    labels:
+      - "traefik.enable=false"
+    environment:
+      - POSTGRES_PASSWORD=${PG_DB_PASS}
+      - TZ=${TZ}
+      - LANG=${PG_ENCODING}
+      - DCAPE_DB_DUMP_DEST=/opt/backup
     volumes:
       - ./var/data/db:/var/lib/postgresql/data
       - ./var/data/db-backup:/opt/backup
       - ./var/data/db-conf.d:/opt/conf.d
       - ./var/data/db-shared:/opt/shared
       - ./var/data/db-init:/docker-entrypoint-initdb.d/
-    ports:
-      - "127.0.0.1:${PG_PORT_LOCAL}:5432"
-    shm_size: ${PG_SHM_SIZE}
-    environment:
-      - POSTGRES_PASSWORD=${PG_DB_PASS}
-      - TZ=${TZ}
-      - LANG=${PG_ENCODING}
-      - DCAPE_DB_DUMP_DEST=/opt/backup
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=false"
     healthcheck:
       test: ["CMD", "pg_isready", "-q", "-U", "postgres", "-h", "db"]
       interval: 2s
       timeout: 3s
       retries: 3
+    shm_size: ${PG_SHM_SIZE}
     stop_grace_period: 5s
     stop_signal: SIGINT

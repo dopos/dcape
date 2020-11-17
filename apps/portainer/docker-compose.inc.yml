@@ -1,15 +1,15 @@
   # ------------------------------------------------------------------------------
   portainer:
     image: portainer/portainer-ce:${PORTAINER_VER}
+    restart: always
     ports:
       - "9000"
     labels:
       - "traefik.enable=true"
       - "traefik.port=9000"
-      - "traefik.frontend.entryPoints=http,https"
-      - "traefik.frontend.redirect.entryPoint=${REDIR_ENTRY}"
-      - "traefik.frontend.rule=Host:${PORTAINER_HOST}"
-    restart: always
+      - "traefik.http.routers.portainer.entrypoints=web"
+      - "traefik.http.routers.portainer.rule=Host(`${PORTAINER_HOST}`)"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/timezone:/etc/timezone:ro

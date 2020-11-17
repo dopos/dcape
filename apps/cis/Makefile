@@ -25,6 +25,10 @@ CIS_HOST           ?= $(CIS_HOST_PREFIX).$(DOMAIN)
 CIS_GITEA_HOST     ?= http://gitea:3000
 # Gitea organization for users who has access to CIS
 CIS_GITEA_ORG      ?= dcape
+# Auth service access token: client ID
+AUTH_CLIENT_ID     ?= get_access_token_from_gitea
+# Auth service access token: key
+AUTH_CLIENT_KEY    ?= get_access_token_from_gitea
 # Key to sign CIS token
 CIS_SIGN_KEY       ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c32; echo)
 # Key to crypt CIS token
@@ -46,6 +50,12 @@ CIS_HOST=$(CIS_HOST)
 CIS_GITEA_HOST=$(CIS_GITEA_HOST)
 # Gitea organization for users who has access to CIS
 CIS_GITEA_ORG=$(CIS_GITEA_ORG)
+
+# Auth service access token: client ID
+AUTH_CLIENT_ID=$(AUTH_CLIENT_ID)
+# Auth service access token: key
+AUTH_CLIENT_KEY=$(AUTH_CLIENT_KEY)
+
 # Key to sign CIS token
 CIS_SIGN_KEY=$(CIS_SIGN_KEY)
 # Key to crypt CIS token

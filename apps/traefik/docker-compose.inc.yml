@@ -1,19 +1,19 @@
   # ------------------------------------------------------------------------------
   traefik:
     image: traefik:${TRAEFIK_VER}
-    command:
-      --web --docker --docker.watch --docker.exposedbydefault=false --logLevel=DEBUG
-
-#--docker.constraints  = ["tag==hel*rld", "tag!=rev-*-beta"]
-
     restart: always
-    labels:
-      - "traefik.enable=false"
     ports:
       - "${TRAEFIK_PORT}:80"
+    labels:
+       - traefik.enable=true
+       - "traefik.http.routers.dashboard.rule=Host(`${CIS_HOST}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+       - "traefik.http.routers.dashboard.service=api@internal"
+       - "traefik.http.routers.dashboard.middlewares=narra"
+       - "traefik.http.routers.ping.rule=Host(`${CIS_HOST}`) && PathPrefix(`/ping`)"
+       - "traefik.http.routers.ping.service=ping@internal"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - /dev/null:/traefik.toml
-
+      - ./var/data/traefik/traefik.yml:/traefik.yml
+      - ./var/data/traefik/custom:/custom

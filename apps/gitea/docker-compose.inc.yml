@@ -1,22 +1,21 @@
   # ------------------------------------------------------------------------------
   gitea:
     image: gitea/gitea:${GITEA_VER}
+    restart: always
     ports:
       - "${GITEA_SSH_PORT}:22"
-    volumes:
-      - ./var/data/gitea:/data
-      - ./var/log/gitea:/data/log
-# add folder for store data (avatars and others), add after lose avatars after update and https://github.com/go-gitea/gitea/issues/4629
-      - ./var/data/gitea-app-data:/app/gitea/data
-    restart: always
     depends_on:
       db:
         condition: service_healthy
     labels:
       - "traefik.enable=true"
       - "traefik.port=3000"
-      - "traefik.frontend.entryPoints=http,https"
-      - "traefik.frontend.redirect.entryPoint=${REDIR_ENTRY}"
-      - "traefik.frontend.rule=Host:${GITEA_HOST}"
+      - "traefik.http.routers.gitea.entrypoints=web"
+      - "traefik.http.routers.gitea.rule=Host(`${GITEA_HOST}`)"
+      - "traefik.http.services.gitea.loadbalancer.server.port=3000"
     environment:
       - TZ=${TZ}
+    volumes:
+      - ./var/data/gitea:/data
+      - ./var/log/gitea:/data/log
+      - ./var/data/gitea-app-data:/app/gitea/data
