@@ -1,1 +1,26 @@
-/opt/src/dopos/dcape2/var/data/traefik/traefik.yml
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: true
+
+entryPoints:
+  web:
+    address: ":80"
+    forwardedHeaders:
+      insecure: true
+  websecure:
+    address: ":443"
+
+api:
+  insecure: false
+
+ping:
+  manualRouting: true
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+
+  file:
+    directory: /custom
+    watch: true
