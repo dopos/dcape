@@ -4,8 +4,9 @@
     restart: always
     ports:
       - "${TRAEFIK_PORT}:80"
+      - "${TRAEFIK_PORT_SSL}:443"
     labels:
-       - traefik.enable=true
+       - "traefik.enable=true"
        - "traefik.http.routers.dashboard.rule=Host(`${CIS_HOST}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
        - "traefik.http.routers.dashboard.service=api@internal"
        - "traefik.http.routers.dashboard.middlewares=narra"

@@ -9,8 +9,10 @@ DCAPE_USED         ?= 0
 TRAEFIK_VER0       ?= v2.3
 # Traefik Docker image version
 TRAEFIK_VER        ?= $(TRAEFIK_VER0)
-# Traefik external port (used in no-acme config)
+# Traefik external http port
 TRAEFIK_PORT       ?= 80
+# Traefik external https port
+TRAEFIK_PORT_SSL   ?= 443
 
 define CONFIG_TRAEFIK
 # ------------------------------------------------------------------------------
@@ -19,8 +21,11 @@ define CONFIG_TRAEFIK
 # Traefik Docker image version
 TRAEFIK_VER=$(TRAEFIK_VER)
 
-# Proxy external port
+# Traefik external http port
 TRAEFIK_PORT=$(TRAEFIK_PORT)
+
+# Traefik external https port
+TRAEFIK_PORT_SSL=$(TRAEFIK_PORT_SSL)
 
 endef
 export CONFIG_TRAEFIK

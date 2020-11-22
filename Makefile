@@ -28,8 +28,11 @@ PG_SOURCE_SUFFIX ?=
 # shared memory
 PG_SHM_SIZE      ?= 64mb
 
+# Deployment persistent storage
+DCAPE_ROOT_VAR   ?= $(PWD)/var
+
 # Docker-compose image tag
-DC_VER           ?= 1.23.2
+DC_VER           ?= 1.27.4
 
 # Config store url
 ENFIST_URL       ?= http://enfist:8080/rpc
@@ -64,6 +67,9 @@ PG_ENCODING=$(PG_ENCODING)
 PG_PORT_LOCAL=$(PG_PORT_LOCAL)
 # shared memory
 PG_SHM_SIZE=$(PG_SHM_SIZE)
+
+# Deployment persistent storage
+DCAPE_ROOT_VAR=$(DCAPE_ROOT_VAR)
 
 endef
 export CONFIG_DEF
@@ -116,11 +122,11 @@ init-slave-wild: APPS = traefik-acme-wild portainer enfist cis
 init-slave-wild: init
 
 ## Init local server
-init-local: APPS = traefik gitea portainer enfist cis
+init-local: APPS = traefik gitea drone portainer enfist cis
 init-local: init
 
 
-## Initially create .enc file with defaults
+## Initially create .env file with defaults
 init:
 	@echo "*** $@ $(APPS) ***"
 	@[ -d var/data ] || mkdir -p var/data

@@ -1,0 +1,52 @@
+#!/bin/sh
+
+do_config() {
+    export PRG=${DRONE_REPO_NAME:?Drone ENV must be set}
+    if [ -z "$ENFIST_TAG" ]; then
+	export ENFIST_TAG=${DRONE_REPO_NAMESPACE}--${DRONE_REPO_NAME}--${DRONE_REPO_BRANCH}
+    fi
+    echo -n "Setup config for ${ENFIST_TAG:?Must be set}... "
+    curl -gs http://enfist:8080/rpc/tag_vars?code=$ENFIST_TAG | jq -er '.' >> $CFG || {
+	rm $CFG
+	echo "WARNING: Config $ENFIST_TAG not found. Preparing $ENFIST_TAG.sample"
+	make ${CFG}.sample
+	jq -R -sc ". | {\"code\":\"$ENFIST_TAG.sample\",\"data\":.}" < ${CFG}.sample \
+	    | curl -gsd @-  "http://enfist:8080/rpc/tag_set" | jq '.'
+	echo "Edit config $ENFIST_TAG.sample and rename it to $ENFIST_TAG"
+	exit 1
+    }
+    echo "Done"
+}
+
+do_root() {
+    if [ -z "$APP_ROOT" ]; then
+	export APP_ROOT=${DCAPE_ROOT:?Dcape root must be set}/apps/${ENFIST_TAG}
+    fi
+    echo -n "Setup app root: $APP_ROOT... "
+    if [ -d ${APP_ROOT:?Must be set} ]; then
+      echo -n "Remove.. "
+      rm -rf $APP_ROOT
+    fi
+    echo -n "Create.. "
+    mkdir -p $APP_ROOT
+    echo "Done"
+}
+
+CMD=$1
+shift
+
+CFG=.env
+
+case $CMD in
+    config)
+	    do_config
+	    ;;
+    root)
+	    do_root
+	    ;;
+    *)
+	    echo "Unsupported command: $CMD"
+	    exit 1
+	    ;;
+esac
+

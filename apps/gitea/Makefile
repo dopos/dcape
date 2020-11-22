@@ -6,7 +6,7 @@ SHELL               = /bin/bash
 # DCAPE_USED==1 when called from upper Makefile
 DCAPE_USED         ?= 0
 # Gitea Docker image version by dcape
-GITEA_VER0         ?= 1.10.0
+GITEA_VER0         ?= 1.12.5
 # Gitea Docker image version
 GITEA_VER          ?= $(GITEA_VER0)
 # Database name and database user name

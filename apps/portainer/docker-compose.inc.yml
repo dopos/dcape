@@ -2,12 +2,9 @@
   portainer:
     image: portainer/portainer-ce:${PORTAINER_VER}
     restart: always
-    ports:
-      - "9000"
     labels:
       - "traefik.enable=true"
       - "traefik.port=9000"
-      - "traefik.http.routers.portainer.entrypoints=web"
       - "traefik.http.routers.portainer.rule=Host(`${PORTAINER_HOST}`)"
       - "traefik.http.services.portainer.loadbalancer.server.port=9000"
     volumes:

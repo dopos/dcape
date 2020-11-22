@@ -4,7 +4,6 @@
     restart: always
     depends_on:
       - narra
-      - webtail
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.cis.rule=Host(`${CIS_HOST}`)"
@@ -17,8 +16,7 @@
 
   # ------------------------------------------------------------------------------
   narra:
-  #  image: dopos/narra:${CIS_NARRA_VER}
-    image: nara2
+    image: dopos/narra:${CIS_NARRA_VER}
     restart: always
     command:
       --as.host http://${GITEA_HOST} --as.cookie_sign ${CIS_SIGN_KEY} --as.cookie_crypt ${CIS_CRYPT_KEY}
@@ -34,17 +32,3 @@
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
 
-  # ------------------------------------------------------------------------------
-  webtail:
-    image: lekovr/webtail:${CIS_WEBTAIL_VER}
-    restart: always
-    command: --root /var/log/webhook --log_level debug
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.webtail.rule=Host(`${CIS_HOST}`) && PathPrefix(`/logs/`)"
-      - "traefik.http.middlewares.webtail-prefix.stripprefix.prefixes=/logs"
-      - "traefik.http.routers.webtail.middlewares=narra,webtail-prefix@docker"
-    volumes:
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-      - ./var/log:/var/log

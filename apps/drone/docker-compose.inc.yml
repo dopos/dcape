@@ -1,0 +1,50 @@
+  drone:
+    image: drone/drone:${DRONE_VER}
+    restart: always
+    depends_on:
+      - drone-runner-docker
+      - drone-compose
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.drone.rule=Host(`${DRONE_HOST}`)"
+    environment:
+      - DRONE_OPEN=true
+      - DRONE_SERVER_HOST=${DRONE_HOST}
+      - DRONE_SERVER_PROTO=http
+      - DRONE_TLS_AUTOCERT=false
+
+      - DRONE_GITEA_SERVER=${DRONE_GIT_SERVER}
+      - DRONE_GIT_ALWAYS_AUTH=true
+      - DRONE_GITEA_CLIENT_ID=${DRONE_CLIENT_ID}
+      - DRONE_GITEA_CLIENT_SECRET=${DRONE_CLIENT_KEY}
+      - DRONE_RPC_SECRET=${DRONE_SHARED_KEY}
+
+      - DRONE_USER_CREATE=username:${DRONE_ADMIN},admin:true
+      - DRONE_DATABASE_DRIVER=postgres
+      - DRONE_DATABASE_DATASOURCE=postgresql://${DRONE_DB_TAG}:${DRONE_DB_PASS}@db:5432/${DRONE_DB_TAG}?sslmode=disable
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./var/data/drone:/data
+
+  drone-runner-docker:
+    image: drone/drone-runner-docker:${DRONE_RUNNER_VER}
+    restart: always
+    environment:
+      - DRONE_RPC_PROTO=http
+      - DRONE_RPC_HOST=${DRONE_HOST}
+      - DRONE_RPC_SECRET=${DRONE_SHARED_KEY}
+      - DRONE_RUNNER_CAPACITY=2
+      - DRONE_RUNNER_NAME=${HOSTNAME}
+      - DRONE_RUNNER_ENVIRON=DCAPE_NET:${PROJECT_NAME}_default,DCAPE_ROOT:${DCAPE_ROOT_VAR}
+      - DRONE_RUNNER_NETWORKS=${PROJECT_NAME}_default
+      - DRONE_RUNNER_VOLUMES=${DCAPE_ROOT_VAR}:${DCAPE_ROOT_VAR}
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  drone-compose:
+    build:
+      context: ./apps/drone

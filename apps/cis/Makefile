@@ -5,16 +5,8 @@ SHELL               = /bin/bash
 
 # DCAPE_USED==1 when called from upper Makefile
 DCAPE_USED         ?= 0
-# Webtail Docker image version by dcape
-CIS_WEBTAIL_VER0   ?= 0.34
-# Webtail Docker image version
-CIS_WEBTAIL_VER    ?= $(CIS_WEBTAIL_VER0)
-# Webhook Docker image version by dcape
-CIS_WEBHOOK_VER0   ?= 0.10
-# Webtail Docker image version
-CIS_WEBHOOK_VER    ?= $(CIS_WEBHOOK_VER0)
 # Narra Docker image version by dcape
-CIS_NARRA_VER0     ?= 0.3
+CIS_NARRA_VER0     ?= 0.21
 # Webtail Docker image version
 CIS_NARRA_VER      ?= $(CIS_NARRA_VER0)
 # CIS hostname prefix
@@ -33,10 +25,6 @@ AUTH_CLIENT_KEY    ?= get_access_token_from_gitea
 CIS_SIGN_KEY       ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c32; echo)
 # Key to crypt CIS token
 CIS_CRYPT_KEY      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c32; echo)
-# Webhook access password
-CIS_DEPLOY_PASS    ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c8; echo)
-# webhook needs to know dcape root
-DCAPE_ROOT         ?= $(shell pwd)
 
 define CONFIG_CIS
 # ------------------------------------------------------------------------------
@@ -61,19 +49,8 @@ CIS_SIGN_KEY=$(CIS_SIGN_KEY)
 # Key to crypt CIS token
 CIS_CRYPT_KEY=$(CIS_CRYPT_KEY)
 
-# Webhook access password
-CIS_DEPLOY_PASS=$(CIS_DEPLOY_PASS)
-
-# Webtail Docker image version
-CIS_WEBTAIL_VER=$(CIS_WEBTAIL_VER)
-# Webhook Docker image version
-CIS_WEBHOOK_VER=$(CIS_WEBHOOK_VER)
 # Narra Docker image version
 CIS_NARRA_VER=$(CIS_NARRA_VER)
-
-# CIS webhook must have same root as dcape
-DCAPE_ROOT=$(DCAPE_ROOT)
-
 endef
 export CONFIG_CIS
 
@@ -83,33 +60,14 @@ cis-init:
 	  echo "$$CONFIG_CIS" >> .env ; \
 	  echo "** CIS DEPLOY PASSWORD: $$CIS_DEPLOY_PASS" ; \
 	}
-	@if [[ "$$CIS_WEBTAIL_VER0" != "$$CIS_WEBTAIL_VER" ]] ; then \
-	  echo "Warning: CIS_WEBTAIL_VER in dcape ($$CIS_WEBTAIL_VER0) differs from yours ($$CIS_WEBTAIL_VER)" ; \
-	fi
-	@if [[ "$$CIS_WEBHOOK_VER0" != "$$CIS_WEBHOOK_VER" ]] ; then \
-	  echo "Warning: CIS_WEBHOOK_VER in dcape ($$CIS_WEBHOOK_VER0) differs from yours ($$CIS_WEBHOOK_VER)" ; \
-	fi
 	@if [[ "$$CIS_NARRA_VER0" != "$$CIS_NARRA_VER" ]] ; then \
 	  echo "Warning: CIS_NARRA_VER in dcape ($$CIS_NARRA_VER0) differs from yours ($$CIS_NARRA_VER)" ; \
 	fi
 
-cis-apply: var/apps var/data/cis var/data/cis/hook.pub var/log/webhook
+cis-apply: var/apps
 	@echo "*** $@ ***"
 
 var/apps:
 	@echo "*** $@ ***"
 	@[ -d $@ ] || mkdir -p $@
 
-var/log/webhook:
-	@echo "*** $@ ***"
-	@[ -d $@ ] || mkdir -p $@
-
-var/data/cis:
-	@echo "*** $@ ***"
-	@[ -d $@ ] || mkdir -p $@
-
-var/data/cis/hook.pub:
-	@echo "*** $@ ***"
-	ssh-keygen -t rsa -b 1024 -f var/data/cis/hook -N "" -C webhook@$$DOMAIN
-
-#	ssh-keygen -t ed25519 -f var/data/cis/hook -N "" -C webhook@$$DOMAIN
