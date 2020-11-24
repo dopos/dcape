@@ -21,7 +21,7 @@
     command:
       --as.host http://${GITEA_HOST} --as.cookie_sign ${CIS_SIGN_KEY} --as.cookie_crypt ${CIS_CRYPT_KEY}
       --as.client_id ${AUTH_CLIENT_ID} --as.client_key ${AUTH_CLIENT_KEY}
-      --as.my_url=http://${CIS_HOST} --as.do401 --as.url_header X-Forwarded-Uri
+      --as.my_url=http://${CIS_HOST} --as.do401 --as.cookie_domain ${DOMAIN}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.narra.rule=Host(`${CIS_HOST}`) && Path(`/login`,`/auth`)"

@@ -6,7 +6,7 @@ SHELL               = /bin/bash
 # DCAPE_USED==1 when called from upper Makefile
 DCAPE_USED         ?= 0
 # Narra Docker image version by dcape
-CIS_NARRA_VER0     ?= 0.21
+CIS_NARRA_VER0     ?= 0.22
 # Webtail Docker image version
 CIS_NARRA_VER      ?= $(CIS_NARRA_VER0)
 # CIS hostname prefix
