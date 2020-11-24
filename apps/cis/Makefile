@@ -14,7 +14,7 @@ CIS_HOST_PREFIX    ?= cis
 # CIS hostname
 CIS_HOST           ?= $(CIS_HOST_PREFIX).$(DOMAIN)
 # Gitea host for auth
-CIS_GITEA_HOST     ?= http://gitea:3000
+CIS_GITEA_HOST     ?= git.$(DOMAIN)
 # Gitea organization for users who has access to CIS
 CIS_GITEA_ORG      ?= dcape
 # Auth service access token: client ID

@@ -122,7 +122,7 @@ init-slave-wild: APPS = traefik-acme-wild portainer enfist cis
 init-slave-wild: init
 
 ## Init local server
-init-local: APPS = traefik gitea drone portainer enfist cis
+init-local: APPS = traefik cis gitea enfist drone portainer
 init-local: init
 
 

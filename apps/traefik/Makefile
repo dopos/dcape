@@ -6,7 +6,7 @@ SHELL               = /bin/bash
 # DCAPE_USED==1 when called from upper Makefile
 DCAPE_USED         ?= 0
 # Traefik Docker image version by dcape
-TRAEFIK_VER0       ?= v2.3
+TRAEFIK_VER0       ?= 2.3
 # Traefik Docker image version
 TRAEFIK_VER        ?= $(TRAEFIK_VER0)
 # Traefik external http port

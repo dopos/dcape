@@ -9,12 +9,20 @@
         condition: service_healthy
     labels:
       - "traefik.enable=true"
-      - "traefik.port=3000"
       - "traefik.http.routers.gitea.rule=Host(`${GITEA_HOST}`)"
       - "traefik.http.services.gitea.loadbalancer.server.port=3000"
     environment:
-      - TZ=${TZ}
+      - TZ
+      - RUN_MODE=prod
+      - REQUIRE_SIGNIN_VIEW=true
+      - USER_UID=1000
+      - USER_GID=1000
+      - DOMAIN=${GITEA_HOST}
+      - ROOT_URL=http://${GITEA_HOST}
+      - DB_TYPE=postgres
+      - DB_HOST=db:5432
+      - DB_NAME=${GITEA_DB_TAG}
+      - DB_USER=${GITEA_DB_TAG}
+      - DB_PASSWD=${GITEA_DB_PASS}
     volumes:
       - ./var/data/gitea:/data
-      - ./var/log/gitea:/data/log
-      - ./var/data/gitea-app-data:/app/gitea/data
