@@ -1,0 +1,9 @@
+certificatesResolvers:
+  letsEncrypt:
+    acme:
+      email: admin@${DOMAIN}
+      storage: /etc/traefik/acme.json
+      caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+      dnsChallenge:
+        provider: "powerdns"
+        delayBeforeCheck: 0

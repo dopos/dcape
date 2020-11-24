@@ -16,7 +16,7 @@ APPS_SYS         ?= db
 APPS             ?= traefik portainer enfist cis
 
 # Postgresql Database image
-PG_IMAGE         ?= postgres:12.1-alpine
+PG_IMAGE         ?= postgres:13.1-alpine
 # Postgresql Database superuser password
 PG_DB_PASS       ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
 # Postgresql Database encoding

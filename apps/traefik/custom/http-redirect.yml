@@ -3,7 +3,7 @@ http:
     http-catchall:
       rule: HostRegexp(`{host:.+}`)
       entrypoints:
-      - http
+      - web
       middlewares:
       - redirect-to-https
   middlewares:
@@ -11,12 +11,3 @@ http:
       redirectScheme:
         scheme: https
         permanent: false
-
-certificatesResolvers:
-  letsEncrypt:
-    acme:
-      email: postmaster@example.com
-      storage: acme.json
-      caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
-      httpChallenge:
-        entryPoint: http

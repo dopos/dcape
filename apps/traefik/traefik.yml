@@ -22,5 +22,5 @@ providers:
     exposedByDefault: false
 
   file:
-    directory: /custom
+    directory: /etc/traefik/custom
     watch: true
