@@ -8,6 +8,7 @@
     command:
       /usr/bin/apisite --db.schema rpc --http_addr :8080
     labels:
+      - "dcape.traefik.tag=${PROJECT_NAME}"
       - "traefik.enable=true"
       - "traefik.http.routers.enfist.rule=Host(`${CIS_HOST}`) && PathPrefix(`/conf/`)"
       - "traefik.http.middlewares.enfist-prefix.stripprefix.prefixes=/conf"

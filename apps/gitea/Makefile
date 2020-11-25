@@ -49,20 +49,49 @@ export CONFIG_GITEA
 
 # Init data for $${GITEA_INI_DIR}/app.ini
 define INI_GITEA
+APP_NAME = Gitea: Git with a cup of tea
+RUN_USER = git
+RUN_MODE = prod
+
 [server]
 SSH_DOMAIN = $(GITEA_HOST)
 DOMAIN     = $(GITEA_HOST)
-ROOT_URL   = http://$(GITEA_HOST)/
+ROOT_URL   = $(DCAPE_SCHEME)://$(GITEA_HOST)/
 
 [database]
-DB_TYPE    = postgres
-HOST       = db:5432
-NAME       = $(GITEA_DB_TAG)
-USER       = $(GITEA_DB_TAG)
-SSL_MODE   = disable
+DB_TYPE  = postgres
+HOST     = db:5432
+NAME     = $(GITEA_DB_TAG)
+USER     = $(GITEA_DB_TAG)
+SSL_MODE = disable
+PASSWD   = $(GITEA_DB_PASS)
 
-[log]
-ROOT_PATH  = /data/log
+[mailer]
+ENABLED = false
+
+[service]
+REGISTER_EMAIL_CONFIRM            = false
+ENABLE_NOTIFY_MAIL                = false
+DISABLE_REGISTRATION              = false
+ALLOW_ONLY_EXTERNAL_REGISTRATION  = false
+ENABLE_CAPTCHA                    = false
+REQUIRE_SIGNIN_VIEW               = false
+DEFAULT_KEEP_EMAIL_PRIVATE        = false
+DEFAULT_ALLOW_CREATE_ORGANIZATION = true
+DEFAULT_ENABLE_TIMETRACKING       = true
+NO_REPLY_ADDRESS                  = noreply.$(DOMAIN)
+
+[picture]
+DISABLE_GRAVATAR        = false
+ENABLE_FEDERATED_AVATAR = true
+
+[openid]
+ENABLE_OPENID_SIGNIN = true
+ENABLE_OPENID_SIGNUP = true
+
+[session]
+PROVIDER = file
+
 endef
 export INI_GITEA
 
@@ -81,6 +110,4 @@ gitea-apply:
 	@$(MAKE) -s db-create NAME=GITEA
 	@[ -d $$GITEA_INI_DIR ] || mkdir -p $$GITEA_INI_DIR
 	@[ -f $$GITEA_INI_DIR/app.ini ] || echo "$$INI_GITEA" > $$GITEA_INI_DIR/app.ini
-	@[ -d var/log/gitea ] || mkdir -p var/log/gitea
-	@chmod 777 var/log/gitea
 	@chmod 666 $$GITEA_INI_DIR/app.ini

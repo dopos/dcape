@@ -8,6 +8,7 @@
       db:
         condition: service_healthy
     labels:
+      - "dcape.traefik.tag=${PROJECT_NAME}"
       - "traefik.enable=true"
       - "traefik.http.routers.gitea.rule=Host(`${GITEA_HOST}`)"
       - "traefik.http.services.gitea.loadbalancer.server.port=3000"
@@ -18,7 +19,7 @@
       - USER_UID=1000
       - USER_GID=1000
       - DOMAIN=${GITEA_HOST}
-      - ROOT_URL=http://${GITEA_HOST}
+      - ROOT_URL=${DCAPE_SCHEME}://${GITEA_HOST}
       - DB_TYPE=postgres
       - DB_HOST=db:5432
       - DB_NAME=${GITEA_DB_TAG}

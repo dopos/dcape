@@ -3,8 +3,8 @@
     image: portainer/portainer-ce:${PORTAINER_VER}
     restart: always
     labels:
+      - "dcape.traefik.tag=${PROJECT_NAME}"
       - "traefik.enable=true"
-      - "traefik.port=9000"
       - "traefik.http.routers.portainer.rule=Host(`${PORTAINER_HOST}`)"
       - "traefik.http.services.portainer.loadbalancer.server.port=9000"
     volumes:

@@ -58,7 +58,6 @@ cis-init:
 	@grep CIS_DEPLOY .env || \
 	{ \
 	  echo "$$CONFIG_CIS" >> .env ; \
-	  echo "** CIS DEPLOY PASSWORD: $$CIS_DEPLOY_PASS" ; \
 	}
 	@if [[ "$$CIS_NARRA_VER0" != "$$CIS_NARRA_VER" ]] ; then \
 	  echo "Warning: CIS_NARRA_VER in dcape ($$CIS_NARRA_VER0) differs from yours ($$CIS_NARRA_VER)" ; \

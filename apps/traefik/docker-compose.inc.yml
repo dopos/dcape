@@ -6,12 +6,13 @@
       - "${TRAEFIK_PORT}:80"
       - "${TRAEFIK_PORT_SSL}:443"
     labels:
-       - "traefik.enable=true"
-       - "traefik.http.routers.dashboard.rule=Host(`${CIS_HOST}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
-       - "traefik.http.routers.dashboard.service=api@internal"
-       - "traefik.http.routers.dashboard.middlewares=narra"
-       - "traefik.http.routers.ping.rule=Host(`${CIS_HOST}`) && PathPrefix(`/ping`)"
-       - "traefik.http.routers.ping.service=ping@internal"
+      - "dcape.traefik.tag=${PROJECT_NAME}"
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`${CIS_HOST}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.middlewares=narra"
+      - "traefik.http.routers.ping.rule=Host(`${CIS_HOST}`) && PathPrefix(`/ping`)"
+      - "traefik.http.routers.ping.service=ping@internal"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/timezone:/etc/timezone:ro

@@ -5,6 +5,7 @@
     depends_on:
       - narra
     labels:
+      - "dcape.traefik.tag=${PROJECT_NAME}"
       - "traefik.enable=true"
       - "traefik.http.routers.cis.rule=Host(`${CIS_HOST}`)"
     volumes:
@@ -19,14 +20,15 @@
     image: dopos/narra:${CIS_NARRA_VER}
     restart: always
     command:
-      --as.host http://${CIS_GITEA_HOST} --as.cookie_sign ${CIS_SIGN_KEY} --as.cookie_crypt ${CIS_CRYPT_KEY}
+      --as.host ${DCAPE_SCHEME}://${CIS_GITEA_HOST} --as.cookie_sign ${CIS_SIGN_KEY} --as.cookie_crypt ${CIS_CRYPT_KEY}
       --as.client_id ${AUTH_CLIENT_ID} --as.client_key ${AUTH_CLIENT_KEY}
-      --as.my_url=http://${CIS_HOST} --as.do401 --as.cookie_domain ${DOMAIN}
+      --as.my_url=${DCAPE_SCHEME}://${CIS_HOST} --as.do401 --as.cookie_domain ${DOMAIN}
     labels:
+      - "dcape.traefik.tag=${PROJECT_NAME}"
       - "traefik.enable=true"
       - "traefik.http.routers.narra.rule=Host(`${CIS_HOST}`) && Path(`/login`,`/auth`)"
       - "traefik.http.services.narra.loadbalancer.server.port=8080"
-      - "traefik.http.middlewares.narra.forwardauth.address=http://${CIS_HOST}/auth"
+      - "traefik.http.middlewares.narra.forwardauth.address=${DCAPE_SCHEME}://${CIS_HOST}/auth"
       - "traefik.http.middlewares.narra.forwardauth.authResponseHeaders=X-Username"
     volumes:
       - /etc/timezone:/etc/timezone:ro

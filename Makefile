@@ -12,8 +12,9 @@ DCFILES           = $(shell find apps/ -name $(DCINC) -print | sort)
 
 PROJECT_NAME     ?= dcape
 DOMAIN           ?= dev.lan
+DCAPE_SCHEME     ?= http
 APPS_SYS         ?= db
-APPS             ?= traefik portainer enfist cis
+APPS             ?= traefik cis gitea enfist portainer drone
 
 # Postgresql Database image
 PG_IMAGE         ?= postgres:13.1-alpine
@@ -49,6 +50,8 @@ PROJECT_NAME=$(PROJECT_NAME)
 
 # Default domain
 DOMAIN=$(DOMAIN)
+
+DCAPE_SCHEME=$(DCAPE_SCHEME)
 
 # App list, for use in make only
 APPS="$(shell echo $(APPS))"
