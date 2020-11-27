@@ -17,7 +17,7 @@
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - ./var/data/traefik:/etc/traefik
+      - ./var/traefik:/etc/traefik
 
 # This allows narra & drone internal access to gitea without DNS, in "no any lan" config
 # TODO: check for https

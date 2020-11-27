@@ -13,7 +13,6 @@
       - /etc/localtime:/etc/localtime:ro
       - ./apps/cis/html:/usr/share/nginx/html:ro
       - ./apps/cis/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./var/data/cis/hook.pub:/data/hook.pub:ro
 
   # ------------------------------------------------------------------------------
   narra:

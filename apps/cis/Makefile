@@ -63,10 +63,4 @@ cis-init:
 	  echo "Warning: CIS_NARRA_VER in dcape ($$CIS_NARRA_VER0) differs from yours ($$CIS_NARRA_VER)" ; \
 	fi
 
-cis-apply: var/apps
-	@echo "*** $@ ***"
-
-var/apps:
-	@echo "*** $@ ***"
-	@[ -d $@ ] || mkdir -p $@
-
+cis-apply:

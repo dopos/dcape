@@ -28,7 +28,7 @@
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./var/data/drone:/data
+      - ./var/drone:/data
 
   drone-runner-docker:
     image: drone/drone-runner-docker:${DRONE_RUNNER_VER}

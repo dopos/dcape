@@ -130,12 +130,14 @@ init-local: init
 
 
 ## Initially create .env file with defaults
-init:
+init: var
 	@echo "*** $@ $(APPS) ***"
-	@[ -d var/data ] || mkdir -p var/data
 	@[ -f .env ] && { echo ".env already exists. Skipping" ; exit 1 ; } || true
 	@echo "$$CONFIG_DEF" > .env
 	@for f in $(shell echo $(APPS)) ; do echo $$f ; $(MAKE) -s $${f}-init ; done
+
+var:
+	@mkdir -p var
 
 ## Apply config to app files & db
 apply:

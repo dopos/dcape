@@ -21,7 +21,7 @@ GITEA_HOST_PREFIX  ?= git
 GITEA_HOST         ?= $(GITEA_HOST_PREFIX).$(DOMAIN)
 
 # Internal gitea config path
-GITEA_INI_DIR      ?= var/data/gitea/gitea/conf
+GITEA_INI_DIR      ?= var/gitea/gitea/conf
 
 define CONFIG_GITEA
 # ------------------------------------------------------------------------------

@@ -20,11 +20,11 @@ services:
       - LANG=${PG_ENCODING}
       - DCAPE_DB_DUMP_DEST=/opt/backup
     volumes:
-      - ./var/data/db:/var/lib/postgresql/data
-      - ./var/data/db-backup:/opt/backup
-      - ./var/data/db-conf.d:/opt/conf.d
-      - ./var/data/db-shared:/opt/shared
-      - ./var/data/db-init:/docker-entrypoint-initdb.d/
+      - ./var/db/data:/var/lib/postgresql/data
+      - ./var/db/backup:/opt/backup
+      - ./var/db/conf.d:/opt/conf.d
+      - ./var/db/shared:/opt/shared
+      - ./var/db/init:/docker-entrypoint-initdb.d/
     healthcheck:
       test: ["CMD", "pg_isready", "-q", "-U", "postgres", "-h", "db"]
       interval: 2s

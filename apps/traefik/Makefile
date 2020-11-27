@@ -14,6 +14,9 @@ TRAEFIK_PORT       ?= 80
 # Traefik external https port
 TRAEFIK_PORT_SSL   ?= 443
 
+# Tag for apps/traefik/traefik.TAG.yml
+TRAEFIK_CONFIG_TAG ?= local
+
 define CONFIG_TRAEFIK
 # ------------------------------------------------------------------------------
 # Traefik settings
@@ -27,6 +30,9 @@ TRAEFIK_PORT=$(TRAEFIK_PORT)
 # Traefik external https port
 TRAEFIK_PORT_SSL=$(TRAEFIK_PORT_SSL)
 
+# Tag for apps/traefik/traefik.TAG.yml
+TRAEFIK_CONFIG_TAG=$(TRAEFIK_CONFIG_TAG)
+
 endef
 export CONFIG_TRAEFIK
 
@@ -36,4 +42,10 @@ traefik-init:
 	  echo "Warning: TRAEFIK_VER in dcape ($$TRAEFIK_VER0) differs from yours ($$TRAEFIK_VER)" ; \
 	fi
 
-traefik-apply:
+traefik-apply:var/traefik/custom var/traefik/traefik.yml
+
+var/traefik/custom:
+	@mkdir -p $@
+
+var/traefik/traefik.yml: apps/traefik/traefik.$(TRAEFIK_CONFIG_TAG).yml
+	@cp $< $@
