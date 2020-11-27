@@ -42,10 +42,14 @@ traefik-init:
 	  echo "Warning: TRAEFIK_VER in dcape ($$TRAEFIK_VER0) differs from yours ($$TRAEFIK_VER)" ; \
 	fi
 
-traefik-apply:var/traefik/custom var/traefik/traefik.yml
+traefik-apply:var/traefik/custom var/traefik/traefik.yml var/traefik/acme.json
 
 var/traefik/custom:
 	@mkdir -p $@
 
 var/traefik/traefik.yml: apps/traefik/traefik.$(TRAEFIK_CONFIG_TAG).yml
 	@cp $< $@
+
+var/traefik/acme.json:
+	@touch $@
+	@chmod 600 $@
