@@ -136,8 +136,10 @@ dcape
 ### Настройка DNS
 
 При установке на локальный компьютер, для доступа к сервисам dcape (cis.dev.lan, port.dev.lan) необходимо настроить wildcard domain *.dev.lan:
+[Описание настройки](https://voboghure.com/2020/01/02/enable-wildcard-sub-domain-for-localhost-on-ubuntu-18-04/)
+
 ```
-sudo bash -c 'echo "address=/dev.lan/127.0.0.1" > /etc/NetworkManager/dnsmasq.d/dev.lan.conf'
+sudo bash -c 'echo "address=/.dev.lan/127.0.0.1" > /etc/NetworkManager/dnsmasq.d/dev.lan.conf'
 sudo service network-manager reload
 ```
 

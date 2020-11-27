@@ -18,5 +18,10 @@
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - ./var/data/traefik:/etc/traefik
-#      - ./var/data/traefik/traefik.yml:/traefik.yml
-#      - ./var/data/traefik/custom:/custom
+
+# This allows narra & drone internal access to gitea without DNS, in "no any lan" config
+# TODO: check for https
+    networks:
+      default:
+        aliases:
+          - ${GITEA_HOST}
