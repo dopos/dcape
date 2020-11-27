@@ -14,7 +14,7 @@ PROJECT_NAME     ?= dcape
 DOMAIN           ?= dev.lan
 DCAPE_SCHEME     ?= http
 APPS_SYS         ?= db
-APPS             ?= traefik cis gitea enfist portainer drone
+APPS             ?= traefik cis enfist drone portainer gitea
 
 # Postgresql Database image
 PG_IMAGE         ?= postgres:13.1-alpine
@@ -100,33 +100,9 @@ deps:
 	@sudo apt-get update && sudo apt-get install -y \
 	  gawk wget curl apache2-utils openssh-client
 
-## Init internet server with gitea and personal letsencrypt cert for all apps (redirect http to https)
-init-master-prod: APPS = traefik-acme gitea portainer enfist cis
-init-master-prod: init
-
-## Init internet server without gitea and personal letsencrypt cert for all apps (redirect http to https)
-init-slave-prod: APPS = traefik-acme portainer enfist cis
-init-slave-prod: init
-
-## Init internet server with gitea and ssl for build-in apps (redirect http to https)
-init-master-dev: APPS = traefik-acme-dev gitea portainer enfist cis
-init-master-dev: init
-
-## Init internet server without gitea and ssl for built-in apps (redirect http to https)
-init-slave-dev: APPS = traefik-acme-dev portainer enfist cis
-init-slave-dev: init
-
-## Init internet server with gitea and one woldcards cert for all apps (redirect http to https)
-init-master-wild: APPS = traefik-acme-wild gitea portainer enfist cis
-init-master-wild: init
-
-## Init internet server without gitea and one wildcards cert for all apps (redirect http to https)
-init-slave-wild: APPS = traefik-acme-wild portainer enfist cis
-init-slave-wild: init
-
-## Init local server
-init-local: APPS = traefik cis gitea enfist drone portainer
-init-local: init
+## Init server without gitea
+init-slave: APPS = traefik cis enfist drone portainer
+init-slave: init
 
 
 ## Initially create .env file with defaults
@@ -248,15 +224,20 @@ psql-local:
 env-get:
 	@[[ "$(TAG)" ]] || { echo "Error: Tag value required" ; exit 1 ;}
 	@echo "Getting env into $(TAG)"
-	@docker exec -ti $${PROJECT_NAME}_webhook_1 curl -gs $${ENFIST_URL}/tag_vars?a_code=$(TAG) \
-	  | jq -r '.result[0].tag_vars' > $(TAG).env
+	@docker run --rm -ti --network $${PROJECT_NAME}_default $${PROJECT_NAME}_drone-compose curl -gs $${ENFIST_URL}/tag_vars?code=$(TAG) \
+	  | jq -r '.' > $(TAG).env
+
+## list env tags in store
+env-ls:
+	@docker run --rm -ti --network $${PROJECT_NAME}_default $${PROJECT_NAME}_drone-compose curl -gs $${ENFIST_URL}/tag \
+	  | jq -r '.[] | .updated_at +"  "+.code'
 
 ## set env tag in store, `make env-set TAG=app--config--tag`
 env-set:
 	@[[ "$(TAG)" ]] || { echo "Error: Tag value required" ; exit 1 ;}
 	@echo "Setting $(TAG) from file" \
-	&& jq -R -sc ". | {\"a_code\":\"$(TAG)\",\"a_data\":.}" < $(TAG).env | \
-	  docker exec -i $${PROJECT_NAME}_webhook_1 curl -gsd @- $${ENFIST_URL}/tag_set > /dev/null
+	&& jq -R -sc ". | {\"code\":\"$(TAG)\",\"data\":.}" < $(TAG).env | \
+	  docker run --rm -ti --network $${PROJECT_NAME}_default $${PROJECT_NAME}_drone-compose curl -gsd @- $${ENFIST_URL}/tag_set > /dev/null
 
 # ------------------------------------------------------------------------------
 
