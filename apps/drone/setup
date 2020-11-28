@@ -11,7 +11,7 @@ do_config() {
     curl -gs http://enfist:8080/rpc/tag_vars?code=$ENFIST_TAG | jq -er '.' >> $CFG || {
 	rm $CFG
 	echo "WARNING: Config $ENFIST_TAG not found. Preparing $ENFIST_TAG.sample"
-	make ${CFG}.sample
+	[ -f ${CFG}.sample ] || make ${CFG}.sample
 	jq -R -sc ". | {\"code\":\"$ENFIST_TAG.sample\",\"data\":.}" < ${CFG}.sample \
 	    | curl -gsd @-  "http://enfist:8080/rpc/tag_set" | jq '.'
 	echo "Edit config $ENFIST_TAG.sample and rename it to $ENFIST_TAG"
