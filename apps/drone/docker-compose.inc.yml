@@ -50,3 +50,5 @@
   drone-compose:
     build:
       context: ./apps/drone
+      args:
+        DC_VER

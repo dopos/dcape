@@ -126,6 +126,7 @@ apply:
 	@echo "*** $@ $(APPS) ***"
 	@$(MAKE) -s dc CMD="up -d $(APPS_SYS)" || echo ""
 	@for f in $(shell echo $(APPS)) ; do $(MAKE) -s $${f}-apply ; done
+	docker tag docker/compose:$(DC_VER) docker/compose:latest
 
 # build file from app templates
 docker-compose.yml: $(DCINC) $(DCFILES)
