@@ -97,8 +97,14 @@ include apps/*/Makefile
 ## установка зависимостей
 deps:
 	@echo "*** $@ ***"
-	@sudo apt-get update && sudo apt-get install -y \
-	  gawk wget curl apache2-utils openssh-client
+	@apps="" ; \
+	for f in sed curl ; do command -v $$f >/dev/null || apps="$$apps $$f" ; done ; \
+	if [ -z $$apps ] ; then \
+	  echo "all ok" ; \
+	else \
+	  echo "no: $$apps" ; \
+#	  sudo apt-get update && sudo apt-get install -y $$apps ; \
+	fi
 
 ## Init server without gitea
 init-slave: APPS = traefik cis enfist drone portainer

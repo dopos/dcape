@@ -1,15 +1,26 @@
 #!/bin/sh
 
+# This script holds common tasks for dcape CI via drone
 set -e
 
+CMD=$1
+shift
+
+CFG=.env
+
+# load .env from enfist
+# if does not exist - upload .env.sample
 do_config() {
-    export PRG=${DRONE_REPO_NAME:?Drone ENV must be set}
+    # PWD=/drone/src, docker-compose won't use it as container prefix if this var is set
+    export COMPOSE_PROJECT_NAME=${DRONE_REPO_NAME:?Drone ENV must be set}
+
+    # config tag for enfist
     if [ -z "$ENFIST_TAG" ]; then
-	export ENFIST_TAG=${DRONE_REPO_NAMESPACE}--${DRONE_REPO_NAME}--${DRONE_REPO_BRANCH}
+      export ENFIST_TAG=${DRONE_REPO_NAMESPACE}--${DRONE_REPO_NAME}--${DRONE_REPO_BRANCH}
     fi
     echo -n "Setup config for ${ENFIST_TAG:?Must be set}... "
     curl -gs http://enfist:8080/rpc/tag_vars?code=$ENFIST_TAG | jq -er '.' >> $CFG || {
-	rm $CFG
+	rm $CFG # here will be `null` if tag does not exists
 	echo "WARNING: Config $ENFIST_TAG not found. Preparing $ENFIST_TAG.sample"
 	[ -f ${CFG}.sample ] || make ${CFG}.sample
 	jq -R -sc ". | {\"code\":\"$ENFIST_TAG.sample\",\"data\":.}" < ${CFG}.sample \
@@ -20,12 +31,13 @@ do_config() {
     echo "Done"
 }
 
+# Prepare empty dir for application, path will be accessible as `$APP_ROOT`
 do_root() {
     if [ -z "$APP_ROOT" ]; then
-	export APP_ROOT=${DCAPE_ROOT:?Dcape root must be set}/apps/${ENFIST_TAG}
+      export APP_ROOT=${DCAPE_ROOT:?Dcape root must be set}/apps/${ENFIST_TAG}
     fi
     echo -n "Setup app root: $APP_ROOT... "
-    if [ -d ${APP_ROOT:?Must be set} ]; then
+    if [ -d ${APP_ROOT} ]; then
       echo -n "Remove.. "
       rm -rf $APP_ROOT
     fi
@@ -33,11 +45,6 @@ do_root() {
     mkdir -p $APP_ROOT
     echo "Done"
 }
-
-CMD=$1
-shift
-
-CFG=.env
 
 case $CMD in
     config)
@@ -51,4 +58,3 @@ case $CMD in
 	    exit 1
 	    ;;
 esac
-

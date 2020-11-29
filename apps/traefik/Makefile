@@ -15,6 +15,7 @@ TRAEFIK_PORT       ?= 80
 TRAEFIK_PORT_SSL   ?= 443
 
 # Tag for apps/traefik/traefik.TAG.yml
+# Values: local|acme-http|acme
 TRAEFIK_CONFIG_TAG ?= local
 
 define CONFIG_TRAEFIK
@@ -31,6 +32,7 @@ TRAEFIK_PORT=$(TRAEFIK_PORT)
 TRAEFIK_PORT_SSL=$(TRAEFIK_PORT_SSL)
 
 # Tag for apps/traefik/traefik.TAG.yml
+# Values: local|acme-http|acme
 TRAEFIK_CONFIG_TAG=$(TRAEFIK_CONFIG_TAG)
 
 endef
@@ -42,14 +44,29 @@ traefik-init:
 	  echo "Warning: TRAEFIK_VER in dcape ($$TRAEFIK_VER0) differs from yours ($$TRAEFIK_VER)" ; \
 	fi
 
-traefik-apply:var/traefik/custom var/traefik/traefik.yml var/traefik/acme.json
+traefik-apply:var/traefik/custom var/traefik/traefik.yml var/traefik/acme.json var/traefik/traefik.env
 
 var/traefik/custom:
 	@mkdir -p $@
 
 var/traefik/traefik.yml: apps/traefik/traefik.$(TRAEFIK_CONFIG_TAG).yml
-	@cp $< $@
+	@sed "s/=DCAPE_TAG=/$$PROJECT_NAME/g" $< | sed "s/=DCAPE_DOMAIN=/$$DOMAIN/g" > $@
 
 var/traefik/acme.json:
 	@touch $@
 	@chmod 600 $@
+
+define ENV_TRAEFIK
+# ENV data for traefik plugins including acme)
+
+# Sample for local powerdns:
+
+#LEGO_EXPERIMENTAL_CNAME_SUPPORT=true
+#PDNS_API_URL=http://pdns:8081
+#PDNS_API_KEY=***-see_powerdns_config-***
+
+endef
+export ENV_TRAEFIK
+
+var/traefik/traefik.env:
+	echo "$$ENV_TRAEFIK" > $@

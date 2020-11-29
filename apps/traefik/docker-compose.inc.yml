@@ -13,6 +13,8 @@
       - "traefik.http.routers.dashboard.middlewares=narra"
       - "traefik.http.routers.ping.rule=Host(`${CIS_HOST}`) && PathPrefix(`/ping`)"
       - "traefik.http.routers.ping.service=ping@internal"
+    env_file:
+      - var/traefik/traefik.env
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/timezone:/etc/timezone:ro
@@ -20,7 +22,6 @@
       - ./var/traefik:/etc/traefik
 
 # This allows narra & drone internal access to gitea without DNS, in "no any lan" config
-# TODO: check for https
     networks:
       default:
         aliases:

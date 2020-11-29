@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
   <meta charset="utf-8">
-  <title>Traefik routers</title>
+  <title>DCAPE v2 Traefik routers</title>
 
   <!-- Mobile Specific Metas
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -25,7 +25,7 @@
   <div class="container">
     <div class="row">
       <div class="column" style="margin-top: 5%">
-        <h4><a href="https://github.com/dopos/dcape">DCAPE</a> Continuous Integration Server</h4>
+        <h4>Docker Composed Application Environment</h4>
         <h5>Server routers</h5>
         <p>
           <ul id='sites'>
@@ -41,14 +41,17 @@
     var ul = document.getElementById('sites');
     var routerArray = JSON.parse(data);
     var arrayLength = routerArray.length;
-    var port = "";
-    var reHost = /Host\(`(\S+)`/;
+    var reHost = /Host\(`([^`]+)`/;
     var rePrefix = /Path\S*\(`([^`]+)`/;
+    var port = "";
     if (location.port != '') port = ':' + location.port;
     for (var i = 0; i < arrayLength; i++) {
         var router = routerArray[i];
+        if (router["service"] == "noop@internal") continue;
         var rule = router["rule"];
         var a;
+        var proto = "http";
+        if (router["entryPoints"][0] != "web") proto += "s";
         var hosts = reHost.exec(rule);
         var prefixes = rePrefix.exec(rule);
         if (hosts == null) {
@@ -56,18 +59,20 @@
           a.innerHTML = rule; //router["name"];
         } else {
           a = document.createElement('a');
-          var href = location.protocol + '//' + hosts[1] + port;
+          var href = proto + '://' + hosts[1] + port;
           if (prefixes == null) {
             href += '/';
           } else {
             href += prefixes[1];
           }
           a.href = href;
-          a.innerHTML = router["service"];
+          a.innerHTML = href;
           a.setAttribute('target', '_blank');
         }
         var li = document.createElement('li');
+        var text = document.createTextNode(" - " + router["service"]);
         li.appendChild(a);
+        li.appendChild(text);
         ul.appendChild(li);
       }
   }

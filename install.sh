@@ -24,9 +24,8 @@ Where HOST is remote server hostname or ip
   and OPTIONS are:
 
   -a USER, --admin USER - create & setup user USER for remote login (default: $admin, set '-' to disable)
-  -c ARGS, --cape ARGS  - install docker cape with init args ARGS
-  -d, --docker          - install docker
-  -e, --extended        - install extended package set (mc wget make sudo ntpdate)
+  -d ARGS, --dcape ARGS - install dcape with init args ARGS
+  -e, --extended        - install extended package set (mc make sudo ntpdate git)
   -h, --help            - show this help
   -k FILE, --key: FILE  - ssh-copy-id FILE to remote user 
   -l, --locale          - setup local server locale at remote server
@@ -54,7 +53,7 @@ shift
 
 # arg parsing based on https://stackoverflow.com/a/14787208
 
-args=$(getopt -l "admin:,cape:,docker,extended,key:,locale,ntpdate,port:,swap:,tune,update" -o "a:c:dek:lnp:s:tu" -- "$@")
+args=$(getopt -l "admin:,dcape:,extended,key:,locale,ntpdate,port:,swap:,tune,update" -o "a:d:ek:lnp:s:tu" -- "$@")
 
 eval set -- "$args"
 
@@ -67,10 +66,8 @@ while [ $# -ge 1 ]; do
      ;;
     -a|--admin)
       admin="$2" ; shift ;;
-    -c|--cape)
-      cape="$2" ; shift ;;
-    -d|--docker)
-      docker="yes" ;;
+    -d|--dcape)
+      dcape="$2" ; shift ;;
     -e|--extended)
       extended="yes" ;;
     -k|--key)
@@ -113,8 +110,7 @@ cat <<EOF
 host:     $host
 
 admin:    ${admin:--}
-cape:     ${cape:--}
-docker:   ${docker:--}
+dcape:    ${dcape:--}
 extended: $extended
 key:      ${key:--}
 locale:   $locale
@@ -208,8 +204,7 @@ fi
 echo -n "* extended packages: "
 if [[ "$extended" ]] ; then
   echo -n "install..."
-  apt-get -y remove apache2 python-samba samba-common
-  apt-get -y install mc wget make sudo ntpdate git
+  apt-get -y install mc make sudo ntpdate git
   echo "Ok"
 else
   echo "skip"
@@ -223,16 +218,6 @@ if [[ "$ntpdate" ]] ; then
   echo "#!/bin/sh" > /etc/cron.daily/ntpdate
   echo "ntpdate -u ntp.ubuntu.com pool.ntp.org" >> /etc/cron.daily/ntpdate
   chmod a+x /etc/cron.daily/ntpdate
-  echo "Ok"
-else
-  echo "skip"
-fi
-
-# ------------------------------------------------------------------------------
-echo -n "* docker: "
-if [[ "$docker" ]] ; then
-  echo -n "install..."
-  which docker > /dev/null || wget -qO- https://get.docker.com/ | sh
   echo "Ok"
 else
   echo "skip"
@@ -293,12 +278,12 @@ fi
 # ------------------------------------------------------------------------------
 # TODO: test it
 echo -n "* cape: "
-if [[ "$cape" ]] ; then
+if [[ "$dcape" ]] ; then
   echo -n "setup dcape with args $cape..."
   cd /opt
   git clone https://github.com/dopos/dcape.git
   cd dcape
-  make init $cape
+  make init $dcape
   make apply
   make up
   echo "Ok"

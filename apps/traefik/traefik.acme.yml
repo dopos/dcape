@@ -21,6 +21,10 @@ entryPoints:
     http:
       tls:
         certResolver: letsEncrypt
+        domains:
+          - main: "=DCAPE_DOMAIN="
+            sans:
+              - "*.=DCAPE_DOMAIN="
 
 certificatesResolvers:
   letsEncrypt:
@@ -28,6 +32,8 @@ certificatesResolvers:
       email: ***-admin@change.me-***
       storage: /etc/traefik/acme.json
       caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+      dnsChallenge:
+        provider: pdns
       httpChallenge:
         entryPoint: web
 
@@ -35,7 +41,9 @@ providers:
   docker:
     exposedByDefault: false
      # TODO: cli version does not work
-    constraints: Label(`dcape.traefik.tag`,`=DCAPE_TAG=`)
+    constraints: "Label(`dcape.traefik.tag`,`=DCAPE_TAG=`)"
+    endpoint: "unix:///var/run/docker.sock"
+    network: dcape3_default
 
   file:
     directory: /etc/traefik/custom

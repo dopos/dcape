@@ -30,9 +30,9 @@ DRONE_ADMIN        ?= admin
 DRONE_GIT_SERVER   ?= $(DCAPE_SCHEME)://$(CIS_GITEA_HOST)
 
 # Auth service access token: client ID
-DRONE_CLIENT_ID     ?= get_access_token_from_gitea
+DRONE_CLIENT_ID     ?= ***-get_access_token_from_gitea-***
 # Auth service access token: key
-DRONE_CLIENT_KEY    ?= get_access_token_from_gitea
+DRONE_CLIENT_KEY    ?= ***-get_access_token_from_gitea-***
 
 # Shared key for runners
 DRONE_SHARED_KEY   ?= $(shell openssl rand -hex 16; echo)
