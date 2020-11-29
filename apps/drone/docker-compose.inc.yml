@@ -51,4 +51,4 @@
     build:
       context: ./apps/drone
       args:
-        DC_VER
+        - DC_VER

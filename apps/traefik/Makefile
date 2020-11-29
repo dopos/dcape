@@ -38,13 +38,13 @@ TRAEFIK_CONFIG_TAG=$(TRAEFIK_CONFIG_TAG)
 endef
 export CONFIG_TRAEFIK
 
-traefik-init:
+traefik-init: var/traefik/traefik.env
 	@grep TRAEFIK_ .env > /dev/null || echo "$$CONFIG_TRAEFIK" >> .env
 	@if [[ "$$TRAEFIK_VER0" != "$$TRAEFIK_VER" ]] ; then \
 	  echo "Warning: TRAEFIK_VER in dcape ($$TRAEFIK_VER0) differs from yours ($$TRAEFIK_VER)" ; \
 	fi
 
-traefik-apply:var/traefik/custom var/traefik/traefik.yml var/traefik/acme.json var/traefik/traefik.env
+traefik-apply:var/traefik/custom var/traefik/traefik.yml var/traefik/acme.json
 
 var/traefik/custom:
 	@mkdir -p $@
