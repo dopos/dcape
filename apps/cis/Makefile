@@ -13,7 +13,7 @@ CIS_NARRA_VER      ?= $(CIS_NARRA_VER0)
 CIS_HOST           ?= $(DOMAIN)
 # Gitea host for auth
 CIS_GITEA_HOST     ?= git.$(DOMAIN)
-# Gitea organization for users who has access to CIS
+# Gitea organization for users who has access to private areas
 CIS_GITEA_ORG      ?= dcape
 # Auth service access token: client ID
 AUTH_CLIENT_ID     ?= ***-get_access_token_from_gitea-***
@@ -31,7 +31,6 @@ define CONFIG_CIS
 # App hostname
 CIS_HOST=$(CIS_HOST)
 
-# Private admin site part (traefik, consul, webtail, dns) token
 # Gitea host for auth
 CIS_GITEA_HOST=$(CIS_GITEA_HOST)
 # Gitea organization for users who has access to CIS
@@ -53,10 +52,7 @@ endef
 export CONFIG_CIS
 
 cis-init:
-	@grep CIS_DEPLOY .env || \
-	{ \
-	  echo "$$CONFIG_CIS" >> .env ; \
-	}
+	@grep CIS_SIGN_KEY .env || echo "$$CONFIG_CIS" >> .env
 	@if [[ "$$CIS_NARRA_VER0" != "$$CIS_NARRA_VER" ]] ; then \
 	  echo "Warning: CIS_NARRA_VER in dcape ($$CIS_NARRA_VER0) differs from yours ($$CIS_NARRA_VER)" ; \
 	fi

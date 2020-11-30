@@ -13,6 +13,7 @@ DCFILES           = $(shell find apps/ -name $(DCINC) -print | sort)
 PROJECT_NAME     ?= dcape
 DOMAIN           ?= dev.lan
 DCAPE_SCHEME     ?= http
+
 APPS_SYS         ?= db
 APPS             ?= traefik cis enfist drone portainer gitea
 
@@ -51,6 +52,7 @@ PROJECT_NAME=$(PROJECT_NAME)
 # Default domain
 DOMAIN=$(DOMAIN)
 
+# http for LAN-only use, https otherwise
 DCAPE_SCHEME=$(DCAPE_SCHEME)
 
 # App list, for use in make only
@@ -89,7 +91,10 @@ export
 -include $(CFG)
 export
 
-.PHONY: deps init-master init-slave init-local init apply up reup down dc db-create db-drop env-get env-set help
+.PHONY: deps init init-slave apply up reup down dc db-create db-drop env-get env-set help
+
+# Used only in Makefile db* targets
+DCAPE_DB         ?= $(PROJECT_NAME)_db_1
 
 # ------------------------------------------------------------------------------
 
@@ -106,7 +111,7 @@ deps:
 	  echo "all ok" ; \
 	else \
 	  echo "no: $$apps" ; \
-#	  sudo apt-get update && sudo apt-get install -y $$apps ; \
+	  sudo apt-get update && sudo apt-get install -y $$apps ; \
 	fi
 
 ## Init server without gitea
@@ -153,12 +158,6 @@ down:
 down: CMD=down
 down: dc
 
-## separate start of traefik in the interactive mode, is used for get wild cert
-## for manual provider and DNS challenge (not use vars for manual provider)
-wild: 
-wild: CMD=run --rm traefik-acme-wild
-wild: dc
-
 # $$PWD используется для того, чтобы текущий каталог был доступен в контейнере по тому же пути
 # и относительные тома новых контейнеров могли его использовать
 ## run docker-compose
@@ -176,7 +175,6 @@ dc: docker-compose.yml
 # Wait for postgresql container start
 docker-wait:
 	@echo -n "Checking PG is ready..." ; \
-	DCAPE_DB=$${PROJECT_NAME}_db_1 ; \
 	until [[ `docker inspect -f "{{.State.Health.Status}}" $$DCAPE_DB` == healthy ]] ; do sleep 1 ; echo -n "." ; done
 	@echo "Ok"
 
@@ -202,7 +200,6 @@ db-create: docker-wait
 	@echo "*** $@ ***" \
 	&& varname=$(NAME)_DB_PASS && pass=$${!varname} \
 	&& varname=$(NAME)_DB_TAG && dbname=$${!varname} \
-	&& DCAPE_DB=$${PROJECT_NAME}_db_1 \
 	&& docker exec -i $$DCAPE_DB psql -U postgres -c "CREATE USER \"$$dbname\" WITH PASSWORD '$$pass';" 2> >(grep -v "already exists" >&2) \
 	&& docker exec -i $$DCAPE_DB psql -U postgres -c "CREATE DATABASE \"$$dbname\" OWNER \"$$dbname\";" 2> >(grep -v "already exists" >&2) || db_exists=1 ; \
 	if [[ ! "$$db_exists" ]] && [[ "$(PG_SOURCE_SUFFIX)" ]] ; then \
@@ -215,13 +212,11 @@ db-create: docker-wait
 db-drop:
 	@echo "*** $@ ***" \
 	&& varname=$(NAME)_DB_TAG && dbname=$${!varname} \
-	&& DCAPE_DB=$${PROJECT_NAME}_db_1 \
 	&& docker exec -i $$DCAPE_DB psql -U postgres -c "DROP DATABASE \"$$dbname\";" \
 	&& docker exec -i $$DCAPE_DB psql -U postgres -c "DROP USER \"$$dbname\";"
 
 psql:
-	@DCAPE_DB=$${PROJECT_NAME}_db_1 \
-	&& docker exec -it $$DCAPE_DB psql -U postgres
+	@docker exec -it $$DCAPE_DB psql -U postgres
 
 ## Run local psql
 psql-local:
