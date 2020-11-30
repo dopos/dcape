@@ -43,7 +43,6 @@ providers:
      # TODO: cli version does not work
     constraints: "Label(`dcape.traefik.tag`,`=DCAPE_TAG=`)"
     endpoint: "unix:///var/run/docker.sock"
-    network: dcape3_default
 
   file:
     directory: /etc/traefik/custom
