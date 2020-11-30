@@ -1,3 +1,5 @@
+# Traefik v2 config template for WAN use with HTTP-01 acme challenge
+
 global:
   checkNewVersion: true
   sendAnonymousUsage: true
@@ -48,4 +50,4 @@ ping:
   manualRouting: true
 
 log:
-  level: DEBUG
+  level: INFO

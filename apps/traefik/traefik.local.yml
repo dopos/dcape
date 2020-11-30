@@ -1,6 +1,8 @@
+# Traefik v2 config template for LAN use
+
 global:
   checkNewVersion: true
-  sendAnonymousUsage: true
+  sendAnonymousUsage: false
 
 entryPoints:
   web:
@@ -28,4 +30,4 @@ ping:
   manualRouting: true
 
 log:
-  level: DEBUG
+  level: INFO

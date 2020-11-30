@@ -1,3 +1,5 @@
+# Traefik v2 config template for WAN use with HTTP-01 and DNS-01 (via local PowerDNS) acme challenges
+
 global:
   checkNewVersion: true
   sendAnonymousUsage: true
@@ -42,7 +44,6 @@ providers:
     exposedByDefault: false
      # TODO: cli version does not work
     constraints: "Label(`dcape.traefik.tag`,`=DCAPE_TAG=`)"
-    endpoint: "unix:///var/run/docker.sock"
 
   file:
     directory: /etc/traefik/custom
@@ -55,4 +56,4 @@ ping:
   manualRouting: true
 
 log:
-  level: DEBUG
+  level: INFO

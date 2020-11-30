@@ -74,6 +74,9 @@ PG_SHM_SIZE=$(PG_SHM_SIZE)
 # Deployment persistent storage
 DCAPE_ROOT_VAR=$(DCAPE_ROOT_VAR)
 
+# Docker-compose image tag
+DC_VER=$(DC_VER)
+
 endef
 export CONFIG_DEF
 

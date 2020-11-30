@@ -21,7 +21,7 @@
       - /etc/localtime:/etc/localtime:ro
       - ./var/traefik:/etc/traefik
 
-# This allows narra & drone internal access to gitea without DNS, in "no any lan" config
+    # This allows narra & drone internal access to gitea without DNS, in "no any lan" config
     networks:
       default:
         aliases:
