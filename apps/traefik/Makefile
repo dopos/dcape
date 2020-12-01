@@ -21,8 +21,6 @@ TRAEFIK_CONFIG_TAG ?= local
 # Traefik hostname for internal access
 # This allows narra & drone internal access to gitea without DNS, in "no any lan" config
 TRAEFIK_ALIAS      ?= $(GITEA_HOST)
-# Some non-empty value when GITEA_HOST is external
-TRAEFIK_ALIAS      ?= $(CIS_HOST)
 
 
 define CONFIG_TRAEFIK

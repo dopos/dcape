@@ -116,8 +116,8 @@ deps:
 
 ## Init server without gitea
 init-slave: APPS = traefik cis enfist drone portainer
+init-slave: GITEA_HOST = $(DOMAIN)
 init-slave: init
-
 
 ## Initially create .env file with defaults
 init: var
