@@ -4,7 +4,7 @@
     image: dopos/narra:${CIS_NARRA_VER}
     restart: always
     command:
-      --as.host ${DCAPE_SCHEME}://${CIS_GITEA_HOST} --as.cookie_sign ${CIS_SIGN_KEY} --as.cookie_crypt ${CIS_CRYPT_KEY}
+      --as.host ${AUTH_SERVER} --as.cookie_sign ${CIS_SIGN_KEY} --as.cookie_crypt ${CIS_CRYPT_KEY}
       --as.client_id ${AUTH_CLIENT_ID} --as.client_key ${AUTH_CLIENT_KEY}
       --as.my_url=${DCAPE_SCHEME}://${CIS_HOST} --as.do401 --as.cookie_domain ${DOMAIN}
       --fs.path=/html --fs.protect=/private/

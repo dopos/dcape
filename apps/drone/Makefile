@@ -27,7 +27,7 @@ DRONE_DB_PASS     ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head 
 # Gitea user who will be Drone admin
 DRONE_ADMIN        ?= admin
 # Gitea server
-DRONE_GIT_SERVER   ?= $(DCAPE_SCHEME)://$(CIS_GITEA_HOST)
+DRONE_GIT_SERVER   ?= $(AUTH_SERVER)
 
 # Auth service access token: client ID
 DRONE_CLIENT_ID     ?= ***-get_access_token_from_gitea-***

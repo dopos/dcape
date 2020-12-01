@@ -12,7 +12,7 @@ CIS_NARRA_VER      ?= $(CIS_NARRA_VER0)
 # CIS hostname
 CIS_HOST           ?= $(DOMAIN)
 # Gitea host for auth
-CIS_GITEA_HOST     ?= git.$(DOMAIN)
+AUTH_SERVER        ?= $(DCAPE_SCHEME)://git.$(DOMAIN)
 # Gitea organization for users who has access to private areas
 CIS_GITEA_ORG      ?= dcape
 # Auth service access token: client ID
@@ -32,7 +32,7 @@ define CONFIG_CIS
 CIS_HOST=$(CIS_HOST)
 
 # Gitea host for auth
-CIS_GITEA_HOST=$(CIS_GITEA_HOST)
+AUTH_SERVER=$(AUTH_SERVER)
 # Gitea organization for users who has access to CIS
 CIS_GITEA_ORG=$(CIS_GITEA_ORG)
 
