@@ -18,6 +18,13 @@ TRAEFIK_PORT_SSL   ?= 443
 # Values: local|acme-http|acme
 TRAEFIK_CONFIG_TAG ?= local
 
+# Traefik hostname for internal access
+# This allows narra & drone internal access to gitea without DNS, in "no any lan" config
+TRAEFIK_ALIAS      ?= $(GITEA_HOST)
+# Some non-empty value when GITEA_HOST is external
+TRAEFIK_ALIAS      ?= $(CIS_HOST)
+
+
 define CONFIG_TRAEFIK
 # ------------------------------------------------------------------------------
 # Traefik settings
@@ -35,6 +42,8 @@ TRAEFIK_PORT_SSL=$(TRAEFIK_PORT_SSL)
 # Values: local|acme-http|acme
 TRAEFIK_CONFIG_TAG=$(TRAEFIK_CONFIG_TAG)
 
+# Traefik hostname for internal access
+TRAEFIK_ALIAS=$(TRAEFIK_ALIAS)
 endef
 export CONFIG_TRAEFIK
 
