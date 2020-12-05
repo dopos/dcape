@@ -5,7 +5,7 @@ set -e
 
 CMD=$1
 shift
-ARG=$2
+ARG=$1
 
 CFG=.env
 
@@ -33,13 +33,13 @@ do_config() {
 }
 
 # Prepare empty dir for application, path will be accessible as `$APP_ROOT`
-# setup.sh root keep - do not erase dir if exists
+# setup root keep - do not erase dir if exists
 do_root() {
     if [ -z "$APP_ROOT" ]; then
       export APP_ROOT=${DCAPE_ROOT:?Dcape root must be set}/apps/${ENFIST_TAG}
     fi
     echo -n "Setup app root: $APP_ROOT... "
-    if [ -d ${APP_ROOT} && -z "$ARG" ]; then
+    if [ -d ${APP_ROOT} ] && [ -z "$ARG" ]; then
       echo -n "Remove.. "
       rm -rf $APP_ROOT
     fi
