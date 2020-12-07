@@ -3,6 +3,12 @@ version: '3.8'
 networks:
   default:
     driver: bridge
+    name: dcape
+    driver_opts:
+      com.docker.network.bridge.name: dcape
+    ipam:
+      config:
+        - subnet: ${DCAPE_SUBNET}
 
 services:
 
