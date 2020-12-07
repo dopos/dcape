@@ -56,6 +56,9 @@ DOMAIN=$(DOMAIN)
 # http for LAN-only use, https otherwise
 DCAPE_SCHEME=$(DCAPE_SCHEME)
 
+# IP subnet for dcape network
+DCAPE_SUBNET=$(DCAPE_SUBNET)
+
 # App list, for use in make only
 APPS="$(shell echo $(APPS))"
 
