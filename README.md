@@ -38,7 +38,7 @@
 
 Для работы с контейнерами в **dcape** используется [docker-версия docker-compose](https://hub.docker.com/r/docker/compose/), поэтому отдельной установки docker-compose не требуется.
 
-## Установка {#install}
+## Установка
 
 Действия выполняются на сервере с установленными зависимостями, ip-адрес которого зарегистрирован в DNS для следующих имен:
 
@@ -100,7 +100,7 @@ ACME
 : включить поддержку сертификатов letsencrypt. При значении `no` адреса сервисов dcape будут начинаться с `http://`, иначе - `https://`, при значении `wild` будет настроено получение сертификатов для домена `*.DCAPE_DOMAIN`
 
 См. также:
-* Файл конфигурации traefik для сертификатов [только HTTP-01](/dopos/dcape/blob/v2/apps/traefik/traefik.acme-http.yml) и [HTTP-01 + DNS-01](https://github.com/dopos/dcape/blob/v2/apps/traefik/traefik.acme.yml) (`make init TRAEFIK_CONFIG_TAG=acme`)
+* Файл конфигурации traefik для сертификатов [только HTTP-01](/apps/traefik/traefik.acme-http.yml) и [HTTP-01 + DNS-01](/apps/traefik/traefik.acme.yml)
 
 При выполнении команды `make apply` соответствующий файл конфигурации traefik копируется в `var/traefik/traefik.yml` с заменой переменных. После этого достаточно в нем закомментировать строку `caServer`, в которой по умолчанию указан адрес тестового сервиса.
 
@@ -110,23 +110,6 @@ ACME
 
 ```bash
 make init GITEA=yes
-```
-
-make init-slave AUTH_SERVER=https://it.elfire.ru DOMAIN=c0.elfire.ru DRONE_ADMIN=lekovr
-добавить ключи приложений из gitea
-make up
-drone: активировать dcape-app-powerdns (trusted)
-gitea: dcape-app-powerdns / webhooks / test delivery
-conf: SERVICE_PORT=192.168.5.110:53
-зоны (drone,gitea)  ACME_DOMAIN=cx.elfire.ru
-```
-rm var/traefik/traefik.yml
-make traefik-apply TRAEFIK_CONFIG_TAG=acme TRAEFIK_ACME_EMAIL=ak@elfire.ru 
-.env: DCAPE_SCHEME=https
-var/traefik/traefik.yml: удалить строку caServer
-var/traefik/traefik.утм
-make up
-docker logs -f dcape_traefik_1
 ```
 
 См. также:
@@ -213,12 +196,12 @@ make init
 * настройки встроенных приложений размещены в `apps/*/docker-compose.inc.yml`, все эти файлы средствами `make` копируются в `docker-compose.yml` перед запуском `docker-compose`
 * файлы `var/apps/*/Makefile` содержат две цели (для адаптированных приложений):
   * `init` - добавление настроек приложения в файл `.env`
-  * `apply` - подготовка БД и данных приложения в `var/data/*/`
+  * `apply` - подготовка БД и данных приложения в `var/`
 
 ## Две и более среды dcape на одном сервере
 
 * для второй копии изменить порты в параметрах `TRAEFIK_LISTEN` и `TRAEFIK_LISTEN_SSL`
-* изменить параметр DCAPE_TAG
+* изменить параметр `DCAPE_TAG`
 
 ## Предыдущее решение
 
