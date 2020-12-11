@@ -155,8 +155,20 @@ make up
 # сервер для локального использования
 make init
 
+# изменение локального порта, по которому будет доступен postgresql (по умолчанию: 5433):
+make init PG_PORT_LOCAL=5434
+
 # посмотреть .env без сохранения изменений
 make init CFG=tmp$$ DCAPE_VAR=tmp$$-var ACME=wild DNS=wild && less tmp$$ && rm -rf tmp$$*
+
+# сервер без gitea, с wildcard сертификатом
+make init ACME=wild DNS=wild DCAPE_DOMAIN=srv1.domain.tld \
+  TRAEFIK_ACME_EMAIL=admin@domain.tld \
+  PDNS_LISTEN=192.168.23.10:53 \
+  NARRA_GITEA_ORG=dcape \
+  DRONE_ADMIN=lekovr \
+  GITEA=https://it.domain.tld
+
 ```
 
 См. также:
