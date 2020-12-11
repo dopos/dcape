@@ -1,41 +1,32 @@
 # Gitea init Makefile
 # This file included by ../../Makefile
-
 SHELL               = /bin/bash
-
-# DCAPE_USED==1 when called from upper Makefile
-DCAPE_USED         ?= 0
-# Gitea Docker image version by dcape
+# Default docker image version
 GITEA_VER0         ?= 1.12.5
-# Gitea Docker image version
-GITEA_VER          ?= $(GITEA_VER0)
-# Database name and database user name
-GITEA_DB_TAG       ?= gitea
-# Database user password
-GITEA_DB_PASS      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
-# Gitea ssh server port
+# Config vars described below in section `define CONFIG_...`
+GITEA_HOST         ?= git.$(DCAPE_DOMAIN)
 GITEA_SSH_PORT     ?= 10022
-# Gitea hostname prefix
-GITEA_HOST_PREFIX  ?= git
-# Gitea hostname
-GITEA_HOST         ?= $(GITEA_HOST_PREFIX).$(DOMAIN)
-
-# Internal gitea config path
+GITEA_DB_TAG       ?= gitea
+GITEA_DB_PASS      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
+GITEA_VER          ?= $(GITEA_VER0)
 GITEA_INI_DIR      ?= var/gitea/gitea/conf
 
 define CONFIG_GITEA
-# ------------------------------------------------------------------------------
-# Gitea settings
+# ==============================================================================
+# Gitea: general config
 
-# Gitea Docker image version
-GITEA_VER=$(GITEA_VER)
-
-# App hostname
+# Gitea hostname
 GITEA_HOST=$(GITEA_HOST)
 
 # Gitea ssh server port
 # You should change sshd port and set this to 22
 GITEA_SSH_PORT=$(GITEA_SSH_PORT)
+
+# ------------------------------------------------------------------------------
+# Gitea: internal config
+
+# Gitea Docker image version
+GITEA_VER=$(GITEA_VER)
 
 # Database name and database user name
 GITEA_DB_TAG=$(GITEA_DB_TAG)
@@ -46,6 +37,7 @@ GITEA_DB_PASS=$(GITEA_DB_PASS)
 endef
 export CONFIG_GITEA
 
+# ------------------------------------------------------------------------------
 
 # Init data for $${GITEA_INI_DIR}/app.ini
 define INI_GITEA
@@ -95,19 +87,23 @@ PROVIDER = file
 endef
 export INI_GITEA
 
+# ------------------------------------------------------------------------------
 
 gitea-init:
-	@grep GITEA_DB_PASS .env || \
+	@grep GITEA_DB_PASS $(CFG) || \
 	{ \
-	  echo "$$CONFIG_GITEA" >> .env ; \
-	  echo "** GITEA DB PASSWORD: $(GITEA_DB_PASS)" ; \
+	  echo "$$CONFIG_GITEA" >> $(CFG) ; \
 	}
 	@if [[ "$$GITEA_VER0" != "$$GITEA_VER" ]] ; then \
 	  echo "Warning: GITEA_VER in dcape ($$GITEA_VER0) differs from yours ($$GITEA_VER)" ; \
 	fi
 
-gitea-apply:
+gitea-apply: var/gitea/gitea/conf var/gitea/gitea/conf/app.ini
 	@$(MAKE) -s db-create NAME=GITEA
-	@[ -d $$GITEA_INI_DIR ] || mkdir -p $$GITEA_INI_DIR
-	@[ -f $$GITEA_INI_DIR/app.ini ] || echo "$$INI_GITEA" > $$GITEA_INI_DIR/app.ini
-	@chmod 666 $$GITEA_INI_DIR/app.ini
+
+var/gitea/gitea/conf:
+	@mkdir -p $@
+
+var/gitea/gitea/conf/app.ini:
+	@echo "$$INI_GITEA" > $@
+	@chmod 666 $@

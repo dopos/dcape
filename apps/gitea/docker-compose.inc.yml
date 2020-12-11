@@ -8,7 +8,7 @@
       db:
         condition: service_healthy
     labels:
-      - "dcape.traefik.tag=${PROJECT_NAME}"
+      - "dcape.traefik.tag=${DCAPE_TAG}"
       - "traefik.enable=true"
       - "traefik.http.routers.gitea.rule=Host(`${GITEA_HOST}`)"
       - "traefik.http.services.gitea.loadbalancer.server.port=3000"

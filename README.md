@@ -1,6 +1,8 @@
 # dcape - Docker composed application environment
 
-[![GitHub Release][1]][2] [![GitHub code size in bytes][3]]() [![GitHub license][4]][5]
+[![GitHub Release][1]][2]
+![GitHub code size in bytes][3]
+[![GitHub license][4]][5]
 
 [1]: https://img.shields.io/github/release/dopos/dcape.svg
 [2]: https://github.com/dopos/dcape/releases
@@ -8,77 +10,140 @@
 [4]: https://img.shields.io/github/license/dopos/dcape.svg
 [5]: LICENSE
 
-[Dcape](https://github.com/dopos/dcape) - это среда оркестрации docker-контейнеров для программистов. Она позволяет упростить разворачивание собственного или стороннего ПО на локальном компьютере, промышленном или облачном сервере. Среду **dcape** формируют  сервисы встроенных приложений, которые автоматизируют задачи по запуску, обновлению, удалению, анализу и мониторингу разворачиваемых приложений. Состав встроенных приложений конфигурируется по необходимости при инициализации **dcape**.
+[Dcape](https://github.com/dopos/dcape) - это набор файлов `docker-compose.inc.yml` и `Makefile`,  с помощью которых командой `make` формируются файл параметров (`.env`) и конфигурация контейнеров (`docker-compose.yml`) для разворачивания следующего набора приложений:
 
-Для развертывания приложения в среде **dcape** достаточно составить два файла - `Makefile` и `docker-compose.yml`. Приложения, для которых эти файлы составлены, являются адаптированными для развертывания в среде **dcape**. Примеры можно посмотреть в списке [адаптированных приложений](https://github.com/dopos?q=dcape-app).
+* [postgresql](https://www.postgresql.org) ([image](https://hub.docker.com/_/postgres)) - хранение конфигураций приложений и баз данных, если приложению требуется СУБД
+* [traefik](https://traefik.io/) ([image](https://hub.docker.com/_/traefik/)) - агрегация и проксирование www-сервисов развернутых приложений по заданному имени с поддержкой сертификатов Let's Encrypt
+* [gitea](https://gitea.io/) ([image](https://hub.docker.com/r/gitea/gitea)) - git совместимый сервис для работы с репозиториями
+* [drone](https://github.com/drone) ([image](https://hub.docker.com/r/drone/drone)) - деплой приложений по событию из gitea
+* [narra](https://github.com/dopos/narra) ([image](https://hub.docker.com/r/dopos/narra)) - сервис OAuth2 авторизации для учетных записей gitea
+* [enfist](https://github.com/apisite/app-enfist) ([image](https://hub.docker.com/r/apisite/enfist)) - хранилище файлов .env в postgresql с доступом через браузер и АПИ
+* [powerdns](https://www.powerdns.com/) ([image](https://hub.docker.com/r/psitrax/powerdns)) - DNS-сервер для поддержки wildcard domain сертификатов
+* [portainer](https://portainer.io/) ([image](https://hub.docker.com/r/portainer/portainer/)) - интерфейс к [docker](https://www.docker.com/)
 
-## Как это работает
+## Зачем это нужно
 
-Приложения (собственные исходные тексты или файлы конфигурации стороннего ПО) размещаются в репозитории на github.com или аналогичном сервисе (может использоваться встроенное приложение **gitea**, или собственный аналогичный сервис).
+Проект предназначен для построения сервисов разработки и деплоя приложений в случаях, когда достаточно ресурсов одного сервера. Все составляющие этой системы доступны на [dockerhub](https://hub.docker.com/) и можно подготовить такой файл `docker-compose.yml`, который позволит их все запустить одной командой `docker-compose up`.
 
-Для поддержки среды **dcape** репозиторий должен содержать файлы:
-* `docker-compose.yml` - конфигурация сервисов docker, используемых для сборки и запуска приложений
-* `Makefile` с командами создания файла конфигурации запуска `.env`, подготовки окружения приложения (БД и прочее), запуском сервисов через docker-compose
+**dcape** добавляет в процесс подготовки такого решения следующие преимущества:
 
-Разворачивание приложения производится командой `make start-hook`, которая путем исполнения целей из `Makefile`, подготавливает запуск приложения, финальной целью является запуск docker-compose с использованием переменных конфигурации запуска из файла `.env`. Инициирование запуска `make start-hook` производится вебхуком сервиса git, при использовании промышленного или облачного сервера с **dcape**. Если **dcape** используется локально - разворачивание приложения осуществляется командой `make start`, запускаемой в терминале.
-
-Файл `.env` c переменными для `docker-compose.yml` и другими переменными для запуска приложения не размещается в репозитории, при первом деплое он создается командой `make .env` и сохраняется вебхуком в Хранилище конфигураций (enfist). После этого, доступ к конфигурации запуска приложения осуществляется через это хранилище. Для каждой ветки репозитория создается своя конфигурация запуска.
-
-Настройка **dcape**, для разворачивания приложения, состоит из двух шагов:
-1. Настроить автоматическое обновление (webhook) в репозитории проекта
-2. Поместить в хранилище конфигураций запуска приложения файл `.env` с разрешением на деплой (`_CI_HOOK_ENABLED=yes`)
-
-После этого push в репозиторий проекта будет приводить к разворачиванию/обновлению приложения в среде **dcape**.
-См. также: [DEPLOY.md](DEPLOY.md).
-Для локального использования **dcape** такая настройка не требуется.
-
-## Стек приложений
-
-Текущая версия **dcape** имеет в составе следующие встроенные приложения:
-
-* cis ([в составе dcape](https://github.com/dopos/dcape/tree/master/apps/cis)) - статический сайт (на базе nginx), на котором публикуется информация, необходимая для работы с dcape: список разврнутых приложений, ключи доступа, и т.п. Для доступа к информации необходимо наличие учетной записи в gitea и участие в задаваемой в настройках команды (организации) gitea.
-* [gitea](https://gitea.io/) ([docker](https://store.docker.com/community/images/gitea/gitea)) - git совместимый сервис для работы с репозиториями
-* [traefik](https://traefik.io/) ([docker](https://hub.docker.com/_/traefik/)) - агрегация и проксирование www-сервисов развернутых приложений по заданному имени с поддержкой сертификатов Let's Encrypt
-* [portainer](https://portainer.io/) ([docker](https://hub.docker.com/r/portainer/portainer/)) - управление приложениями (контейнерами и образами)
-* [webhook](https://github.com/adnanh/webhook) ([docker](https://store.docker.com/community/images/dopos/webhook)) - деплой (запуск, обновление, удаление) приложений по событию из gitea
-* [webtail](https://github.com/LeKovr/webtail) ([docker](https://store.docker.com/community/images/lekovr/webtail)) - агрегация и www доступ к логам событий приложений (запуск, удаление, обновление)
-* [enfist](https://github.com/apisite/app-enfist) ([docker](https://store.docker.com/community/images/apisite/enfist)) - хранилище файлов .env в postgresql
-* [narra](https://github.com/dopos/narra) ([docker](https://store.docker.com/community/images/dopos/narra)) - сервис авторизации для nginx через API gitea
-* [postgresql](https://www.postgresql.org) ([docker](https://store.docker.com/images/postgres)) - хранение конфигураций приложений и баз данных, если приложению требуется СУБД. Детали в инструкции по работе с [Postgres](https://github.com/dopos/dcape-pg-upgrade)
-
-**Служебные приложения dcape:**
-
-* [nginx](https://en.wikipedia.org/wiki/Nginx) ([docker](https://store.docker.com/images/nginx)) - доступ к статическому контенту
-* [dcape-config-cli](https://github.com/dopos/dcape-config-cli) - утилита для работы (загрузки,выгрузки, изменения) с конфигурациями запуска в среде **dcape**
-
-**Приложения, адаптированные для среды dcape:**
-
-* [drone](https://github.com/drone/drone) ([docker](https://store.docker.com/community/images/drone/drone)) - сборка и тест приложения в отдельном контейнере
-* [mattermost](https://about.mattermost.com/) ([docker](https://store.docker.com/community/images/mattermost/mattermost-prod-app)) - сервис группового общения
-* [powerdns](https://www.powerdns.com/) - ([docker](https://store.docker.com/community/images/dopos/powerdns)) DNS-сервер, который хранит описания зон в БД postgresql
-
-[Актуальный список адаптированных приложений dcape](https://github.com/dopos?q=dcape-app)
+* файл параметров (`.env`) формируется программно, что позволяет использовать в значениях переменные и генерировать автоматически необходимые приложениям пароли и токены
+* файл конфигурации контейнеров (`docker-compose.yml`) формируется программно, что позволяет задавать в числе параметров список необходимых для конкретной инсталляции приложений. В частности, если разворачивается группа серверов различного назначения, gitea достаточно развернуть только на одном из них (а на остальных вместо `make init` выполнять `make init-slave`)
+* использование `make` позволяет перед стартом приложения выполнять его инициализацию, включая создание БД, формирование файлов конфигураций по шаблонам и т.п.
 
 ## Зависимости
 
-* linux 64bit (git, make, wget, gawk, openssh-client)
+* linux 64bit (git, make, sed, curl, jq)
 * [docker](http://docker.io)
 
-Для работы с контейнерами в **dcape** используется образ docker c docker-compose, поэтому отдельной установки docker-compose не требуется.
+Для работы с контейнерами в **dcape** используется [docker-версия docker-compose](https://hub.docker.com/r/docker/compose/), поэтому отдельной установки docker-compose не требуется.
 
-## Быстрый старт
+## Установка {#install}
 
-На удаленном (облачном) сервере, где после установки ОС ubuntu/debian не производилось настроек, можно установить dcape и провести тюнинг сервера одной командой:
+Действия выполняются на сервере с установленными зависимостями, ip-адрес которого зарегистрирован в DNS для следующих имен:
+
+* domain.tld - для фронтендов narra, enfist, traefik
+* git.domain.tld - для gitea
+* drone.domain.tld - для drone
+* port.domain.tld - для portainer
+* ns.domain.tld - для powerdns
+
+См. также: [DNS setup](README-DNS.md)
+
+### Команды в консоли
+
+```bash
+# make
+which make || sudo apt-get install make
+
+# dcape
+cd /opt
+sudo mkdir dcape && sudo chown $USER dcape
+git clone https://github.com/dopos/dcape.git
+cd dcape
+git checkout -b v2 origin/v2
+make init GITEA=yes DCAPE_DOMAIN=domain.tld # .env сформирован, можно проверить корректность параметров
+make apply
+make up
+# если gitea локальная - открыть GITEA_URL, завершить инсталляцию и создать токен
+# иначе - авторизоваться и создать токен
+make gitea-setup GITEA_TOKEN=... # получить и сохранить в .env *_CLIENT_{ID,KEY}
+make up
 ```
-curl -sSL https://raw.githubusercontent.com/dopos/dcape/master/install.sh | sh -s \
- 192.168.0.1 -a op -p 32 -s 1Gb -delntu \
- -c 'APPS="traefik-acme gitea portainer enfist cis" DOMAIN=your.domain TRAEFIK_ACME_EMAIL=admin@your.domain'
 
+GITEA_TOKEN не хранится, используется для создание организации (если ее нет) и для создания/обновления OAuth2 приложений narra и drone (CLIENT_ID и CLIENT_KEY сохраняются в .env).
+
+См. также: [Issue 22, Автоматизировать первичную настройку Gitea](https://github.com/dopos/dcape/issues/22)
+
+### Аргументы make init
+
+Благодаря использованию `Makefile`, любая используемая переменная может быть задана при вызове `make init`. После ее выполнения полный список переменных с описанием доступен в файле .env
+
+Следующие переменный имеют ключевое значение для конфигурации dcape:
+
+DCAPE_TAG
+: container name prefix
+
+DCAPE_DOMAIN
+: dcape containers hostname domain
+
+GITEA
+: значения: [no]|yes
+: добавить в конфигурацию локальный сервер gitea. При значении `no` необходимо задать `AUTH_SERVER`
+
+DNS
+: значения: [no]|yes|wild
+: добавить в конфигурацию локальный сервер powerdns. При значении `wild` в него будет добавлена зона для поддержки сертификатов letsencrypt
+
+ACME
+: значения: [no]|http|wild
+: включить поддержку сертификатов letsencrypt. При значении `no` адреса сервисов dcape будут начинаться с `http://`, иначе - `https://`, при значении `wild` будет настроено получение сертификатов для домена `*.DCAPE_DOMAIN`
+
+См. также:
+* Файл конфигурации traefik для сертификатов [только HTTP-01](/dopos/dcape/blob/v2/apps/traefik/traefik.acme-http.yml) и [HTTP-01 + DNS-01](https://github.com/dopos/dcape/blob/v2/apps/traefik/traefik.acme.yml) (`make init TRAEFIK_CONFIG_TAG=acme`)
+
+При выполнении команды `make apply` соответствующий файл конфигурации traefik копируется в `var/traefik/traefik.yml` с заменой переменных. После этого достаточно в нем закомментировать строку `caServer`, в которой по умолчанию указан адрес тестового сервиса.
+
+Если файл `var/traefik/traefik.yml` существует, **dcape** не производит в нем никаких изменений и его можно изменять по своим потребностям.
+
+### Примеры make init
+
+```bash
+make init GITEA=yes
 ```
 
-В DNS зоне для домена your.domain должна быть создана wildcard запись для ip сервера (`.your.domain A ip`)
+make init-slave AUTH_SERVER=https://it.elfire.ru DOMAIN=c0.elfire.ru DRONE_ADMIN=lekovr
+добавить ключи приложений из gitea
+make up
+drone: активировать dcape-app-powerdns (trusted)
+gitea: dcape-app-powerdns / webhooks / test delivery
+conf: SERVICE_PORT=192.168.5.110:53
+зоны (drone,gitea)  ACME_DOMAIN=cx.elfire.ru
+```
+rm var/traefik/traefik.yml
+make traefik-apply TRAEFIK_CONFIG_TAG=acme TRAEFIK_ACME_EMAIL=ak@elfire.ru 
+.env: DCAPE_SCHEME=https
+var/traefik/traefik.yml: удалить строку caServer
+var/traefik/traefik.утм
+make up
+docker logs -f dcape_traefik_1
+```
 
-См. также: [install.sh](install.sh)
+См. также:
+
+* [Traefik setup](https://github.com/dopos/dcape/tree/v2/apps/traefik)
+* [Скрипт удаленной настройки сервера и установки dcape](install.sh)
+
+## Что дальше
+
+Для развертывания приложений в среде **dcape** v2 используется drone c образом docker-compose (создается при установке dcape).
+
+## См. также
+
+* [Deploy with Drone](https://github.com/dopos/dcape/tree/v2/apps/drone)
+* [Адаптированные для dcape приложения](https://github.com/dopos?q=dcape-app)
+* [dcape-config-cli](https://github.com/dopos/dcape-config-cli) - утилита для работы (загрузки,выгрузки, изменения) с конфигурациями запуска в среде **dcape**
+* [Актуальный список адаптированных приложений dcape](https://github.com/dopos?q=dcape-app)
 
 ## Управление конфигурациями запуска приложений
 
@@ -96,159 +161,6 @@ curl -sSL https://raw.githubusercontent.com/dopos/dcape/master/install.sh | sh -
 
 Тег содержит значение равное ключу БД Key-value хранилища `organization--name_of_repo--branch` (`организация--проект--ветка`)
 
-## Структура проекта
-
-```
-dcape
-├── apps
-│   ├── cis
-│   │   ├── docker-compose.inc.yml
-│   │   ├── html/
-│   │   ├── Makefile
-│   │   └── nginx.conf
-│   ├── enfist
-│   │   ├── docker-compose.inc.yml
-│   │   └── Makefile
-│   ├── gitea
-│   │   ├── docker-compose.inc.yml
-│   │   └── Makefile
-│   ├── portainer
-│   │   ├── docker-compose.inc.yml
-│   │   └── Makefile
-│   ├── traefik
-│   │   ├── docker-compose.inc.yml
-│   │   └── Makefile
-│   └── traefik-acme
-│       ├── docker-compose.inc.yml
-│       └── Makefile
-├── DEPLOY.md
-├── docker-compose.inc.yml
-├── install.sh
-├── LICENSE
-├── Makefile
-└── README.md
-```
-
-## Установка
-
-Установка производится на хост с 64bit linux
-
-### Настройка DNS
-
-При установке на локальный компьютер, для доступа к сервисам dcape (cis.dev.lan, port.dev.lan) необходимо настроить wildcard domain *.dev.lan:
-[Описание настройки](https://voboghure.com/2020/01/02/enable-wildcard-sub-domain-for-localhost-on-ubuntu-18-04/)
-
-```
-sudo bash -c 'echo "address=/.dev.lan/127.0.0.1" > /etc/NetworkManager/dnsmasq.d/dev.lan.conf'
-sudo service network-manager reload
-```
-
-или можно прописать эти имена в /etc/hosts:
-```
-sudo bash -c 'echo "127.0.0.1 cis.dev.lan" >> /etc/hosts'
-sudo bash -c 'echo "127.0.0.1 port.dev.lan" >> /etc/hosts'
-```
-но в этом случае придется отдельно прописывать имя для каждого нового сервиса dcape.
-
-### Установка приложения
-
-```
-# make
-which make || sudo apt-get install make
-
-# dcape
-cd /opt
-sudo mkdir dcape && sudo chown $USER dcape
-git clone https://github.com/dopos/dcape.git
-cd dcape
-
-# gawk wget curl apache2-utils openssh-client
-make deps
-```
-
-## Использование TLS
-Dcape поддерживает протокол TLS с использованием ключей [Let's Encrypt](https://ru.wikipedia.org/wiki/Let%E2%80%99s_Encrypt).
-При инициализации Dcape, поддержку TLS можно сконфигурировать четырьмя способами:
-* `local mode` - локальная установка, использование DCAPE на локальном компьютере без поддержки TLS.
-* `dev mode` - установка с использованием TLS с отдельным сертификатом для каждого приложения, использование которых настраивается конкретно для приложения при его развертывании. По умолчанию включено для встроенных приложений dcape (cis, portainer, gitea). В этом режиме используется переменная `REDIR_ENTRY`, которой устанавливается редирект на https отдельно для каждого приложения. В других режимах значение этой переменной не определено и не используется.
-* `wild mode` - установка для деплоя приложений с возможностью использования TLS c wilcards сертификатом от Let's Encrypt для всех веб сервисов dcape и приложений (позволяет не опасаться ограничения по лимиту количества сертификатов на один домен).
-* `production mode` - установка с использованием индивидуальных сертификатов Let's Encrypt для каждого веб сервиса.
-
-Dcape поддерживает автоматическую генерацию сертификатов и валидацию домена для индивидуальных сертификатов.
-Для wildcards сертификатов, автоматическая генерация сертификатов и валидация доменов поддерживается для DNS
-[провайдеров](https://docs.traefik.io/configuration/acme/#provider) с поддержкой API.
-По умолчанию, при инициализации, конфигурируется автоматизированная генерация (перегенерация) сертификатов, при которой автоматически запускается генерация сертификата, в лог файл выдается хеш, который необходимо
-внести в поле домена, тип `TXT`, имя `_acme-challenge.$DOMAIN`, значение `хеш из лога` .
-Wildcards генерируется для домена: `*.$DOMAIN`, где DOMAIN="домен для которого разворачивается DCAPE"
-
-Для перехода на автоматический wild-mode необходимо:
-- изменить в директиве `APPS` сервис traefik-acme на treafik-acme-wild
-- в `.env` добавить директивы DNS_CHALLENGE_PROVIDER и DNS_CHALLENGE_RESOLVER
-- в `apps/traefik-acme-wild/docker-compose.inc.yml` в секции environment указать соответствующие вашему провайдеру наименования API_KEY/API_URL по примеру PDNS
-- выполнить make reup для DCAPE.
-
-В случае не запуска traefik-acme-wild смотреть логи контейнера. Контейнер не будет запускаться, если упущены обязательные настройки.
-
-В период настройки во избежание бана со стороны Letsencrypt рекомендуется использовать директиву `ACME_CASERVER`=https://acme-staging-v02.api.letsencrypt.org/directory
-для работы через тестовый канал (выписывается Fake сертификат), а после полной отладки механизма, выкл `ACME_CASERVER`.
-
-## Инициализация
-
-На этом этапе задается список приложений, формируется файл настроек **dcape** (файл `.env`) и вспомогательные файлы.
-Выбор варианта команды `make init` зависит от требуемой конфигурации среды (состава встроенных приложений).
-
-При инициализации определяется состав сервисов, который будет запущен при старте `dcape`.
-Полный перечень сервисов: db, traefik, portainer, enfist, cis. В зависимости от поддержки TLS,
-сервис traefik используется с разными именами (конфигурациями): traefik, traefik-acme, traefik-acme-wild.  
-
-Примеры команды:
-
-```
-# конфигурация локального сайта в комплекте с gitea
-make init-local
-
-# сайт, доступный извне, с сертификатами от Let's Encrypt
-make init-master-prod DOMAIN=your.host TRAEFIK_ACME_EMAIL=admin@your.host
-
-# сайт, доступный извне, с сертификатами от Let's Encrypt, без gitea.
-make init-slave-prod DOMAIN=your.host TRAEFIK_ACME_EMAIL=admin@your.host
-
-# сайт, доступный извне, с сертификатами от Let's Encrypt для встроенных приложений
-make init-master-dev DOMAIN=your.host TRAEFIK_ACME_EMAIL=admin@your.host
-
-# сайт, доступный извне, с сертификатами от Let's Encrypt для встроенных приложений, без gitea.
-make init-slave-dev DOMAIN=your.host TRAEFIK_ACME_EMAIL=admin@your.host
-
-# сайт, доступный извне, с сертификатом wildcards от Let's Encrypt
-make init-master-wild DOMAIN=your.host TRAEFIK_ACME_EMAIL=admin@your.host
-
-# сайт, доступный извне, с сертификатом wildcards от Let's Encrypt, без gitea.
-make init-slave-wild DOMAIN=your.host TRAEFIK_ACME_EMAIL=admin@your.host
-
-# свой список приложений
-make init APPS="gitea portainer" DOMAIN=example.com
-
-# использование контейнера postgresql для разработки SQL:
-make init PG_IMAGE=dopos/postgresql
-
-# изменение локального порта, по которому будет доступен postgresql (по умолчанию: 5433):
-make init PG_PORT_LOCAL=5434
-```
-
-После выполнения `init`, надо отредактировать файл `.env`, изменив дефолтные настройки на необходимые.
-Также будет создан каталог `var/` для файлов, необходимых для запуска приложений.
-Персистентные данные приложений размещаются в `var/data/`, журналы - в `var/log/`.
-
-По готовности файла `.env`, необходимо обработать его командой
-```
-make apply
-```
-При этом будут стартованы контейнеры enfist и db (postgresql), созданы БД приложений, загружены необходимые для работы данные.
-
-## Настройка git (cis)
-
-Доступ к cis.host осуществляется через систему git. Для доступа, необходимо в файле `.env` (CIS_GITEA_ORG) указать наименование команды (организации), участникам которой будет предоставлен доступ.
-Создать в git команду (организацию) и включить в нее участников.
 
 ## Использование
 
@@ -270,20 +182,25 @@ make apply
 
 При обновлении проекта возможно появление новых переменных в `.env` файле.
 Алгоритм обновления .env с сохранением старых настроек:
-```
+
+```bash
 mv .env .env.bak
 make init
 ```
+
 Другой вариант:
-```
+
+```bash
 mv .env .env.1019
 make init CFG_BAK=.env.1019
 ```
+
 Все совпадающие значения будут взяты из `.env.bak` (т.е. из старого конфига).
 Если изменятся номера версий используемых образов docker, будут выведены предупреждения.
 
 Для того, чтобы обновить номера версий образов docker, сохранив остальные настройки, надо подготовить `.env.bak`, убрав из него номера версий:
-```
+
+```bash
 grep -v "_VER=" .env > .env.bak
 mv .env .env.all
 make init
@@ -300,19 +217,13 @@ make init
 
 ## Две и более среды dcape на одном сервере
 
-* **в текущей версии** - для второй копии изменить порт в параметре `TRAEFIK_PORT` и использовать в настройке `APPS` traefik (не traefik-acme).
-* **в планах** - для 2й и следующих копий реализовать конфигурацию без своего traefik (с подключением основного traefik к сети копии).
-
-## TODO
-
-* [ ] nginx в cis кэширует ip внутренних хостов (enfist, traefik etc) и после их рестарта может их потерять (или обратиться к чему-то другому по старому ip)
-* [ ] mmost bot: `/cget <name>`, `/cset <name>`, `/cls <mask>` (channel linked to server)
-* [ ] flow: PR -> Drone -> post to mmost chat with link to PR
-* [ ] webhook: обработка pull request
+* для второй копии изменить порты в параметрах `TRAEFIK_LISTEN` и `TRAEFIK_LISTEN_SSL`
+* изменить параметр DCAPE_TAG
 
 ## Предыдущее решение
 
-**Dcape** (Дикейп) - это реинкарнация [consup](https://github.com/LeKovr/consup) (консап). В dcape тот же функционал реализован на основе docker-compose, более продвинутой чем [fidm](https://github.com/LeKovr/fidm) версии [fig](http://www.fig.sh/index.html). В **dcape** не требуется для каждого приложения создавать специальный docker-образ. В большинстве случаев подходит официальный образ приложения с https://hub.docker.com (или https://cloud.docker.com). В остальных случаях используются альтернативные сборки, доступные в этом же реестре.
+**Dcape** (Дикейп) v2 отличается от v1 переездом деплоя на drone и сменой версии traefik на v2.
+Сам проект - это реинкарнация [consup](https://github.com/LeKovr/consup) (консап). В **dcape** тот же функционал реализован на основе docker-compose, более продвинутой чем [fidm](https://github.com/LeKovr/fidm) версии [fig](http://www.fig.sh/index.html). В **dcape** не требуется для каждого приложения создавать специальный docker-образ. В большинстве случаев подходит официальный образ приложения с [DockerHub](https://hub.docker.com). В остальных случаях используются альтернативные сборки, доступные в этом же реестре.
 
 ## Благодарности
 
@@ -324,4 +235,4 @@ make init
 
 The MIT License (MIT), see [LICENSE](LICENSE).
 
-Copyright (c) 2017 Alexey Kovrizhkin <lekovr+dopos@gmail.com>
+Copyright (c) 2017-2020 Alexey Kovrizhkin <lekovr+dopos@gmail.com>

@@ -27,7 +27,7 @@ entryPoints:
 certificatesResolvers:
   letsEncrypt:
     acme:
-      email: ***-admin@change.me-***
+      email: =TRAEFIK_EMAIL=
       storage: /etc/traefik/acme.json
       caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
       httpChallenge:

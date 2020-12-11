@@ -3,15 +3,15 @@
     image: traefik:${TRAEFIK_VER}
     restart: always
     ports:
-      - "${TRAEFIK_PORT}:80"
-      - "${TRAEFIK_PORT_SSL}:443"
+      - "${TRAEFIK_LISTEN}:80"
+      - "${TRAEFIK_LISTEN_SSL}:443"
     labels:
-      - "dcape.traefik.tag=${PROJECT_NAME}"
+      - "dcape.traefik.tag=${DCAPE_TAG}"
       - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`${CIS_HOST}`) && (PathPrefix(`/dashboard/`) || PathPrefix(`/api/`))"
+      - "traefik.http.routers.dashboard.rule=Host(`${DCAPE_HOST}`) && (PathPrefix(`/dashboard/`) || PathPrefix(`/api/`))"
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.routers.dashboard.middlewares=narra"
-      - "traefik.http.routers.ping.rule=Host(`${CIS_HOST}`) && PathPrefix(`/ping`)"
+      - "traefik.http.routers.ping.rule=Host(`${DCAPE_HOST}`) && PathPrefix(`/ping`)"
       - "traefik.http.routers.ping.service=ping@internal"
     env_file:
       - var/traefik/traefik.env

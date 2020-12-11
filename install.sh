@@ -1,13 +1,19 @@
 #!/bin/bash
 # ------------------------------------------------------------------------------
 # install.sh
-# Setup remote ubuntu/debian host from scratch
+# Setup remote ubuntu/debian host right after OS install
 # This script is a part of DCAPE project
 # See https://github.com/dopos/dcape
+
+# Usage:
+# curl -sSL https://raw.githubusercontent.com/dopos/dcape/master/install.sh | sh -s \
+#    $NEW_SERVER_IP -a op -p 32 -s 1Gb -delntu \
+#    -c 'DOMAIN=your.domain TRAEFIK_ACME_EMAIL=admin@your.domain'
+
 # ------------------------------------------------------------------------------
 
 # default user login
-admin=op
+admin=dcapeadm
 
 # ------------------------------------------------------------------------------
 help() {

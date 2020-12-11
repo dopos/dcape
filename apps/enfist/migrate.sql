@@ -9,7 +9,10 @@
 
 DO $_$
 BEGIN
-  IF EXISTS(SELECT 1 FROM information_schema.schemata WHERE schema_name = 'env') THEN
+    IF NOT EXISTS(SELECT 1 FROM information_schema.schemata WHERE schema_name = 'env') THEN
+      -- skip migration
+      RETURN;
+    END IF;
 
     -- code from enfist/11_schema.sql
     CREATE SCHEMA IF NOT EXISTS pers;
@@ -28,5 +31,4 @@ BEGIN
     DROP SCHEMA env CASCADE;
     DROP SCHEMA rpc CASCADE;
 
-  END IF;
 END$_$;

@@ -3,12 +3,12 @@
     image: portainer/portainer-ce:${PORTAINER_VER}
     restart: always
     labels:
-      - "dcape.traefik.tag=${PROJECT_NAME}"
+      - "dcape.traefik.tag=${DCAPE_TAG}"
       - "traefik.enable=true"
       - "traefik.http.routers.portainer.rule=Host(`${PORTAINER_HOST}`)"
       - "traefik.http.services.portainer.loadbalancer.server.port=9000"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock
       - ./var/portainer:/data
