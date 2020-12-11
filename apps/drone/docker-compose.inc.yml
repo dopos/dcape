@@ -28,7 +28,7 @@
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./var/drone:/data
+      - ./${DCAPE_VAR}/drone:/data
 
   drone-rd:
     image: drone/drone-runner-docker:${DRONE_RUNNER_VER}
@@ -40,9 +40,9 @@
       - DRONE_RPC_SECRET=${DRONE_SHARED_KEY}
       - DRONE_RUNNER_CAPACITY=2
       - DRONE_RUNNER_NAME=${HOSTNAME}
-      - DRONE_RUNNER_ENVIRON=DCAPE_TAG:${DCAPE_TAG},DCAPE_NET:${DCAPE_NET},DCAPE_ROOT:${DCAPE_ROOT_VAR},DCAPE_COMPOSE:${DCAPE_TAG}_drone-compose
+      - DRONE_RUNNER_ENVIRON=DCAPE_TAG:${DCAPE_TAG},DCAPE_NET:${DCAPE_NET},DCAPE_ROOT:${DRONE_VAR_PATH},DCAPE_COMPOSE:${DCAPE_TAG}_drone-compose
       - DRONE_RUNNER_NETWORKS=${DCAPE_NET}
-      - DRONE_RUNNER_VOLUMES=${DCAPE_ROOT_VAR}:${DCAPE_ROOT_VAR}
+      - DRONE_RUNNER_VOLUMES=${DRONE_VAR_PATH}:${DRONE_VAR_PATH}
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro

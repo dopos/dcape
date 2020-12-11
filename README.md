@@ -62,42 +62,42 @@ sudo mkdir dcape && sudo chown $USER dcape
 git clone https://github.com/dopos/dcape.git
 cd dcape
 git checkout -b v2 origin/v2
-make init GITEA=yes DCAPE_DOMAIN=domain.tld # .env сформирован, можно проверить корректность параметров
+make init DCAPE_DOMAIN=domain.tld # .env сформирован, можно проверить корректность параметров
 make apply
 make up
 # если gitea локальная - открыть GITEA_URL, завершить инсталляцию и создать токен
 # иначе - авторизоваться и создать токен
-make gitea-setup GITEA_TOKEN=... # получить и сохранить в .env *_CLIENT_{ID,KEY}
+make gitea-setup TOKEN=... # получить и сохранить в .env *_CLIENT_{ID,KEY}
 make up
 ```
 
-GITEA_TOKEN не хранится, используется для создание организации (если ее нет) и для создания/обновления OAuth2 приложений narra и drone (CLIENT_ID и CLIENT_KEY сохраняются в .env).
+`TOKEN` не хранится, используется для создание организации (если ее нет) и для создания/обновления OAuth2 приложений narra и drone (их CLIENT_ID и CLIENT_KEY сохраняются в .env).
 
 См. также: [Issue 22, Автоматизировать первичную настройку Gitea](https://github.com/dopos/dcape/issues/22)
 
 ### Аргументы make init
 
-Благодаря использованию `Makefile`, любая используемая переменная может быть задана при вызове `make init`. После ее выполнения полный список переменных с описанием доступен в файле .env
+Благодаря использованию `Makefile`, любая используемая переменная может быть задана при вызове `make init`. После ее выполнения полный список переменных с описанием доступен в файле .env.
 
-Следующие переменный имеют ключевое значение для конфигурации dcape:
+Следующие переменные имеют ключевое значение для конфигурации dcape:
 
 DCAPE_TAG
-: container name prefix
+* container name prefix
 
 DCAPE_DOMAIN
-: dcape containers hostname domain
+* dcape containers hostname domain
 
 GITEA
-: значения: [no]|yes
-: добавить в конфигурацию локальный сервер gitea. При значении `no` необходимо задать `AUTH_SERVER`
+* значения: [no]|yes
+* добавить в конфигурацию локальный сервер gitea. При значении `no` необходимо задать `AUTH_SERVER`
 
 DNS
-: значения: [no]|yes|wild
-: добавить в конфигурацию локальный сервер powerdns. При значении `wild` в него будет добавлена зона для поддержки сертификатов letsencrypt
+* значения: [no]|yes|wild
+* добавить в конфигурацию локальный сервер powerdns. При значении `wild` в него будет добавлена зона для поддержки сертификатов letsencrypt
 
 ACME
-: значения: [no]|http|wild
-: включить поддержку сертификатов letsencrypt. При значении `no` адреса сервисов dcape будут начинаться с `http://`, иначе - `https://`, при значении `wild` будет настроено получение сертификатов для домена `*.DCAPE_DOMAIN`
+* значения: [no]|http|wild
+* включить поддержку сертификатов letsencrypt. При значении `no` адреса сервисов dcape будут начинаться с `http://`, иначе - `https://`, при значении `wild` будет настроено получение сертификатов для домена `*.DCAPE_DOMAIN`
 
 См. также:
 * Файл конфигурации traefik для сертификатов [только HTTP-01](/apps/traefik/traefik.acme-http.yml) и [HTTP-01 + DNS-01](/apps/traefik/traefik.acme.yml)
@@ -109,7 +109,7 @@ ACME
 ### Примеры make init
 
 ```bash
-make init GITEA=yes
+make init
 ```
 
 См. также:
@@ -158,7 +158,7 @@ make init GITEA=yes
 * `make dc CMD="rm -f -s cis"`- остановить и удалить контейнер
 * `make dc CMD="up -d --force-recreate cis"` - пересоздать и стартовать контейнер и его зависимости
 * `make db-create NAME=ENFIST` - создать в postgresql пользователя и БД из настроек enfist
-* `make db-drop NAME=ENFIST` - удалить пользователя и БД
+* `make db-drop NAME=ENFIST` - удалить пользователя и БД из настроек enfist
 * `make apply PG_SOURCE_SUFFIX=-171014` - развернуть проект, используя резервные копии БД, созданные [pg-backup](https://github.com/dopos/dcape-app-pg-backup)
 
 ### Обновление файла .env

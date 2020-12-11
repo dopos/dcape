@@ -3,7 +3,7 @@
 SHELL             = /bin/bash
 # psitrax/powerdns docker image version by dcape
 PDNS_VER0        ?= v4.3
-# Config vars described below in section `define CONFIG_...`
+# Config vars are described below in section `define CONFIG_...`
 PDNS_LISTEN      ?= 54
 PDNS_HOST        ?= ns.$(DCAPE_DOMAIN)
 ACME_DOMAIN      ?= $(DCAPE_DOMAIN)
@@ -24,11 +24,12 @@ PDNS_LISTEN=$(PDNS_LISTEN)
 # Stats site host
 PDNS_HOST=$(PDNS_HOST)
 
+# Wildcard zone nameserver
+# Used for zone SOA record & for internal access from traefik
+ACME_NS=$(ACME_NS)
+
 # Setup ACME zone for this domain
 ACME_DOMAIN=$(ACME_DOMAIN)
-
-# Wildcard zone nameserver
-ACME_NS=$(ACME_NS)
 
 # Admin email for wildcard zone SOA recors
 ACME_ADMIN_EMAIL=$(ACME_ADMIN_EMAIL)
@@ -58,10 +59,12 @@ powerdns-init:
 	@if [[ "$$PDNS_VER0" != "$$PDNS_VER" ]] ; then \
 	  echo "Warning: PDNS_VER in dcape ($$PDNS_VER0) differs from yours ($$PDNS_VER)" ; \
 	fi
+	@echo "  Stats URL: $(DCAPE_SCHEME)://$(PDNS_HOST)"
+	@echo "  Listen: $(PDNS_LISTEN)"
 
 # create user, db and load sql
 powerdns-apply: docker-wait
-	@echo "*** $@ ***" \
+	@echo "*** $@ ***" ; \
 	docker exec -i $$PG_CONTAINER psql -U postgres -c "CREATE USER \"$$PDNS_DB_TAG\" WITH PASSWORD '$$PDNS_DB_PASS';" 2> >(grep -v "already exists" >&2) \
 	&& docker exec -i $$PG_CONTAINER psql -U postgres -c "CREATE DATABASE \"$$PDNS_DB_TAG\" OWNER \"$$PDNS_DB_TAG\";" 2> >(grep -v "already exists" >&2) || db_exists=1 ; \
 	if [[ ! "$$db_exists" ]] ; then \

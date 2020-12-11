@@ -3,9 +3,9 @@ version: '3.8'
 networks:
   default:
     driver: bridge
-    name: dcape
+    name: ${DCAPE_NET}
     driver_opts:
-      com.docker.network.bridge.name: dcape
+      com.docker.network.bridge.name: ${DCAPE_NET}
     ipam:
       config:
         - subnet: ${DCAPE_SUBNET}
@@ -26,11 +26,11 @@ services:
       - LANG=${PG_ENCODING}
       - DCAPE_DB_DUMP_DEST=/opt/backup
     volumes:
-      - ./var/db/data:/var/lib/postgresql/data
-      - ./var/db/backup:/opt/backup
-      - ./var/db/conf.d:/opt/conf.d
-      - ./var/db/shared:/opt/shared
-      - ./var/db/init:/docker-entrypoint-initdb.d/
+      - ./${DCAPE_VAR}/db/data:/var/lib/postgresql/data
+      - ./${DCAPE_VAR}/db/backup:/opt/backup
+      - ./${DCAPE_VAR}/db/conf.d:/opt/conf.d
+      - ./${DCAPE_VAR}/db/shared:/opt/shared
+      - ./${DCAPE_VAR}/db/init:/docker-entrypoint-initdb.d/
     healthcheck:
       test: ["CMD", "pg_isready", "-q", "-U", "postgres", "-h", "db"]
       interval: 2s

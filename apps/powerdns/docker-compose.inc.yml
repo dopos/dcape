@@ -1,10 +1,11 @@
 
-  pdns:
+  powerdns:
     image: psitrax/powerdns:${PDNS_VER}
     restart: always
     ports:
       - "${PDNS_LISTEN}:53"
       - "${PDNS_LISTEN}:53/udp"
+    hostname: ${ACME_NS}
     depends_on:
       db:
         condition: service_healthy
@@ -15,17 +16,17 @@
     labels:
       - "dcape.traefik.tag=${DCAPE_TAG}"
       - "traefik.enable=true"
-      - "traefik.http.routers.pdns.rule=Host(`${PDNS_HOST}`)"
-      - "traefik.http.routers.pdns.middlewares=narra"
-      - "traefik.http.services.pdns.loadbalancer.server.port=8081"
+      - "traefik.http.routers.powerdns.rule=Host(`${PDNS_HOST}`)"
+      - "traefik.http.routers.powerdns.middlewares=narra"
+      - "traefik.http.services.powerdns.loadbalancer.server.port=8081"
     environment:
       - MYSQL_DEFAULT_AUTOCONF=false
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - /dev/null:/etc/pdns.conf
-    networks:
-      lan:
-        # This allows internal access from traefik to powerdns
-        aliases:
-          - ${ACME_NS}
+#    networks:
+#      ${DCAPE_NET}:
+#        # This allows internal access from traefik to powerdns
+#        aliases:
+#          - ${ACME_NS}

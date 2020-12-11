@@ -26,4 +26,4 @@
       - DB_USER=${GITEA_DB_TAG}
       - DB_PASSWD=${GITEA_DB_PASS}
     volumes:
-      - ./var/gitea:/data
+      - ./${DCAPE_VAR}/gitea:/data

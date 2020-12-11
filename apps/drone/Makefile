@@ -3,7 +3,7 @@
 SHELL               = /bin/bash
 # drone/drone docker image version from dcape
 DRONE_VER0         ?= 1.9
-# Config vars described below in section `define CONFIG_...`
+# Config vars are described below in section `define CONFIG_...`
 DRONE_HOST         ?= drone.$(DCAPE_DOMAIN)
 DRONE_ADMIN        ?= admin
 DRONE_CLIENT_ID    ?= =DRONE_CLIENT_ID=
@@ -13,6 +13,7 @@ DRONE_DB_PASS      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head
 DRONE_VER          ?= $(DRONE_VER0)
 DRONE_RUNNER_VER   ?= 1.6.1
 DRONE_SHARED_KEY   ?= $(shell openssl rand -hex 16; echo)
+DRONE_VAR_PATH     ?= $(PWD)/$(DCAPE_VAR)
 
 define CONFIG_DRONE
 # ==============================================================================
@@ -38,6 +39,8 @@ DRONE_DB_TAG=$(DRONE_DB_TAG)
 DRONE_DB_PASS=$(DRONE_DB_PASS)
 # Shared key for runners
 DRONE_SHARED_KEY=$(DRONE_SHARED_KEY)
+# Deployment persistent storage, absolute
+DRONE_VAR_PATH=$(DRONE_VAR_PATH)
 
 # drone/drone docker image version
 DRONE_VER=$(DRONE_VER)
@@ -54,6 +57,8 @@ drone-init:
 	@if [[ "$$DRONE_VER0" != "$$DRONE_VER" ]] ; then \
 	  echo "Warning: DRONE_VER in dcape ($$DRONE_VER0) differs from yours ($$DRONE_VER)" ; \
 	fi
+	@echo "  URL: $(DCAPE_SCHEME)://$(DRONE_HOST)"
+	@echo "  Admin: $(DRONE_ADMIN)"
 
 drone-apply:
 	@cmd=create ; \

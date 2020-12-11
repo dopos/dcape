@@ -3,7 +3,7 @@
 SHELL               = /bin/bash
 # Default docker image version
 NARRA_VER0         ?= 0.23
-# Config vars described below in section `define CONFIG_...`
+# Config vars are described below in section `define CONFIG_...`
 NARRA_GITEA_ORG    ?= dcape
 NARRA_CLIENT_ID    ?= =NARRA_CLIENT_ID=
 NARRA_CLIENT_KEY   ?= =NARRA_CLIENT_KEY=
@@ -44,5 +44,6 @@ narra-init:
 	@if [[ "$$NARRA_VER0" != "$$NARRA_VER" ]] ; then \
 	  echo "Warning: NARRA_VER in dcape ($$NARRA_VER0) differs from yours ($$NARRA_VER)" ; \
 	fi
+	@echo "  Gitea org: $(NARRA_GITEA_ORG)"
 
 narra-apply:

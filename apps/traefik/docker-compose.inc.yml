@@ -14,12 +14,12 @@
       - "traefik.http.routers.ping.rule=Host(`${DCAPE_HOST}`) && PathPrefix(`/ping`)"
       - "traefik.http.routers.ping.service=ping@internal"
     env_file:
-      - var/traefik/traefik.env
+      - ${DCAPE_VAR}/traefik/traefik.env
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - ./var/traefik:/etc/traefik
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./${DCAPE_VAR}/traefik:/etc/traefik
     networks:
       default:
         aliases:

@@ -1,10 +1,11 @@
 # enfist init Makefile
 # This file included by ../../Makefile
 SHELL               = /bin/bash
-# Config vars described below in section `define CONFIG_...`
+# Docker image version
+ENFIST_VER0        ?= 0.6.2
+# Config vars are described below in section `define CONFIG_...`
 ENFIST_DB_TAG      ?= enfist
 ENFIST_DB_PASS     ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
-ENFIST_VER0        ?= 0.6.2
 ENFIST_VER         ?= $(ENFIST_VER0)
 
 define CONFIG_ENFIST
@@ -30,6 +31,8 @@ enfist-init:
 	@if [[ "$$ENFIST_VER0" != "$$ENFIST_VER" ]] ; then \
 	  echo "Warning: ENFIST_VER in dcape ($$ENFIST_VER0) differs from yours ($$ENFIST_VER)" ; \
 	fi
+	@echo "  URL: $(DCAPE_SCHEME)://$(DCAPE_HOST)/conf/"
+
 
 enfist-apply:
 	@cmd=create ; \

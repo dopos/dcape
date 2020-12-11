@@ -3,13 +3,12 @@
 SHELL               = /bin/bash
 # Default docker image version
 GITEA_VER0         ?= 1.12.5
-# Config vars described below in section `define CONFIG_...`
+# Config vars are described below in section `define CONFIG_...`
 GITEA_HOST         ?= git.$(DCAPE_DOMAIN)
 GITEA_SSH_PORT     ?= 10022
 GITEA_DB_TAG       ?= gitea
 GITEA_DB_PASS      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
 GITEA_VER          ?= $(GITEA_VER0)
-GITEA_INI_DIR      ?= var/gitea/gitea/conf
 
 define CONFIG_GITEA
 # ==============================================================================
@@ -25,21 +24,21 @@ GITEA_SSH_PORT=$(GITEA_SSH_PORT)
 # ------------------------------------------------------------------------------
 # Gitea: internal config
 
-# Gitea Docker image version
-GITEA_VER=$(GITEA_VER)
-
 # Database name and database user name
 GITEA_DB_TAG=$(GITEA_DB_TAG)
 
 # Database user password
 GITEA_DB_PASS=$(GITEA_DB_PASS)
 
+# Gitea Docker image version
+GITEA_VER=$(GITEA_VER)
+
 endef
 export CONFIG_GITEA
 
 # ------------------------------------------------------------------------------
 
-# Init data for $${GITEA_INI_DIR}/app.ini
+# Init data for $(DCAPE_VAR)/gitea/gitea/conf/app.ini
 define INI_GITEA
 APP_NAME = Gitea: Git with a cup of tea
 RUN_USER = git
@@ -97,13 +96,15 @@ gitea-init:
 	@if [[ "$$GITEA_VER0" != "$$GITEA_VER" ]] ; then \
 	  echo "Warning: GITEA_VER in dcape ($$GITEA_VER0) differs from yours ($$GITEA_VER)" ; \
 	fi
+	@echo "  URL: $(DCAPE_SCHEME)://$(GITEA_HOST)"
+	@echo "  SSH port: $(GITEA_SSH_PORT)"
 
-gitea-apply: var/gitea/gitea/conf var/gitea/gitea/conf/app.ini
+gitea-apply: $(DCAPE_VAR)/gitea/gitea/conf $(DCAPE_VAR)/gitea/gitea/conf/app.ini
 	@$(MAKE) -s db-create NAME=GITEA
 
-var/gitea/gitea/conf:
+$(DCAPE_VAR)/gitea/gitea/conf:
 	@mkdir -p $@
 
-var/gitea/gitea/conf/app.ini:
+$(DCAPE_VAR)/gitea/gitea/conf/app.ini:
 	@echo "$$INI_GITEA" > $@
 	@chmod 666 $@

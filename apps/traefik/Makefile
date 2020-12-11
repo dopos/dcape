@@ -1,12 +1,13 @@
 # Traefik init Makefile
 # This file included by ../../Makefile
 SHELL               = /bin/bash
-# Config vars described below in section `define CONFIG_...`
+# Docker image version
+TRAEFIK_VER0       ?= 2.3.4
+# Config vars are described below in section `define CONFIG_...`
 DCAPE_HOST         ?= $(DCAPE_DOMAIN)
 TRAEFIK_LISTEN     ?= 80
 TRAEFIK_LISTEN_SSL ?= 443
 TRAEFIK_ACME_EMAIL ?= admin@$(DCAPE_DOMAIN)
-TRAEFIK_VER0       ?= 2.3.4
 TRAEFIK_VER        ?= $(TRAEFIK_VER0)
 
 define CONFIG_TRAEFIK
@@ -65,30 +66,32 @@ CONFIG_TRAEFIK += $(CONFIG_TRAEFIK_INTERNAL)
 ifeq ($(DNS),no)
   PDNS_API_KEY = ***-see_powerdns_config-***
 endif
-ifeq ($(GITEA),no)
-  TRAEFIK_ALIAS ?= $(DCAPE_HOST)
-else
+ifeq ($(GITEA),yes)
   TRAEFIK_ALIAS ?= $(GITEA_HOST)
+else
+  TRAEFIK_ALIAS ?= $(DCAPE_HOST)
 endif
 export CONFIG_TRAEFIK
 
 # ------------------------------------------------------------------------------
 
-traefik-init: var/traefik/custom var/traefik/traefik.env
+traefik-init: $(DCAPE_VAR)/traefik/custom $(DCAPE_VAR)/traefik/traefik.env
 	@grep TRAEFIK_ $(CFG) > /dev/null || echo "$$CONFIG_TRAEFIK" >> $(CFG)
 	@if [[ "$$TRAEFIK_VER0" != "$$TRAEFIK_VER" ]] ; then \
 	  echo "Warning: TRAEFIK_VER in dcape ($$TRAEFIK_VER0) differs from yours ($$TRAEFIK_VER)" ; \
 	fi
+	@echo "  Dashboard URL: $(DCAPE_SCHEME)://$(DCAPE_HOST)/dashboard/"
+	@echo "  HTTP port: $(TRAEFIK_LISTEN)"
 
-traefik-apply: var/traefik/traefik.yml var/traefik/acme.json
+traefik-apply: $(DCAPE_VAR)/traefik/traefik.yml $(DCAPE_VAR)/traefik/acme.json
 
-var/traefik/custom:
+$(DCAPE_VAR)/traefik/custom:
 	@mkdir -p $@
 
-var/traefik/traefik.yml: apps/traefik/traefik.$(TRAEFIK_CONFIG_TAG).yml
+$(DCAPE_VAR)/traefik/traefik.yml: apps/traefik/traefik.$(TRAEFIK_CONFIG_TAG).yml
 	@sed "s/=DCAPE_TAG=/$$DCAPE_TAG/g ; s/=DCAPE_DOMAIN=/$$DCAPE_DOMAIN/g ; s/=TRAEFIK_EMAIL=/$$TRAEFIK_ACME_EMAIL/g" $<  > $@
 
-var/traefik/acme.json:
+$(DCAPE_VAR)/traefik/acme.json:
 	@touch $@
 	@chmod 600 $@
 
@@ -104,7 +107,7 @@ define ENV_TRAEFIK
 endef
 export ENV_TRAEFIK
 
-var/traefik/traefik.env:
+$(DCAPE_VAR)/traefik/traefik.env:
 ifeq ($(DNS),no)
 	touch $@
 else ifeq ($(DNS),yes)
