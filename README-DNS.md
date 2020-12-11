@@ -41,7 +41,7 @@ srv1.domain.tld.        A       192.168.23.10
 
 ## DNS зона, wildcard-domain с выделенным сервером для поддержки wildcard сертификатов Let's Encrypt
 
-Для регистрации wildcard сертификатов traefik редактирует зону по АПИ. Чтобы не давать ему доступ к основной DNS-зоне, можно для каждого сервера создать выделенную зону (в примере - `srv1.domain.tld`) и директивой `CNAME` делегировать управление зтой зоной отдельному серверу (в примере - серверу `ns.srv1.domain.tld`, т.е. локальному DNS). Используемая в **dcape v2** версия traefik это уже поддерживает.
+Для регистрации wildcard сертификатов traefik редактирует зону по АПИ. Чтобы не давать ему доступ к основной DNS-зоне, можно для каждого сервера создать выделенную зону (в примере - `srv1.domain.tld`) и директивой `CNAME` делегировать управление сертификатами этой зоны отдельному серверу (в примере - серверу `ns.srv1.domain.tld`, т.е. локальному DNS). Используемая в **dcape v2** версия traefik это уже поддерживает.
 
 ```
 srv1.domain.tld.                    A       192.168.23.10
@@ -54,11 +54,11 @@ _acme-challenge.*.srv1.domain.tld.  CNAME    acme-srv1.domain.tld
 
 Команда инициализации **dcape** для этого примера:
 
-```
+```bash
 make init ACME=wild DNS=wild DCAPE_DOMAIN=srv1.domain.tld \
-  PDNS_LISTEN=192.168.23.10:53 \
-  TRAEFIK_ACME_EMAIL=admin@domain.tld
+  TRAEFIK_ACME_EMAIL=admin@domain.tld \
+  PDNS_LISTEN=192.168.23.10:53
 ```
-В `PDNS_LISTEN` порт изменен на стандартный (по умолчанию - 54) и задан ip, чтобы не возникало конфликта с локальным резолвером.
+В `PDNS_LISTEN` порт изменен на стандартный (по умолчанию: 54) и задан ip, чтобы не возникало конфликта с локальным резолвером.
 
-См. также: [настройка связки taefik-powerdns](/blob/v2/apps/traefik/Makefile#L98) для `DNS=wild`
+См. также: [настройка связки taefik-powerdns](/apps/traefik/Makefile#L98) для `DNS=wild`
