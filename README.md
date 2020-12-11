@@ -10,51 +10,71 @@
 [4]: https://img.shields.io/github/license/dopos/dcape.svg
 [5]: LICENSE
 
-[Dcape](https://github.com/dopos/dcape) - это набор файлов `docker-compose.inc.yml` и `Makefile`,  с помощью которых командой `make` формируются файл параметров (`.env`) и конфигурация контейнеров (`docker-compose.yml`) для разворачивания следующего набора приложений:
+[Dcape](https://github.com/dopos/dcape) - это комплект файлов для [make](https://www.gnu.org/software/make/) и [docker-compose](https://docs.docker.com/compose/), который ставится на сервер и позволяет "по нажатию кнопки" разворачивать и обновлять:
 
-* [postgresql](https://www.postgresql.org) ([image](https://hub.docker.com/_/postgres)) - хранение конфигураций приложений и баз данных, если приложению требуется СУБД
+* сторонние приложения из образов docker
+* собственные приложения из исходных текстов, размещенных в git
+
+Для поддержки этих процессов, на сервере с помощью **dcape** разворачиваются базовые приложения:
+
 * [traefik](https://traefik.io/) ([image](https://hub.docker.com/_/traefik/)) - агрегация и проксирование www-сервисов развернутых приложений по заданному имени с поддержкой сертификатов Let's Encrypt
-* [gitea](https://gitea.io/) ([image](https://hub.docker.com/r/gitea/gitea)) - git совместимый сервис для работы с репозиториями
+* [postgresql](https://www.postgresql.org) ([image](https://hub.docker.com/_/postgres)) - хранение конфигураций всех приложений и размещение баз данных приложений, которым требуется СУБД
+* [gitea](https://gitea.io/) ([image](https://hub.docker.com/r/gitea/gitea)) - git совместимый сервис для работы с репозиториями (если используется несколько серверов, разворачивается только на одном)
 * [drone](https://github.com/drone) ([image](https://hub.docker.com/r/drone/drone)) - деплой приложений по событию из gitea
-* [narra](https://github.com/dopos/narra) ([image](https://hub.docker.com/r/dopos/narra)) - сервис OAuth2 авторизации для учетных записей gitea
-* [enfist](https://github.com/apisite/app-enfist) ([image](https://hub.docker.com/r/apisite/enfist)) - хранилище файлов .env в postgresql с доступом через браузер и АПИ
+* [narra](https://github.com/dopos/narra) ([image](https://hub.docker.com/r/dopos/narra)) - сервис OAuth2 авторизации для учетных записей gitea, используемый для ограничения доступа к приватным ресурсам
+* [enfist](https://github.com/apisite/app-enfist) ([image](https://hub.docker.com/r/apisite/enfist)) - хранилище файлов конфигурации в postgresql с доступом через браузер и АПИ
 * [powerdns](https://www.powerdns.com/) ([image](https://hub.docker.com/r/psitrax/powerdns)) - DNS-сервер для поддержки wildcard domain сертификатов
 * [portainer](https://portainer.io/) ([image](https://hub.docker.com/r/portainer/portainer/)) - интерфейс к [docker](https://www.docker.com/)
 
 ## Зачем это нужно
 
-Проект предназначен для построения сервисов разработки и деплоя приложений в случаях, когда достаточно ресурсов одного сервера. Все составляющие этой системы доступны на [dockerhub](https://hub.docker.com/) и можно подготовить такой файл `docker-compose.yml`, который позволит их все запустить одной командой `docker-compose up`.
+Развертывание **dcape** имеет результатом 2 файла - `docker-compose.yml` и `.env`, которые позволяют командой `make up` запустить весь стек выбранных для конкретного сервера приложений. Все эти приложения доступны на [dockerhub](https://hub.docker.com/) и все нужное для их запуска командой `docker-compose up` может быть подготовлено вручную, однако **dcape** добавляет в процесс подготовки такого решения следующие преимущества:
 
-**dcape** добавляет в процесс подготовки такого решения следующие преимущества:
-
-* файл параметров (`.env`) формируется программно, что позволяет использовать в значениях переменные и генерировать автоматически необходимые приложениям пароли и токены
-* файл конфигурации контейнеров (`docker-compose.yml`) формируется программно, что позволяет задавать в числе параметров список необходимых для конкретной инсталляции приложений. В частности, если разворачивается группа серверов различного назначения, gitea достаточно развернуть только на одном из них (а на остальных вместо `make init` выполнять `make init-slave`)
-* использование `make` позволяет перед стартом приложения выполнять его инициализацию, включая создание БД, формирование файлов конфигураций по шаблонам и т.п.
+* файл параметров (`.env`) формируется программно, что позволяет
+    * использовать в значениях переменные
+    * генерировать необходимые приложениям пароли и токены
+    * формировать взаимосвязанные настройки приложений
+* файл конфигурации контейнеров (`docker-compose.yml`) формируется программно, что позволяет параметризовать список приложений для каждой инсталляции, в частности
+    * если разворачивается группа серверов различного назначения, gitea достаточно развернуть только на одном из них, а на остальных вместо `make init` выполнять `make init GITEA=https://git.domain.tld`
+    * если для сервера не нужен SSL (например, в локальной сети), не указывать параметр `ACME`
+    * если для сервера не нужен DNS (например, wildcard сертификаты не используются или их поддержка не использует локальный DNS), не указывать параметр `DNS`
+* использование `make` позволяет перед стартом приложения выполнять его инициализацию, включая
+    * создание БД (и, при необходимости, загрузку дампа БД)
+    * формирование файлов конфигураций по шаблонам
+    * регистрацию OAuth2 приложений
 
 ## Зависимости
 
-* linux 64bit (git, make, sed, curl, jq)
+* linux 64bit с git, make, sed, curl, jq (тестируем на Ubuntu)
 * [docker](http://docker.io)
 
-Для работы с контейнерами в **dcape** используется [docker-версия docker-compose](https://hub.docker.com/r/docker/compose/), поэтому отдельной установки docker-compose не требуется.
+`docker-compose` используется в **dcape** в формате [docker-образа](https://hub.docker.com/r/docker/compose/), поэтому отдельной установки не требует.
 
-## Установка
+<h2 id="install">Установка</h2>
 
-Действия выполняются на сервере с установленными зависимостями, ip-адрес которого зарегистрирован в DNS для следующих имен:
+Т.к. **dcape** разворачивает несколько независимых сервисов, их имена должны быть прописаны в DNS. Предпочтительным является вариант регистрации wildcard domain, но можно и регистрировать индивидуально.
+Пример имен для сервера `srv1.domain.tld`:
 
-* domain.tld - для фронтендов narra, enfist, traefik
-* git.domain.tld - для gitea
-* drone.domain.tld - для drone
-* port.domain.tld - для portainer
-* ns.domain.tld - для powerdns
+* `srv1.domain.tld` - для фронтендов narra, enfist, traefik
+* `git.srv1.domain.tld` - для gitea
+* `drone.srv1.domain.tld` - для drone
+* `port.srv1.domain.tld` - для portainer
+* `ns.srv1.domain.tld` - для powerdns
 
 См. также: [DNS setup](README-DNS.md)
 
 ### Команды в консоли
 
 ```bash
-# make
-which make || sudo apt-get install make
+# docker
+# см https://docs.docker.com/engine/install/ubuntu/
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+apt install docker-ce docker-ce-cli containerd.io
+usermod -a -G docker $USER
+
+# зависимости
+sudo apt-get install make git sed curl jq
 
 # dcape
 cd /opt
@@ -62,7 +82,7 @@ sudo mkdir dcape && sudo chown $USER dcape
 git clone https://github.com/dopos/dcape.git
 cd dcape
 git checkout -b v2 origin/v2
-make init DCAPE_DOMAIN=domain.tld # .env сформирован, можно проверить корректность параметров
+make init DCAPE_DOMAIN=srv1.domain.tld
 make apply
 make up
 # если gitea локальная - открыть GITEA_URL, завершить инсталляцию и создать токен
@@ -71,33 +91,56 @@ make gitea-setup TOKEN=... # получить и сохранить в .env *_CL
 make up
 ```
 
-`TOKEN` не хранится, используется для создание организации (если ее нет) и для создания/обновления OAuth2 приложений narra и drone (их CLIENT_ID и CLIENT_KEY сохраняются в .env).
+`TOKEN` - ключ АПИ gitea, который создается вручную пользователем, имеющим права на создание
+* организации, указанной в параметре `NARRA_GITEA_ORG` (если она не создана ранее)
+* OAuth2 приложений narra и drone (их CLIENT_ID и CLIENT_KEY будут сохранены в .env).
+
+`TOKEN` используется однократно при выполнении `make gitea-setup` и нигде не сохраняется
 
 См. также: [Issue 22, Автоматизировать первичную настройку Gitea](https://github.com/dopos/dcape/issues/22)
 
-### Аргументы make init
+### Аргументы `make init`
 
-Благодаря использованию `Makefile`, любая используемая переменная может быть задана при вызове `make init`. После ее выполнения полный список переменных с описанием доступен в файле .env.
+Благодаря использованию `Makefile`, любой параметр **dcape** может быть задан в аргументах команды `make init`, после выполнения которой полный список переменных с их описанием и значениями доступен в файле с именем `.env` (или именем, заданном в параметре `CFG`).
 
-Следующие переменные имеют ключевое значение для конфигурации dcape:
+Следующие параметры имеют ключевое значение для конфигурации **dcape**:
 
-DCAPE_TAG
-* container name prefix
+`DCAPE_TAG`
 
-DCAPE_DOMAIN
-* dcape containers hostname domain
+* Идентификатор стека приложений, позволяющий изолировать его от других контейнеров docker (в т.ч. и от другой копии стека **dcape** если такая будет запущена на том же сервере)
+* Префикс контейнеров стека (значение используется как `COMPOSE_PROJECT_NAME`)
 
-GITEA
-* значения: [no]|yes
-* добавить в конфигурацию локальный сервер gitea. При значении `no` необходимо задать `AUTH_SERVER`
+`DCAPE_DOMAIN`
 
-DNS
-* значения: [no]|yes|wild
-* добавить в конфигурацию локальный сервер powerdns. При значении `wild` в него будет добавлена зона для поддержки сертификатов letsencrypt
+* hostname для базовых приложений (narra, enfist, traefik)
+* суффикс по умолчанию для hostname остальных приложений стека
 
-ACME
-* значения: [no]|http|wild
-* включить поддержку сертификатов letsencrypt. При значении `no` адреса сервисов dcape будут начинаться с `http://`, иначе - `https://`, при значении `wild` будет настроено получение сертификатов для домена `*.DCAPE_DOMAIN`
+`GITEA`
+
+* значения: `[yes]|<URL>`
+* `yes` - добавить в конфигурацию локальный сервер gitea
+* `<URL>` - адрес внешнего сервера gitea
+
+`DNS`
+
+* значения: `[no]|yes|wild`
+* добавить в конфигурацию локальный сервер powerdns
+* `wild` - настроить зону для поддержки wildcard сертификатов letsencrypt
+
+`ACME`
+
+* значения: `[no]|http|wild`
+* включить поддержку сертификатов letsencrypt
+* `no` - адреса сервисов **dcape** будут начинаться с `http://`, иначе - `https://`
+* `wild` - в конфигурацию traefik будет добавлена поддержка сертификатов для домена `*.DCAPE_DOMAIN`
+
+`NARRA_GITEA_ORG`
+
+* username организации gitea, участникам которой будет предоставлен доступ к приватным ресурсам
+
+`DRONE_ADMIN`
+
+* username пользователя gitea, который получит права администратора в drone
 
 См. также:
 * Файл конфигурации traefik для сертификатов [только HTTP-01](/apps/traefik/traefik.acme-http.yml) и [HTTP-01 + DNS-01](/apps/traefik/traefik.acme.yml)
@@ -109,7 +152,11 @@ ACME
 ### Примеры make init
 
 ```bash
+# сервер для локального использования
 make init
+
+# посмотреть .env без сохранения изменений
+make init CFG=tmp$$ DCAPE_VAR=tmp$$-var ACME=wild DNS=wild && less tmp$$ && rm -rf tmp$$*
 ```
 
 См. также:
