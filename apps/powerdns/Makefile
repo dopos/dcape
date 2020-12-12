@@ -7,7 +7,7 @@ PDNS_VER0        ?= v4.3
 PDNS_LISTEN      ?= 54
 PDNS_HOST        ?= ns.$(DCAPE_DOMAIN)
 ACME_DOMAIN      ?= acme-$(DCAPE_DOMAIN)
-ACME_NS          ?= ns.$(ACME_DOMAIN)
+ACME_NS          ?= ns.$(DCAPE_DOMAIN)
 ACME_ADMIN_EMAIL ?= $(TRAEFIK_ACME_EMAIL)
 PDNS_DB_TAG      ?= pdns
 PDNS_DB_PASS     ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
@@ -25,11 +25,12 @@ PDNS_LISTEN=$(PDNS_LISTEN)
 PDNS_HOST=$(PDNS_HOST)
 
 # Wildcard zone nameserver
+# NS value for $(DCAPE_DOMAIN) CNAME record
 # Used for zone SOA record & for internal access from traefik
 ACME_NS=$(ACME_NS)
 
 # Setup ACME zone for this domain
-# CNAME value for $(DCAPE_DOMAIN) zone
+# CNAME value for $(DCAPE_DOMAIN) record
 ACME_DOMAIN=$(ACME_DOMAIN)
 
 # Admin email for wildcard zone SOA recors

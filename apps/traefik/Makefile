@@ -101,7 +101,7 @@ define ENV_TRAEFIK
 # Sample for local powerdns:
 
 ##LEGO_EXPERIMENTAL_CNAME_SUPPORT=true
-##PDNS_API_URL=http://pdns:8081
+##PDNS_API_URL=http://powerdns:8081
 ##PDNS_API_KEY=$(PDNS_API_KEY)
 
 endef
