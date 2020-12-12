@@ -50,7 +50,23 @@
 
 `docker-compose` используется в **dcape** в формате [docker-образа](https://hub.docker.com/r/docker/compose/), поэтому отдельной установки не требует.
 
-<h2 href="#install">Установка</h2>
+Пример установки зависимостей:
+
+```bash
+# docker
+# см https://docs.docker.com/engine/install/ubuntu/
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt install docker-ce docker-ce-cli containerd.io
+sudo usermod -a -G docker $USER
+
+# make git sed curl jq
+sudo apt install make git sed curl jq
+```
+
+## Установка
+
+### DNS
 
 Т.к. **dcape** разворачивает несколько независимых сервисов, их имена должны быть прописаны в DNS. Предпочтительным является вариант регистрации wildcard domain, но можно и регистрировать индивидуально.
 Пример имен для сервера `srv1.domain.tld`:
@@ -63,31 +79,47 @@
 
 См. также: [DNS setup](README-DNS.md)
 
-### Команды в консоли
+### Исходники
+
+Рекомендуемым способом копирования файлов на сервер является выполнение `git clone`. Это позволяет в будущем
+
+* обновить исходники для получения информации о проверенных новых версиях используемых приложений
+* увидеть локальные изменения исходников, если их понадобится сделать
+
 
 ```bash
-# docker
-# см https://docs.docker.com/engine/install/ubuntu/
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-apt install docker-ce docker-ce-cli containerd.io
-usermod -a -G docker $USER
-
-# зависимости
-sudo apt-get install make git sed curl jq
-
-# dcape
 cd /opt
 sudo mkdir dcape && sudo chown $USER dcape
-git clone https://github.com/dopos/dcape.git
+git clone -b v2 --single-branch --depth 1 https://github.com/dopos/dcape.git
 cd dcape
-git checkout -b v2 origin/v2
+```
+
+### Настройка и запуск
+
+### Локальный сервер
+
+Вариант без поддержки SSL, но с установкой gitea. Выполняется в 3 шага, т.к. на шаге 2 необходимо использовать браузер для
+* завершения установки gitea
+* создания API TOKEN
+
+#### Шаг 1. Подготовка к запуску gitea
+
+```bash
 make init DCAPE_DOMAIN=srv1.domain.tld
 make apply
 make up
-# если gitea локальная - открыть GITEA_URL, завершить инсталляцию и создать токен
-# иначе - авторизоваться и создать токен
-make gitea-setup TOKEN=... # получить и сохранить в .env *_CLIENT_{ID,KEY}
+```
+
+#### Шаг 2. Запуск и настройка gitea
+
+* открыть `GITEA_URL`, нажать "вход" - откроется страница параметров установки
+* ввести логин и пароль учетной записи (логин должен совпадать со значением `DRONE_ADMIN`)
+* создать токен (Настройки -> Приложения -> Генерировать токен)
+
+#### Шаг 3. Запуск dcape
+
+```bash
+make gitea-setup TOKEN=...
 make up
 ```
 
@@ -98,6 +130,19 @@ make up
 `TOKEN` используется однократно при выполнении `make gitea-setup` и нигде не сохраняется
 
 См. также: [Issue 22, Автоматизировать первичную настройку Gitea](https://github.com/dopos/dcape/issues/22)
+
+### Интернет-сервер без gitea
+
+Вариант c поддержкой wildcard-сертификатов SSL, при котором gitea установлена на другом сервере (в примере - `it.domain.tld`) и уже создан `TOKEN`. Настройка и запуск могут быть выполнены одной командой:
+```bash
+make install ACME=wild DNS=wild DCAPE_DOMAIN=srv1.domain.tld \
+  TRAEFIK_ACME_EMAIL=admin@domain.tld \
+  NARRA_GITEA_ORG=dcape \
+  DRONE_ADMIN=lekovr \
+  PDNS_LISTEN=192.168.23.10:53 \
+  GITEA=https://it.domain.tld
+```
+В `PDNS_LISTEN` порт изменен на стандартный (по умолчанию: 54) и задан ip, чтобы не возникало конфликта с локальным резолвером.
 
 ### Аргументы `make init`
 
@@ -145,9 +190,9 @@ make up
 См. также:
 * Файл конфигурации traefik для сертификатов [только HTTP-01](/apps/traefik/traefik.acme-http.yml) и [HTTP-01 + DNS-01](/apps/traefik/traefik.acme.yml)
 
-При выполнении команды `make apply` соответствующий файл конфигурации traefik копируется в `var/traefik/traefik.yml` с заменой переменных. После этого достаточно в нем закомментировать строку `caServer`, в которой по умолчанию указан адрес тестового сервиса.
+При выполнении команды `make apply` соответствующий файл конфигурации traefik копируется в `var/traefik/traefik.yml` с заменой переменных.
 
-Если файл `var/traefik/traefik.yml` существует, **dcape** не производит в нем никаких изменений и его можно изменять по своим потребностям.
+Если файл `var/traefik/traefik.yml` уже существует, команды `make` не производит в нем никаких изменений.
 
 ### Примеры make init
 
@@ -170,11 +215,6 @@ make init ACME=wild DNS=wild DCAPE_DOMAIN=srv1.domain.tld \
   GITEA=https://it.domain.tld
 
 ```
-
-См. также:
-
-* [Traefik setup](https://github.com/dopos/dcape/tree/v2/apps/traefik)
-* [Скрипт удаленной настройки сервера и установки dcape](install.sh)
 
 ## Что дальше
 
