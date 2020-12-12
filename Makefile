@@ -181,6 +181,9 @@ down:
 down: CMD=down
 down: dc
 
+# do init..up by single command
+install: init apply gitea-setup up
+
 # $$PWD используется для того, чтобы текущий каталог был доступен в контейнере по тому же пути
 # и относительные тома новых контейнеров могли его использовать
 ## run docker-compose
