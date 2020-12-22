@@ -64,7 +64,6 @@ DCAPE_NET=$(DCAPE_NET)
 
 # container(s) required for up in any case
 # used in make only
-#APPS="$(shell echo $(APPS))"
 APPS=$(APPS)
 
 # create db cluster with this timezone
@@ -108,7 +107,7 @@ export
 -include $(CFG)
 export
 
-.PHONY: init apply up reup down dc db-create db-drop env-get env-set help
+.PHONY: init apply up reup down install dc docker-wait db-create db-drop psql psql-local gitea-setup env-ls env-get env-set help
 
 all: help
 
@@ -166,27 +165,27 @@ docker-compose.yml: $(DCINC) $(DCFILES)
 	@cat $(DCINC) >> $@
 	@for f in $(shell echo $(DCFILES)) ; do cat $$f >> $@ ; done
 
-## старт контейнеров
+## container(s): start
 up:
 up: CMD=up -d $(APPS_SYS) $(shell echo $(APPS))
 up: dc
 
-## рестарт контейнеров
+## container(s): restart
 reup:
 reup: CMD=up --force-recreate -d $(APPS_SYS) $(shell echo $(APPS))
 reup: dc
 
-## остановка и удаление всех контейнеров
+## container(s): stop anf remove
 down:
 down: CMD=down
 down: dc
 
-# do init..up by single command
+## do init..up steps via single command
 install: init apply gitea-setup up
 
-# $$PWD используется для того, чтобы текущий каталог был доступен в контейнере по тому же пути
-# и относительные тома новых контейнеров могли его использовать
-## run docker-compose
+# $$PWD usage allows host directory mounts in child containers
+# Thish works if path is the same for host, docker, docker-compose and child container
+## run $(CMD) via docker-compose
 dc: docker-compose.yml
 	@echo "Running dc command: $(CMD)"
 	@echo "Dcape URL: $(DCAPE_SCHEME)://$(DCAPE_HOST)"
@@ -284,6 +283,7 @@ define POST_CMD
  -H "Authorization: token $(TOKEN)"
 endef
 
+## create gitea org and oauth2 applications
 gitea-setup:
 	@echo "*** $@ ***"
 	@if [[ -z "$(TOKEN)" ]] ; then echo >&2 "TOKEN arg must be defined" ; false ; fi
