@@ -1,4 +1,5 @@
-# Drone init Makefile
+## Drone setup
+#:
 # This file included by ../../Makefile
 SHELL               = /bin/bash
 # drone/drone docker image version from dcape
@@ -52,6 +53,7 @@ export CONFIG_DRONE
 
 # ------------------------------------------------------------------------------
 
+## add drone config to $(CFG)
 drone-init:
 	@grep DRONE_VER $(CFG) > /dev/null || echo "$$CONFIG_DRONE" >> $(CFG)
 	@if [[ "$$DRONE_VER0" != "$$DRONE_VER" ]] ; then \
@@ -60,6 +62,7 @@ drone-init:
 	@echo "  URL: $(DCAPE_SCHEME)://$(DRONE_HOST)"
 	@echo "  Admin: $(DRONE_ADMIN)"
 
+## create drone DB
 drone-apply:
 	@cmd=create ; \
 	$(MAKE) -s db-create NAME=DRONE

@@ -140,6 +140,8 @@ space +=
 DCFILES = apps/$(subst $(space),/$(DCINC) apps/,$(APPS))/$(DCINC)
 
 # ------------------------------------------------------------------------------
+## dcape Setup
+#:
 
 ## Initially create $(CFG) file with defaults
 init: $(DCAPE_VAR)
@@ -165,23 +167,27 @@ docker-compose.yml: $(DCINC) $(DCFILES)
 	@cat $(DCINC) >> $@
 	@for f in $(shell echo $(DCFILES)) ; do cat $$f >> $@ ; done
 
-## container(s): start
+## do init..up steps via single command
+install: init apply gitea-setup up
+
+# ------------------------------------------------------------------------------
+## Docker-compose commands
+#:
+
+## (re)start container(s)
 up:
 up: CMD=up -d $(APPS_SYS) $(shell echo $(APPS))
 up: dc
 
-## container(s): restart
-reup:
-reup: CMD=up --force-recreate -d $(APPS_SYS) $(shell echo $(APPS))
-reup: dc
-
-## container(s): stop anf remove
+## stop (and remove) container(s)
 down:
 down: CMD=down
 down: dc
 
-## do init..up steps via single command
-install: init apply gitea-setup up
+## restart container(s)
+reup:
+reup: CMD=up --force-recreate -d $(APPS_SYS) $(shell echo $(APPS))
+reup: dc
 
 # $$PWD usage allows host directory mounts in child containers
 # Thish works if path is the same for host, docker, docker-compose and child container
@@ -198,6 +204,8 @@ dc: docker-compose.yml
 	  $(CMD)
 
 # ------------------------------------------------------------------------------
+## Database commands
+#:
 
 # Wait for postgresql container start
 docker-wait:
@@ -242,10 +250,12 @@ db-drop:
 	&& docker exec -i $$PG_CONTAINER psql -U postgres -c "DROP DATABASE \"$$dbname\";" \
 	&& docker exec -i $$PG_CONTAINER psql -U postgres -c "DROP USER \"$$dbname\";"
 
+## exec psql inside db container
 psql:
 	@docker exec -it $$PG_CONTAINER psql -U postgres
 
-## Run local psql, requires pg client installed
+## run local psql
+## (requires pg client installed)
 psql-local:
 	@psql -h localhost -p $(PG_PORT_LOCAL)
 
@@ -317,7 +327,8 @@ else false ; fi
 	@echo "Gitea setup complete, do reup"
 
 # ------------------------------------------------------------------------------
-# $(CFG) file store
+## App config storage commands
+#:
 
 ## get env tag from store, `make env-get TAG=app--config--tag`
 env-get:
@@ -339,20 +350,24 @@ env-set:
 	  docker run --rm -ti --network $${DCAPE_NET} $${DCAPE_TAG}_drone-compose curl -gsd @- $${ENFIST_URL}/tag_set > /dev/null
 
 # ------------------------------------------------------------------------------
+## Other
+#:
 
 ## delete unused docker images w/o name
+## (you should use portainer for this)
 clean-noname:
 	docker rmi $$(docker images | grep "<none>" | awk "{print \$$3}")
 
 ## delete docker dangling volumes
+## (you should use portainer for this)
 clean-volume:
 	docker volume rm $$(docker volume ls -qf dangling=true)
 
-# ------------------------------------------------------------------------------
-
+# This code handles group header and target comment with one or two lines only
+## list Makefile targets
+## (this is defailt target)
 help:
-	@grep -A 1 "^##" Makefile | less
-
-##
-## Press 'q' for exit
-##
+	@grep -A 1 -h "^## " $(MAKEFILE_LIST) \
+  | sed -E 's/^--$$// ; /./{H;$$!d} ; x ; s/^\n## ([^\n]+)\n(## (.+)\n)*(.+):(.*)$$/"    " "\4" "\1" "\3"/' \
+  | sed -E 's/^"    " "#" "(.+)" "(.*)"$$/"" "" "" ""\n"\1 \2" "" "" ""/' \
+  | xargs printf "%s\033[36m%-15s\033[0m %s %s\n"
