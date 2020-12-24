@@ -9,17 +9,19 @@ ARG=$1
 
 CFG=.env
 
+# do nothing if .env already exists
 # load .env from enfist
 # if does not exist - upload .env.sample
 do_config() {
-    # PWD=/drone/src, docker-compose won't use it as container prefix if this var is set
-    export COMPOSE_PROJECT_NAME=${DRONE_REPO_NAME:?Drone ENV must be set}
-
+    if [ -f ${CFG} ] ; then
+      echo "repo contains ${CFG} already, skip"
+      return
+    fi
     # config tag for enfist
     if [ -z "$ENFIST_TAG" ]; then
       export ENFIST_TAG=${DRONE_REPO_NAMESPACE}--${DRONE_REPO_NAME}--${DRONE_REPO_BRANCH}
     fi
-    echo -n "Setup config for ${ENFIST_TAG:?Must be set}... "
+    echo -n "Setup config for ${ENFIST_TAG}... "
     curl -gs http://enfist:8080/rpc/tag_vars?code=$ENFIST_TAG | jq -er '.' >> $CFG || {
 	rm $CFG # here will be `null` if tag does not exists
 	echo "WARNING: Config $ENFIST_TAG not found. Preparing $ENFIST_TAG.sample"
