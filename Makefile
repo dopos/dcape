@@ -334,12 +334,12 @@ else false ; fi
 env-get:
 	@[[ "$(TAG)" ]] || { echo "Error: Tag value required" ; exit 1 ;}
 	@echo "Getting env into $(TAG)"
-	@docker run --rm -ti --network $${DCAPE_NET} $${DCAPE_TAG}_drone-compose curl -gs $${ENFIST_URL}/tag_vars?code=$(TAG) \
+	@docker run --rm -i --network $${DCAPE_NET} $${DCAPE_TAG}_drone-compose curl -gs $${ENFIST_URL}/tag_vars?code=$(TAG) \
 	  | jq -r '.' > $(TAG).env
 
 ## list env tags in store
 env-ls:
-	@docker run --rm -ti --network $${DCAPE_NET} $${DCAPE_TAG}_drone-compose curl -gs $${ENFIST_URL}/tag \
+	@docker run --rm -i --network $${DCAPE_NET} $${DCAPE_TAG}_drone-compose curl -gs $${ENFIST_URL}/tag \
 	  | jq -r '.[] | .updated_at +"  "+.code'
 
 ## set env tag in store, `make env-set TAG=app--config--tag`
@@ -347,7 +347,7 @@ env-set:
 	@[[ "$(TAG)" ]] || { echo "Error: Tag value required" ; exit 1 ;}
 	@echo "Setting $(TAG) from file" \
 	&& jq -R -sc ". | {\"code\":\"$(TAG)\",\"data\":.}" < $(TAG).env | \
-	  docker run --rm -ti --network $${DCAPE_NET} $${DCAPE_TAG}_drone-compose curl -gsd @- $${ENFIST_URL}/tag_set > /dev/null
+	  docker run --rm -i --network $${DCAPE_NET} $${DCAPE_TAG}_drone-compose curl -gsd @- $${ENFIST_URL}/tag_set > /dev/null
 
 # ------------------------------------------------------------------------------
 ## Other
