@@ -12,7 +12,7 @@ DRONE_CLIENT_KEY   ?= =DRONE_CLIENT_KEY=
 DRONE_DB_TAG       ?= drone
 DRONE_DB_PASS      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
 DRONE_VER          ?= $(DRONE_VER0)
-DRONE_RUNNER_VER   ?= 1.6.1
+DRONE_RUNNER_VER   ?= 1.6.2
 DRONE_SHARED_KEY   ?= $(shell openssl rand -hex 16; echo)
 DRONE_VAR_PATH     ?= $(PWD)/$(DCAPE_VAR)
 
