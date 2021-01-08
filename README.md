@@ -45,7 +45,7 @@ For solving of above-mentioned tasks **dcape** uses docker-images of the followi
 ### Deploy app local
 
 Requirements:
-* linux computer with docker and dcape
+* linux computer with docker and **dcape**
 * hostnames registered in /etc/hosts or internal DNS (for example - `mysite.dev.lan`, `www.mysite.dev.lan`) pointing to this computer
 
 #### Static site with nginx
@@ -66,7 +66,7 @@ That's all - `http://mysite.dev.lan/` and `http://www.mysite.dev.lan/` are worki
 Requirements:
 * linux computer with docker and [dependensies](#Dependensies) installed
 * DNS records for wildcard-domain `*.srv1.domain.tld`
-* Gitea $TOKEN created
+* Gitea `$TOKEN` created
 
 ```bash
 MY_HOST=${MY_HOST:-srv1.domain.tld}
@@ -79,12 +79,13 @@ GITEA_USER=${GITEA_USER:-admin}
 $ git clone -b v2 --single-branch --depth 1 https://github.com/dopos/dcape.git
 ..
 $ cd dcape
-$ make install ACME=wild DNS=wild DCAPE_DOMAIN=$MY_HOST \
+$ make install ACME=wild DNS=wild DCAPE_DOMAIN=${MY_HOST} \
   TRAEFIK_ACME_EMAIL=${LE_ADMIN} \
   NARRA_GITEA_ORG=${GITEA_ORG} \
   DRONE_ADMIN=${GITEA_USER} \
   PDNS_LISTEN=${MY_IP}:53 \
-  GITEA=${GITEA_URL}
+  GITEA=${GITEA_URL} \
+  TOKEN=${TOKEN}
 ..
 Running dc command: up -d db powerdns traefik narra enfist drone portainer
 Dcape URL: https://srv1.domain.tld
@@ -118,4 +119,4 @@ See [dopos.github.io/dcape](https://dopos.github.io/en/dcape)
 
 The MIT License (MIT), see [LICENSE](LICENSE).
 
-Copyright (c) 2020 Aleksei Kovrizhkin <lekovr+dopos@gmail.com>
+Copyright (c) 2017-2020 Aleksei Kovrizhkin <lekovr+dopos@gmail.com>

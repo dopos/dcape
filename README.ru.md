@@ -46,7 +46,7 @@
 ### Запуск приложения локально
 
 Требования:
-* компьютер с linux, docker и dcape
+* компьютер с linux, docker и **dcape**
 * зарегистрированные (в /etc/hosts или внутреннем DNS) имена для ip компьютера (например - `mysite.dev.lan`, `www.mysite.dev.lan`)
 
 #### Пример для статического сайта и nginx
@@ -67,7 +67,7 @@ Creating mysite-dev-lan_www_1 ... done
 Требования:
 * компьютер с linux, docker и установленными [зависимостями](#зависимости)
 * зарегистрированный в DNS для ip этого компьютера wildcard-домен (например - `*.srv1.domain.tld`)
-* TOKEN для gitea API
+* `$TOKEN` для gitea API
 
 ```bash
 MY_HOST=${MY_HOST:-srv1.domain.tld}
@@ -80,12 +80,13 @@ GITEA_USER=${GITEA_USER:-admin}
 $ git clone -b v2 --single-branch --depth 1 https://github.com/dopos/dcape.git
 ..
 $ cd dcape
-$ make install ACME=wild DNS=wild DCAPE_DOMAIN=$MY_HOST \
+$ make install ACME=wild DNS=wild DCAPE_DOMAIN=${MY_HOST} \
   TRAEFIK_ACME_EMAIL=${LE_ADMIN} \
   NARRA_GITEA_ORG=${GITEA_ORG} \
   DRONE_ADMIN=${GITEA_USER} \
   PDNS_LISTEN=${MY_IP}:53 \
-  GITEA=${GITEA_URL}
+  GITEA=${GITEA_URL} \
+  TOKEN=${$TOKEN}
 ..
 Running dc command: up -d db powerdns traefik narra enfist drone portainer
 Dcape URL: https://srv1.domain.tld
@@ -115,8 +116,8 @@ Creating dcape_enfist_1        ... done
 
 См. [dopos.github.io/dcape](https://dopos.github.io/dcape)
 
-## License
+## Лицензия
 
 The MIT License (MIT), see [LICENSE](LICENSE).
 
-Copyright (c) 2020 Aleksei Kovrizhkin <lekovr+dopos@gmail.com>
+Copyright (c) 2017-2020 Алексей Коврижкин <lekovr+dopos@gmail.com>
