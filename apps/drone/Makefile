@@ -3,7 +3,7 @@
 # This file included by ../../Makefile
 SHELL               = /bin/bash
 # drone/drone docker image version from dcape
-DRONE_VER0         ?= 1.9
+DRONE_VER0         ?= 1.10.1
 # Config vars are described below in section `define CONFIG_...`
 DRONE_HOST         ?= drone.$(DCAPE_DOMAIN)
 DRONE_ADMIN        ?= admin
