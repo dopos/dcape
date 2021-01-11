@@ -96,7 +96,7 @@ $(DCAPE_VAR)/traefik/acme.json:
 	@chmod 600 $@
 
 define ENV_TRAEFIK
-# ENV data for traefik plugins including acme)
+# ENV data for traefik plugins (pdns etc)
 
 # Sample for local powerdns:
 
