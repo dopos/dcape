@@ -23,6 +23,7 @@ DCAPE_NET       ?= $(DCAPE_TAG)
 PG_CONTAINER    ?= $(DCAPE_TAG)_db_1
 DCAPE_COMPOSE   ?= $(DCAPE_TAG)_drone-compose
 DCAPE_DC_YML    ?= /opt/dcape-app/docker-compose.yml
+PERSIST_FILES   ?=
 
 # ------------------------------------------------------------------------------
 # .env template
@@ -222,10 +223,11 @@ $(CFGSAMPLE):
 ## use inside .drone.yml only
 .drone-default:
 	@echo "*** $@ ***"
+	@[ "$$PWD" = "$(APP_ROOT)" ] && { echo "APP_ROOT == PWD, so we're not inside drone. Aborting" ; exit 1 ; } || true
 ifeq ($(USE_DB),yes)
 	$(MAKE) -s db-create
 endif
-	@[ "$$PWD" = "$(APP_ROOT)" ] && { echo "APP_ROOT == PWD, so we're not inside drone. Aborting" ; exit 1 ; } || true
+	@[ -z $(PERSIST_FILES) || cp -r $(PERSIST_FILES) $(APP_ROOT)
 	@docker-compose -p $(APP_TAG) up -d --force-recreate
 
 # ------------------------------------------------------------------------------
