@@ -53,3 +53,4 @@
       context: ./apps/drone
       args:
         - DC_VER=${DC_VER}
+        - DRONE_ROOT=${PWD}/apps/drone
