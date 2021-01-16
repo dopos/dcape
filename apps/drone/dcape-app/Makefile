@@ -21,8 +21,9 @@ PG_DUMP_SOURCE  ?=
 DCAPE_TAG       ?= dcape
 DCAPE_NET       ?= $(DCAPE_TAG)
 PG_CONTAINER    ?= $(DCAPE_TAG)_db_1
-DCAPE_COMPOSE   ?= $(DCAPE_TAG)_drone-compose
+DCAPE_COMPOSE   ?= $(DCAPE_TAG)-compose
 DCAPE_DC_YML    ?= /opt/dcape-app/docker-compose.yml
+DCAPE_DC_USED   ?= true
 PERSIST_FILES   ?=
 
 # ------------------------------------------------------------------------------
@@ -95,14 +96,14 @@ down: dc
 ## run $(CMD) via docker-compose
 dc: docker-compose.yml
 	@echo $(APP_TAG)
-	@docker run --rm  -i \
+	@[ "$(DCAPE_DC_USED)" != true ] || args="-f $(DCAPE_DC_YML) -f docker-compose.yml" ; \
+  docker run --rm  -i \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v $$PWD:$$PWD -w $$PWD \
   -e DCAPE_TAG -e DCAPE_NET -e APP_ROOT -e APP_TAG \
   $(DCAPE_COMPOSE) \
   -p $$APP_TAG --env-file $(CFG) \
-  -f $(DCAPE_DC_YML) -f docker-compose.yml \
-  $(CMD)
+  $$args $(CMD)
 
 # ------------------------------------------------------------------------------
 ## DB operations
@@ -222,13 +223,12 @@ $(CFGSAMPLE):
 ## run app by drone,
 ## use inside .drone.yml only
 .drone-default:
-	@echo "*** $@ ***"
-	@[ "$$PWD" = "$(APP_ROOT)" ] && { echo "APP_ROOT == PWD, so we're not inside drone. Aborting" ; exit 1 ; } || true
-ifeq ($(USE_DB),yes)
-	$(MAKE) -s db-create
-endif
-	@[ -z $(PERSIST_FILES) || cp -r $(PERSIST_FILES) $(APP_ROOT)
-	@docker-compose -p $(APP_TAG) up -d --force-recreate
+	@echo "*** $@ ***" ; \
+	cat .env ; set | grep PG ; \
+	[ $$USE_DB != yes ] || $(MAKE) -s db-create ; \
+	  [ -z "$$PERSIST_FILES" ] || . setup root ; cp -r $$PERSIST_FILES $$APP_ROOT ; \
+	  [ "$(DCAPE_DC_USED)" != true ] || args="-f $(DCAPE_DC_YML) -f docker-compose.yml" ; \
+	  docker-compose -p $(APP_TAG) --env-file $(CFG) $$args up -d --force-recreate
 
 # ------------------------------------------------------------------------------
 ## Other

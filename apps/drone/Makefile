@@ -66,3 +66,8 @@ drone-init:
 drone-apply:
 	@cmd=create ; \
 	$(MAKE) -s db-create NAME=DRONE
+
+## build dcape-compose image
+## for drone and dcape-app
+drone-build: CMD=build compose
+drone-build: dc
