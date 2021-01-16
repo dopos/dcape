@@ -1,0 +1,23 @@
+# Base docker-compose config for single application
+
+version: '2'
+
+services:
+  app:
+    image: ${IMAGE}:${IMAGE_VER}
+    labels:
+      - traefik.enable=true
+      - dcape.traefik.tag=${DCAPE_TAG}
+      - traefik.http.routers.${APP_TAG}.rule=Host(`${APP_SITE:?Must be set}`)
+      - traefik.http.routers.${APP_TAG}.tls=${USE_TLS}
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    restart: always
+    networks:
+      - lan
+
+networks:
+  lan:
+    external:
+      name: ${DCAPE_NET}

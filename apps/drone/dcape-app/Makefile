@@ -224,7 +224,6 @@ $(CFGSAMPLE):
 ## use inside .drone.yml only
 .drone-default:
 	@echo "*** $@ ***" ; \
-	cat .env ; set | grep PG ; \
 	[ $$USE_DB != yes ] || $(MAKE) -s db-create ; \
 	  [ -z "$$PERSIST_FILES" ] || . setup root ; cp -r $$PERSIST_FILES $$APP_ROOT ; \
 	  [ "$(DCAPE_DC_USED)" != true ] || args="-f $(DCAPE_DC_YML) -f docker-compose.yml" ; \
