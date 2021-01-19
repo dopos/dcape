@@ -25,6 +25,8 @@ DCAPE_COMPOSE   ?= $(DCAPE_TAG)-compose
 DCAPE_DC_YML    ?= /opt/dcape-app/docker-compose.yml
 DCAPE_DC_USED   ?= true
 PERSIST_FILES   ?=
+# Empty or 'keep'
+SETUP_ROOT_OPTS ?=
 
 # ------------------------------------------------------------------------------
 # .env template
@@ -225,7 +227,7 @@ $(CFGSAMPLE):
 .drone-default:
 	@echo "*** $@ ***" ; \
 	[ $$USE_DB != yes ] || $(MAKE) -s db-create ; \
-	  [ -z "$$PERSIST_FILES" ] || . setup root ; cp -r $$PERSIST_FILES $$APP_ROOT ; \
+	  [ -z "$$PERSIST_FILES" ] || . setup root $(SETUP_ROOT_OPTS); cp -r $$PERSIST_FILES $$APP_ROOT ; \
 	  [ "$(DCAPE_DC_USED)" != true ] || args="-f $(DCAPE_DC_YML) -f docker-compose.yml" ; \
 	  docker-compose -p $(APP_TAG) --env-file $(CFG) $$args up -d --force-recreate
 
