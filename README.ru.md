@@ -1,11 +1,12 @@
 <p align="center">
-  <a href="README.md#doposdcape">English</a> |
+  <a href="README.md#readme">English</a> |
   <span>Pусский</span>
 </p>
 
 ---
 
 # dopos/dcape
+
 > Среда управления docker-приложениями
 
 [![GitHub Release][1]][2]
@@ -34,7 +35,7 @@
 Для решения этих задач в **dcape** используются docker-образы следующих приложений:
 
 * **общий порт**  - [traefik](https://traefik.io/)
-  * **БД** - [postgresql](https://www.postgresql.org) 
+  * **БД** - [postgresql](https://www.postgresql.org)
 * **удаленно разворачивать приложения** - [drone](https://github.com/drone) (на каждом компьютере) и на каком-то одном - [gitea](https://gitea.io/) (или аналог)
 * **управлять конфигурациями** - [enfist](https://github.com/apisite/app-enfist)
 * **ограничивать доступ** - [narra](https://github.com/dopos/narra), в качестве группы пользователей используется организация [gitea](https://gitea.io/)
@@ -56,6 +57,7 @@
 ### Запуск приложения локально
 
 Требования:
+
 * компьютер с linux, docker и **dcape**
 * зарегистрированные (в /etc/hosts или внутреннем DNS) имена для ip компьютера (например - `mysite.dev.lan`, `www.mysite.dev.lan`)
 
@@ -75,6 +77,7 @@ Creating mysite-dev-lan_www_1 ... done
 ### Установка dcape без gitea
 
 Требования:
+
 * компьютер с linux, docker и установленными [зависимостями](#зависимости)
 * зарегистрированный в DNS для ip этого компьютера wildcard-домен (например - `*.srv1.domain.tld`)
 * `$TOKEN` для gitea API
@@ -120,4 +123,4 @@ Creating dcape_enfist_1        ... done
 
 The MIT License (MIT), see [LICENSE](LICENSE).
 
-Copyright (c) 2017-2020 Алексей Коврижкин <lekovr+dopos@gmail.com>
+Copyright (c) 2017-2021 Алексей Коврижкин <lekovr+dopos@gmail.com>

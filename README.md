@@ -1,10 +1,12 @@
 <p align="center">
   <span>English</span> |
-  <a href="README.ru.md#doposdcape">Pусский</a>
+  <a href="README.ru.md#readme">Pусский</a>
 </p>
 
 ---
+
 # dopos/dcape
+
 > Docker-compose application environment
 
 [![GitHub Release][1]][2]
@@ -33,7 +35,7 @@
 For solving of above-mentioned tasks **dcape** uses docker-images of the following applications:
 
 * **shared port**  - [traefik](https://traefik.io/)
-  * **database** - [postgresql](https://www.postgresql.org) 
+  * **database** - [postgresql](https://www.postgresql.org)
 * **deploy applications remotely** - [drone](https://github.com/drone) (on every computer) and [gitea](https://gitea.io/) on someone
 * **manage app configs** - [enfist](https://github.com/apisite/app-enfist)
 * **limit access** - [narra](https://github.com/dopos/narra), [gitea](https://gitea.io/) organization used as user group
@@ -55,6 +57,7 @@ See [dopos.github.io/dcape](https://dopos.github.io/en/dcape)
 ### Deploy app local
 
 Requirements:
+
 * linux computer with docker and **dcape**
 * hostnames registered in /etc/hosts or internal DNS (for example - `mysite.dev.lan`, `www.mysite.dev.lan`) pointing to this computer
 
@@ -74,6 +77,7 @@ That's all - `http://mysite.dev.lan/` and `http://www.mysite.dev.lan/` are worki
 ### Install dcape without gitea
 
 Requirements:
+
 * linux computer with docker and [dependensies](#Dependensies) installed
 * DNS records for wildcard-domain `*.srv1.domain.tld`
 * Gitea `$TOKEN` created
@@ -115,9 +119,8 @@ Creating dcape_enfist_1        ... done
 
 That's all - server `srv1.domain.tld` ready for apps deployment, used **dcape** applications are accessible via `https://srv1.domain.tld`.
 
-
 ## License
 
 The MIT License (MIT), see [LICENSE](LICENSE).
 
-Copyright (c) 2017-2020 Aleksei Kovrizhkin <lekovr+dopos@gmail.com>
+Copyright (c) 2017-2021 Aleksei Kovrizhkin <lekovr+dopos@gmail.com>
