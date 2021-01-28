@@ -23,6 +23,7 @@ DCAPE_NET       ?= $(DCAPE_TAG)
 PG_CONTAINER    ?= $(DCAPE_TAG)_db_1
 DCAPE_COMPOSE   ?= $(DCAPE_TAG)-compose
 DCAPE_DC_YML    ?= /opt/dcape-app/docker-compose.yml
+DCAPE_APP_DC_YML?= docker-compose.yml
 DCAPE_DC_USED   ?= true
 PERSIST_FILES   ?=
 # Empty or 'keep'
@@ -96,16 +97,16 @@ down: dc
 # $$PWD usage allows host directory mounts in child containers
 # Thish works if path is the same for host, docker, docker-compose and child container
 ## run $(CMD) via docker-compose
-dc: docker-compose.yml
+dc: $(DCAPE_APP_DC_YML)
 	@echo $(APP_TAG)
-	@[ "$(DCAPE_DC_USED)" != true ] || args="-f $(DCAPE_DC_YML) -f docker-compose.yml" ; \
+	@[ "$(DCAPE_DC_USED)" != true ] || args="-f $(DCAPE_DC_YML)" ; \
   docker run --rm  -i \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v $$PWD:$$PWD -w $$PWD \
   -e DCAPE_TAG -e DCAPE_NET -e APP_ROOT -e APP_TAG \
   $(DCAPE_COMPOSE) \
   -p $$APP_TAG --env-file $(CFG) \
-  $$args $(CMD)
+  $$args -f $(DCAPE_APP_DC_YML) $(CMD)
 
 # ------------------------------------------------------------------------------
 ## DB operations
@@ -218,7 +219,7 @@ init:
 config: $(CFGSAMPLE)
 
 $(CFGSAMPLE):
-	@echo "$$CONFIG_DEF$$CONFIG_DB$$CONFIG_USER$$CONFIG_CUSTOM" > $@
+	@echo "$$CONFIG_DEF$$CONFIG_DB$$CONFIG_USER\n$$CONFIG_CUSTOM" > $@
 
 # -----------------------------------------------------------------------------
 
@@ -226,10 +227,10 @@ $(CFGSAMPLE):
 ## use inside .drone.yml only
 .drone-default:
 	@echo "*** $@ ***" ; \
-	[ $$USE_DB != yes ] || $(MAKE) -s db-create ; \
+	[ "$$USE_DB" != "yes" ] || $(MAKE) -s db-create ; \
 	  [ -z "$$PERSIST_FILES" ] || . setup root $(SETUP_ROOT_OPTS); cp -r $$PERSIST_FILES $$APP_ROOT ; \
-	  [ "$(DCAPE_DC_USED)" != true ] || args="-f $(DCAPE_DC_YML) -f docker-compose.yml" ; \
-	  docker-compose -p $(APP_TAG) --env-file $(CFG) $$args up -d --force-recreate
+	  [ "$(DCAPE_DC_USED)" != true ] || args="-f $(DCAPE_DC_YML)" ; \
+	  docker-compose -p $(APP_TAG) --env-file $(CFG) $$args -f $(DCAPE_APP_DC_YML) up -d --force-recreate
 
 # ------------------------------------------------------------------------------
 ## Other
