@@ -18,7 +18,7 @@
 [4]: https://img.shields.io/github/license/dopos/dcape.svg
 [5]: LICENSE
 
-[Dcape](https://github.com/dopos/dcape) - это комплект файлов для [make](https://www.gnu.org/software/make/) и [docker-compose](https://docs.docker.com/compose/), предназначенный для решения следующих задач:
+[Dcape](https://github.com/dopos/dcape) - это инструмент создания окружения (среды) для развёртывания [docker](https://www.docker.com/)-приложений по технологии [GitOps](https://www.gitops.tech/), который с помощью [make](https://www.gnu.org/software/make/) и [docker-compose](https://docs.docker.com/compose/), позволяет решить следующие задачи:
 
 * командами `make up` запускать приложения, использующие
   * **общий порт** (например 80)
@@ -40,6 +40,16 @@
 * **ограничивать доступ** - [narra](https://github.com/dopos/narra), в качестве группы пользователей используется организация [gitea](https://gitea.io/)
 * **wildcard-домены** - [powerdns](https://www.powerdns.com/)
 * **управлять инфраструктурой docker** - [portainer](https://portainer.io/)
+
+## Документация
+
+См. [dopos.github.io/dcape](https://dopos.github.io/dcape)
+
+## Зависимости
+
+* [linux](https://ubuntu.com/download)
+* [docker](https://docs.docker.com/engine/install/ubuntu/)
+* `sudo apt -y install git make sed curl jq`
 
 ## Примеры использования
 
@@ -105,16 +115,6 @@ Creating dcape_enfist_1        ... done
 ```
 
 Все готово - сервер `srv1.domain.tld` готов к деплою приложений, интерфейсы приложений **dcape** доступны по адресу `https://srv1.domain.tld`.
-
-## Зависимости
-
-* [linux](https://ubuntu.com/download)
-* [docker](https://docs.docker.com/engine/install/ubuntu/)
-* `sudo apt -y install git make sed curl jq`
-
-## Документация
-
-См. [dopos.github.io/dcape](https://dopos.github.io/dcape)
 
 ## Лицензия
 
