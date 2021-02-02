@@ -88,7 +88,7 @@ MY_IP=${MY_IP:-192.168.23.10}
 LE_ADMIN=${LE_ADMIN:-admin@domain.tld}
 GITEA_URL=${GITEA_URL:-https://git.domain.tld}
 GITEA_ORG=${GITEA_ORG:-dcape}
-GITEA_USER=${GITEA_USER:-admin}
+GITEA_USER=${GITEA_USER:-dcapeadmin}
 
 $ git clone -b v2 --single-branch --depth 1 https://github.com/dopos/dcape.git
 ..

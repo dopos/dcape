@@ -6,7 +6,7 @@ SHELL               = /bin/bash
 DRONE_VER0         ?= 1.10.1
 # Config vars are described below in section `define CONFIG_...`
 DRONE_HOST         ?= drone.$(DCAPE_DOMAIN)
-DRONE_ADMIN        ?= admin
+DRONE_ADMIN        ?= dcapeadmin
 DRONE_CLIENT_ID    ?= =DRONE_CLIENT_ID=
 DRONE_CLIENT_KEY   ?= =DRONE_CLIENT_KEY=
 DRONE_DB_TAG       ?= drone
