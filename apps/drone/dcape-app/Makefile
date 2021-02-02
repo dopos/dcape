@@ -25,6 +25,7 @@ DCAPE_COMPOSE   ?= $(DCAPE_TAG)-compose
 DCAPE_DC_YML    ?= /opt/dcape-app/docker-compose.yml
 DCAPE_APP_DC_YML?= docker-compose.yml
 DCAPE_DC_USED   ?= true
+DB_INIT_SQL     ?= schema.sql
 PERSIST_FILES   ?=
 # Empty or 'keep'
 SETUP_ROOT_OPTS ?=
@@ -173,17 +174,16 @@ ifeq ($(USE_DB),yes)
 	    echo "$$IMPORT_SCRIPT" | docker exec -i $$PG_CONTAINER bash -s - $$PGDATABASE $$PGUSER $$PGPASSWORD $$PG_DUMP_SOURCE \
 	    && docker exec -i $$PG_CONTAINER psql -U postgres -c "COMMENT ON DATABASE \"$$PGDATABASE\" IS 'SOURCE $$PG_DUMP_SOURCE';" \
 	    || true ; \
-	    if [ -f schema.sql ] ; then \
-	      cat schema.sql | docker exec -i $$PG_CONTAINER psql -U postgres -d $$PGDATABASE ; \
-	    fi \
+	  elif [ -f $(DB_INIT_SQL) ] ; then \
+	      cat $(DB_INIT_SQL) | docker exec -i $$PG_CONTAINER psql -U postgres -d $$PGDATABASE -vPGUSER=$$PGUSER; \
 	  fi \
 	fi
 else
 	@echo "Target '$@' is disabled in app config"
 endif
 
-db-load:
-	cat crebas.sql | docker exec -i $$PG_CONTAINER psql -U postgres -d $$PGDATABASE
+db-load: $(DB_INIT_SQL)
+	cat $< | docker exec -i $$PG_CONTAINER psql -U postgres -d $$PGDATABASE
 
 
 ## drop database and user
