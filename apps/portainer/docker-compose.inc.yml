@@ -5,7 +5,9 @@
     labels:
       - "dcape.traefik.tag=${DCAPE_TAG}"
       - "traefik.enable=true"
-      - "traefik.http.routers.portainer.rule=Host(`${PORTAINER_HOST}`)"
+      - "traefik.http.routers.portainer.rule=Host(`${DCAPE_HOST}`) && PathPrefix(`/port/`)"
+      - "traefik.http.middlewares.portainer-prefix.stripprefix.prefixes=/port"
+      - "traefik.http.routers.portainer.middlewares=portainer-prefix@docker"
       - "traefik.http.services.portainer.loadbalancer.server.port=9000"
     volumes:
       - /etc/timezone:/etc/timezone:ro
