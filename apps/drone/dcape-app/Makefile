@@ -50,7 +50,7 @@ USE_TLS=$(USE_TLS)
 IMAGE=$(IMAGE)
 # app image version
 IMAGE_VER=$(IMAGE_VER)
-
+#
 endef
 #export CONFIG_DEF
 
@@ -65,7 +65,7 @@ USER_NAME=$(USER_NAME)
 USER_EMAIL=$(USER_EMAIL)
 # Admin user password
 USER_PASS=$(USER_PASS)
-
+#
 endef
 export CONFIG_USER
 
@@ -128,7 +128,7 @@ PGPASSWORD=$(PGPASSWORD)
 # Database dump for import on create
 # Used as ${PG_DUMP_SOURCE}.{tar|tgz}
 PG_DUMP_SOURCE=$(PG_DUMP_SOURCE)
-
+#
 endef
 endif
 
@@ -186,7 +186,6 @@ endif
 db-load: $(DB_INIT_SQL)
 	cat $< | docker exec -i $$PG_CONTAINER psql -U postgres -d $$PGDATABASE
 
-
 ## drop database and user
 db-drop: .docker-wait
 ifeq ($(USE_DB),yes)
@@ -220,7 +219,7 @@ init:
 config: $(CFGSAMPLE)
 
 $(CFGSAMPLE):
-	@echo -e "$$CONFIG_DEF$$CONFIG_DB$$CONFIG_USER\n$$CONFIG_CUSTOM" > $@
+	@echo "$$CONFIG_DEF$$CONFIG_DB$$CONFIG_USER$$CONFIG_CUSTOM" > $@
 
 # -----------------------------------------------------------------------------
 
