@@ -50,6 +50,7 @@ USE_TLS=$(USE_TLS)
 IMAGE=$(IMAGE)
 # app image version
 IMAGE_VER=$(IMAGE_VER)
+
 endef
 #export CONFIG_DEF
 
@@ -77,7 +78,7 @@ export
 -include $(CFG)
 export
 
-.PHONY: all up down dc .docker-wait db-create db-drop psql init config .drone-up help
+.PHONY: all up down dc .docker-wait db-create db-drop psql init config .drone-default help
 
 all: help
 
@@ -219,7 +220,7 @@ init:
 config: $(CFGSAMPLE)
 
 $(CFGSAMPLE):
-	@echo "$$CONFIG_DEF$$CONFIG_DB$$CONFIG_USER\n$$CONFIG_CUSTOM" > $@
+	@echo -e "$$CONFIG_DEF$$CONFIG_DB$$CONFIG_USER\n$$CONFIG_CUSTOM" > $@
 
 # -----------------------------------------------------------------------------
 
