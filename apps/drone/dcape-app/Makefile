@@ -228,9 +228,12 @@ $(CFGSAMPLE):
 ## use inside .drone.yml only
 .drone-default:
 	@echo "*** $@ ***" ; \
-	[ "$$USE_DB" != "yes" ] || $(MAKE) -s db-create ; \
-	  [ -z "$$PERSIST_FILES" ] || . setup root $(SETUP_ROOT_OPTS); cp -r $$PERSIST_FILES $$APP_ROOT ; \
-	  [ "$(DCAPE_DC_USED)" != true ] || args="-f $(DCAPE_DC_YML)" ; \
+	[ "$$USE_DB" != "yes" ] || $(MAKE) -s db-create
+ifdef PERSIST_FILES
+	. setup root $(SETUP_ROOT_OPTS)
+	cp -r $(PERSIST_FILES) $(APP_ROOT)
+endif
+	[ "$(DCAPE_DC_USED)" != true ] || args="-f $(DCAPE_DC_YML)" ; \
 	  docker-compose -p $(APP_TAG) --env-file $(CFG) $$args -f $(DCAPE_APP_DC_YML) up -d --force-recreate
 
 # ------------------------------------------------------------------------------
