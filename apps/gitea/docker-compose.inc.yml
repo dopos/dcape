@@ -27,3 +27,4 @@
       - DB_PASSWD=${GITEA_DB_PASS}
     volumes:
       - ./${DCAPE_VAR}/gitea:/data
+      - ./${DCAPE_VAR}/gitea-app-data:/app/gitea/data
