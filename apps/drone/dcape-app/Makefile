@@ -50,6 +50,7 @@ USE_TLS=$(USE_TLS)
 IMAGE=$(IMAGE)
 # app image version
 IMAGE_VER=$(IMAGE_VER)
+#
 endef
 #export CONFIG_DEF
 
@@ -64,7 +65,7 @@ USER_NAME=$(USER_NAME)
 USER_EMAIL=$(USER_EMAIL)
 # Admin user password
 USER_PASS=$(USER_PASS)
-
+#
 endef
 export CONFIG_USER
 
@@ -77,7 +78,7 @@ export
 -include $(CFG)
 export
 
-.PHONY: all up down dc .docker-wait db-create db-drop psql init config .drone-up help
+.PHONY: all up down dc .docker-wait db-create db-drop psql init config .drone-default help
 
 all: help
 
@@ -127,7 +128,7 @@ PGPASSWORD=$(PGPASSWORD)
 # Database dump for import on create
 # Used as ${PG_DUMP_SOURCE}.{tar|tgz}
 PG_DUMP_SOURCE=$(PG_DUMP_SOURCE)
-
+#
 endef
 endif
 
@@ -185,7 +186,6 @@ endif
 db-load: $(DB_INIT_SQL)
 	cat $< | docker exec -i $$PG_CONTAINER psql -U postgres -d $$PGDATABASE
 
-
 ## drop database and user
 db-drop: .docker-wait
 ifeq ($(USE_DB),yes)
@@ -219,7 +219,7 @@ init:
 config: $(CFGSAMPLE)
 
 $(CFGSAMPLE):
-	@echo "$$CONFIG_DEF$$CONFIG_DB$$CONFIG_USER\n$$CONFIG_CUSTOM" > $@
+	@echo "$$CONFIG_DEF$$CONFIG_DB$$CONFIG_USER$$CONFIG_CUSTOM" > $@
 
 # -----------------------------------------------------------------------------
 
@@ -228,8 +228,11 @@ $(CFGSAMPLE):
 .drone-default:
 	@echo "*** $@ ***" ; \
 	[ "$$USE_DB" != "yes" ] || $(MAKE) -s db-create ; \
-	  [ -z "$$PERSIST_FILES" ] || . setup root $(SETUP_ROOT_OPTS); cp -r $$PERSIST_FILES $$APP_ROOT ; \
-	  [ "$(DCAPE_DC_USED)" != true ] || args="-f $(DCAPE_DC_YML)" ; \
+	if [ ! -z "$$PERSIST_FILES" ] ; then \
+	  . setup root $(SETUP_ROOT_OPTS) ; \
+	  cp -r $$PERSIST_FILES $$APP_ROOT ; \
+	fi ; \
+	[ "$(DCAPE_DC_USED)" != true ] || args="-f $(DCAPE_DC_YML)" ; \
 	  docker-compose -p $(APP_TAG) --env-file $(CFG) $$args -f $(DCAPE_APP_DC_YML) up -d --force-recreate
 
 # ------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-
+  # ------------------------------------------------------------------------------
   powerdns:
     image: psitrax/powerdns:${PDNS_VER}
     restart: always
@@ -25,8 +25,3 @@
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - /dev/null:/etc/pdns.conf
-#    networks:
-#      ${DCAPE_NET}:
-#        # This allows internal access from traefik to powerdns
-#        aliases:
-#          - ${ACME_NS}

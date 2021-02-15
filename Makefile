@@ -214,12 +214,12 @@ docker-wait:
 	@echo "Ok"
 
 # Database import script
-# PG_CONTAINER_DUMP_DEST must be set in pg container
+# DCAPE_DB_DUMP_DEST must be set in pg container
 
 define IMPORT_SCRIPT
-[[ "$$PG_CONTAINER_DUMP_DEST" ]] || { echo "PG_CONTAINER_DUMP_DEST not set. Exiting" ; exit 1 ; } ; \
+[[ "$$DCAPE_DB_DUMP_DEST" ]] || { echo "DCAPE_DB_DUMP_DEST not set. Exiting" ; exit 1 ; } ; \
 DB_NAME="$$1" ; DB_USER="$$2" ; DB_PASS="$$3" ; DB_SOURCE="$$4" ; \
-dbsrc=$$PG_CONTAINER_DUMP_DEST/$$DB_SOURCE.tgz ; \
+dbsrc=$$DCAPE_DB_DUMP_DEST/$$DB_SOURCE.tgz ; \
 if [ -f $$dbsrc ] ; then \
   echo "Dump file $$dbsrc found, restoring database..." ; \
   zcat $$dbsrc | PGPASSWORD=$$DB_PASS pg_restore -h localhost -U $$DB_USER -O -Ft -d $$DB_NAME || exit 1 ; \
@@ -235,7 +235,7 @@ db-create: docker-wait
 	@echo "*** $@ ***" \
 	&& varname=$(NAME)_DB_PASS && pass=$${!varname} \
 	&& varname=$(NAME)_DB_TAG && dbname=$${!varname} \
-	&& docker exec -i $$PG_CONTAINER psql -U postgres -c "CREATE USER \"$$dbname\" WITH PASSWORD '$$pass';" 2> >(grep -v "already exists" >&2) \
+	&& docker exec -i $$PG_CONTAINER psql -U postgres -c "CREATE USER \"$$dbname\" WITH PASSWORD '$$pass';" 2> >(grep -v "already exists" >&2) || true \
 	&& docker exec -i $$PG_CONTAINER psql -U postgres -c "CREATE DATABASE \"$$dbname\" OWNER \"$$dbname\";" 2> >(grep -v "already exists" >&2) || db_exists=1 ; \
 	if [[ ! "$$db_exists" ]] && [[ "$(PG_SOURCE_SUFFIX)" ]] ; then \
 	    echo "$$IMPORT_SCRIPT" | docker exec -i $$PG_CONTAINER bash -s - $$dbname $$dbname $$pass $$dbname$(PG_SOURCE_SUFFIX) \
