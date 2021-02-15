@@ -13,6 +13,11 @@
       - "traefik.http.routers.dashboard.middlewares=narra"
       - "traefik.http.routers.ping.rule=Host(`${DCAPE_HOST}`) && PathPrefix(`/ping`)"
       - "traefik.http.routers.ping.service=ping@internal"
+      # HSTS basic settings for shared using (like Nextcloud required and etc.).
+      - "traefik.http.middlewares.hsts.headers.stsSeconds=15552000"
+      - "traefik.http.middlewares.hsts.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.hsts.headers.stsPreload=true"
+      - "traefik.http.middlewares.hsts.headers.forceSTSHeader=true"
     env_file:
       - ${DCAPE_VAR}/traefik/traefik.env
     volumes:
