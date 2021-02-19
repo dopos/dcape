@@ -9,6 +9,7 @@ DNS              ?= no
 ACME             ?= no
 DCAPE_TAG        ?= dcape
 DCAPE_NET        ?= $(DCAPE_TAG)
+DCAPE_NET_INTRA  ?= intra
 DCAPE_DOMAIN     ?= dev.lan
 APPS_ALWAYS      ?= traefik narra enfist drone portainer
 TZ               ?= $(shell cat /etc/timezone)
@@ -19,6 +20,7 @@ PG_PORT_LOCAL    ?= 5433
 PG_SOURCE_SUFFIX ?=
 PG_SHM_SIZE      ?= 64mb
 DCAPE_SUBNET     ?= 100.127.0.0/24
+DCAPE_SUBNET_INTRA ?= 100.127.255.0/24
 DCAPE_VAR        ?= var
 DC_VER           ?= 1.27.4
 ENFIST_URL       ?= http://enfist:8080/rpc
@@ -62,6 +64,9 @@ AUTH_SERVER=$(AUTH_SERVER)
 # docker network name
 DCAPE_NET=$(DCAPE_NET)
 
+# docker internal network name
+DCAPE_NET_INTRA=$(DCAPE_NET_INTRA)
+
 # container(s) required for up in any case
 # used in make only
 APPS=$(APPS)
@@ -85,6 +90,9 @@ PG_SHM_SIZE=$(PG_SHM_SIZE)
 
 # docker network subnet
 DCAPE_SUBNET=$(DCAPE_SUBNET)
+
+# docker intra network subnet
+DCAPE_SUBNET_INTRA=$(DCAPE_SUBNET_INTRA)
 
 # Deployment persistent storage, relative
 DCAPE_VAR=$(DCAPE_VAR)
