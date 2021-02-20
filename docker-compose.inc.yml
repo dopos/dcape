@@ -12,6 +12,7 @@ networks:
 
   intra:
     driver: bridge
+    internal: true
     name: ${DCAPE_NET_INTRA}
     driver_opts:
       com.docker.network.bridge.name: ${DCAPE_NET_INTRA}
