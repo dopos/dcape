@@ -26,6 +26,7 @@
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./${DCAPE_VAR}/traefik:/etc/traefik
     networks:
+      intra:
       default:
         aliases:
           - ${TRAEFIK_ALIAS}
