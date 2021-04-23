@@ -19,7 +19,7 @@ do_config() {
     fi
     # config tag for enfist
     if [ -z "$ENFIST_TAG" ]; then
-      export ENFIST_TAG=${DRONE_REPO_NAMESPACE}--${DRONE_REPO_NAME}--${DRONE_REPO_BRANCH}
+      export ENFIST_TAG=${DRONE_REPO_NAMESPACE}--${DRONE_REPO_NAME}--${DRONE_COMMIT_BRANCH}
     fi
     echo -n "Setup config for ${ENFIST_TAG}... "
     curl -gs http://enfist:8080/rpc/tag_vars?code=$ENFIST_TAG | jq -er '.' >> $CFG || {
