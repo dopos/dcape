@@ -102,7 +102,7 @@ down: dc
 dc: $(DCAPE_APP_DC_YML)
 	@echo $(APP_TAG)
 	@[ "$(DCAPE_DC_USED)" != true ] || args="-f $(DCAPE_DC_YML)" ; \
-  docker run --rm  -i \
+  docker run --rm  -t -i \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v $$PWD:$$PWD -w $$PWD \
   -e DCAPE_TAG -e DCAPE_NET -e APP_ROOT -e APP_TAG \
