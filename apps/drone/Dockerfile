@@ -4,7 +4,7 @@ MAINTAINER Alexey Kovrizhkin <lekovr+dopos@gmail.com>
 
 ENV DOCKERFILE_VERSION  20211117
 
-RUN apk add --no-cache curl git make jq docker-compose
+RUN apk add --no-cache curl git make jq docker-compose docker
 
 COPY setup /usr/local/bin/
 COPY dcape-app /opt/dcape-app
