@@ -11,3 +11,5 @@ COPY dcape-app /opt/dcape-app
 
 ARG DRONE_ROOT
 LABEL dcape_app_makefile $DRONE_ROOT/dcape-app/Makefile
+
+ENTRYPOINT ["docker-compose"]

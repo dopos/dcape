@@ -4,7 +4,6 @@
     restart: always
     depends_on:
       - drone-rd
-      - compose
     labels:
       - "dcape.traefik.tag=${DCAPE_TAG}"
       - "traefik.enable=true"
