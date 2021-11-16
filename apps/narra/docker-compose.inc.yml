@@ -1,7 +1,7 @@
 
   # ------------------------------------------------------------------------------
   narra:
-    image: dopos/narra:${NARRA_VER}
+    image: ghcr.io/dopos/narra:${NARRA_VER}
     restart: always
     command:
       --as.host ${AUTH_SERVER} --as.cookie_sign ${NARRA_SIGN_KEY} --as.cookie_crypt ${NARRA_CRYPT_KEY}

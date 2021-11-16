@@ -2,7 +2,7 @@
 # This file included by ../../Makefile
 SHELL               = /bin/bash
 # Docker image version
-ENFIST_VER0        ?= 0.6.2
+ENFIST_VER0        ?= v0.6.12
 # Config vars are described below in section `define CONFIG_...`
 ENFIST_DB_TAG      ?= enfist
 ENFIST_DB_PASS     ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
