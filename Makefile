@@ -151,8 +151,12 @@ DCFILES = apps/$(subst $(space),/$(DCINC) apps/,$(APPS))/$(DCINC)
 ## dcape Setup
 #:
 
+# create docker-compose image
+compose:
+	docker build -t ${DCAPE_TAG}-compose --build-arg DRONE_ROOT=${PWD}/apps/drone  ./apps/drone
+
 ## Initially create $(CFG) file with defaults
-init: $(DCAPE_VAR)
+init: $(DCAPE_VAR) compose
 	@echo "*** $@ $(APPS) ***"
 	@[ -f $(CFG) ] && { echo "$(CFG) already exists. Skipping" ; exit 1 ; } || true
 	@echo "$$CONFIG_DEF" > $(CFG)
@@ -207,7 +211,7 @@ dc: docker-compose.yml
 	@docker run --rm -t -i \
 	  -v /var/run/docker.sock:/var/run/docker.sock \
 	  -v $$PWD:$$PWD -w $$PWD \
-	  docker/compose:$(DC_VER) \
+	  $(DCAPE_TAG)-compose:$(DC_VER) \
 	  -p $$DCAPE_TAG --env-file $(CFG) \
 	  $(CMD)
 
