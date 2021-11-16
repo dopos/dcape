@@ -2,7 +2,7 @@
 # This file included by ../../Makefile
 SHELL               = /bin/bash
 # Docker image version
-TRAEFIK_VER0       ?= 2.3.6
+TRAEFIK_VER0       ?= 2.5.4
 # Config vars are described below in section `define CONFIG_...`
 DCAPE_HOST         ?= $(DCAPE_DOMAIN)
 TRAEFIK_LISTEN     ?= 80

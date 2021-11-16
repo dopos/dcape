@@ -3,7 +3,7 @@
 # This file included by ../../Makefile
 SHELL               = /bin/bash
 # drone/drone docker image version from dcape
-DRONE_VER0         ?= 1.10.1
+DRONE_VER0         ?= 2.4.0
 # Config vars are described below in section `define CONFIG_...`
 DRONE_HOST         ?= drone.$(DCAPE_DOMAIN)
 DRONE_ADMIN        ?= dcapeadmin
@@ -12,7 +12,7 @@ DRONE_CLIENT_KEY   ?= =DRONE_CLIENT_KEY=
 DRONE_DB_TAG       ?= drone
 DRONE_DB_PASS      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
 DRONE_VER          ?= $(DRONE_VER0)
-DRONE_RUNNER_VER   ?= 1.6.2
+DRONE_RUNNER_VER   ?= 1.7.0
 DRONE_SHARED_KEY   ?= $(shell openssl rand -hex 16; echo)
 DRONE_VAR_PATH     ?= $(PWD)/$(DCAPE_VAR)
 
