@@ -22,7 +22,6 @@ PG_SHM_SIZE      ?= 64mb
 DCAPE_SUBNET     ?= 100.127.0.0/24
 DCAPE_SUBNET_INTRA ?= 100.127.255.0/24
 DCAPE_VAR        ?= var
-DC_VER           ?= 1.27.4
 ENFIST_URL       ?= http://enfist:8080/rpc
 APPS_SYS         ?= db
 PG_CONTAINER     ?= $(DCAPE_TAG)_db_1
@@ -100,9 +99,6 @@ DCAPE_VAR=$(DCAPE_VAR)
 # http if ACME=no, https otherwise
 DCAPE_SCHEME=$(DCAPE_SCHEME)
 
-# Docker-compose image tag
-DC_VER=$(DC_VER)
-
 endef
 export CONFIG_DEF
 
@@ -170,7 +166,6 @@ apply:
 	@echo "*** $@ $(APPS) ***"
 	@$(MAKE) -s dc CMD="up -d $(APPS_SYS)" || echo ""
 	@for f in $(shell echo $(APPS)) ; do $(MAKE) -s $${f}-apply ; done
-	docker tag docker/compose:$(DC_VER) docker/compose:latest
 
 # build file from app templates
 docker-compose.yml: $(DCINC) $(DCFILES)
@@ -211,7 +206,7 @@ dc: docker-compose.yml
 	@docker run --rm -t -i \
 	  -v /var/run/docker.sock:/var/run/docker.sock \
 	  -v $$PWD:$$PWD -w $$PWD \
-	  $(DCAPE_TAG)-compose:$(DC_VER) \
+	  $(DCAPE_TAG)-compose \
 	  -p $$DCAPE_TAG --env-file $(CFG) \
 	  $(CMD)
 
