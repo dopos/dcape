@@ -226,10 +226,13 @@ docker-wait:
 define IMPORT_SCRIPT
 [[ "$$DCAPE_DB_DUMP_DEST" ]] || { echo "DCAPE_DB_DUMP_DEST not set. Exiting" ; exit 1 ; } ; \
 DB_NAME="$$1" ; DB_USER="$$2" ; DB_PASS="$$3" ; DB_SOURCE="$$4" ; \
-dbsrc=$$DCAPE_DB_DUMP_DEST/$$DB_SOURCE.tgz ; \
-if [ -f $$dbsrc ] ; then \
-  echo "Dump file $$dbsrc found, restoring database..." ; \
-  zcat $$dbsrc | PGPASSWORD=$$DB_PASS pg_restore -h localhost -U $$DB_USER -O -Ft -d $$DB_NAME || exit 1 ; \
+dbsrc=$$DCAPE_DB_DUMP_DEST/$$DB_SOURCE ; \
+if [ -f $${dbsrc}.tar ] ; then \
+  echo "Prefer dump file $${dbsrc}.tar found, restoring database..." ; \
+  PGPASSWORD=$$DB_PASS pg_restore -h localhost -U $$DB_USER -O -d $$DB_NAME $${dbsrc}.tar || exit 1 ; \
+elif [ -f $${dbsrc}.tgz ] ; then \
+  echo "Dump file $${dbsrc}.tgz found, restoring database..." ; \
+  zcat $${dbsrc}.tgz | PGPASSWORD=$$DB_PASS pg_restore -h localhost -U $$DB_USER -O -Ft -d $$DB_NAME || exit 1 ; \
 else \
   echo "Dump file $$dbsrc not found" ; \
   exit 2 ; \
