@@ -13,7 +13,7 @@ DCAPE_NET_INTRA  ?= $(DCAPE_TAG)_intra
 DCAPE_DOMAIN     ?= dev.lan
 APPS_ALWAYS      ?= traefik narra enfist drone portainer
 TZ               ?= $(shell cat /etc/timezone)
-PG_IMAGE         ?= postgres:13.1-alpine
+PG_IMAGE         ?= postgres:13.5-alpine
 PG_DB_PASS       ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
 PG_ENCODING      ?= en_US.UTF-8
 PG_PORT_LOCAL    ?= 5433
@@ -22,7 +22,6 @@ PG_SHM_SIZE      ?= 64mb
 DCAPE_SUBNET     ?= 100.127.0.0/24
 DCAPE_SUBNET_INTRA ?= 100.127.255.0/24
 DCAPE_VAR        ?= var
-DC_VER           ?= 1.27.4
 ENFIST_URL       ?= http://enfist:8080/rpc
 APPS_SYS         ?= db
 PG_CONTAINER     ?= $(DCAPE_TAG)_db_1
@@ -100,9 +99,6 @@ DCAPE_VAR=$(DCAPE_VAR)
 # http if ACME=no, https otherwise
 DCAPE_SCHEME=$(DCAPE_SCHEME)
 
-# Docker-compose image tag
-DC_VER=$(DC_VER)
-
 endef
 export CONFIG_DEF
 
@@ -151,8 +147,12 @@ DCFILES = apps/$(subst $(space),/$(DCINC) apps/,$(APPS))/$(DCINC)
 ## dcape Setup
 #:
 
+# create docker-compose image
+compose:
+	docker build -t ${DCAPE_TAG}-compose --build-arg DRONE_ROOT=${PWD}/apps/drone  ./apps/drone
+
 ## Initially create $(CFG) file with defaults
-init: $(DCAPE_VAR)
+init: $(DCAPE_VAR) compose
 	@echo "*** $@ $(APPS) ***"
 	@[ -f $(CFG) ] && { echo "$(CFG) already exists. Skipping" ; exit 1 ; } || true
 	@echo "$$CONFIG_DEF" > $(CFG)
@@ -166,7 +166,6 @@ apply:
 	@echo "*** $@ $(APPS) ***"
 	@$(MAKE) -s dc CMD="up -d $(APPS_SYS)" || echo ""
 	@for f in $(shell echo $(APPS)) ; do $(MAKE) -s $${f}-apply ; done
-	docker tag docker/compose:$(DC_VER) docker/compose:latest
 
 # build file from app templates
 docker-compose.yml: $(DCINC) $(DCFILES)
@@ -207,7 +206,7 @@ dc: docker-compose.yml
 	@docker run --rm -t -i \
 	  -v /var/run/docker.sock:/var/run/docker.sock \
 	  -v $$PWD:$$PWD -w $$PWD \
-	  docker/compose:$(DC_VER) \
+	  $(DCAPE_TAG)-compose \
 	  -p $$DCAPE_TAG --env-file $(CFG) \
 	  $(CMD)
 

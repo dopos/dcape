@@ -2,7 +2,7 @@
 # This file included by ../../Makefile
 SHELL               = /bin/bash
 # Default docker image version
-NARRA_VER0         ?= 0.23
+NARRA_VER0         ?= v0.23.2
 # Config vars are described below in section `define CONFIG_...`
 NARRA_GITEA_ORG    ?= dcape
 NARRA_CLIENT_ID    ?= =NARRA_CLIENT_ID=

@@ -1,6 +1,6 @@
   # ------------------------------------------------------------------------------
   powerdns:
-    image: psitrax/powerdns:${PDNS_VER}
+    image: ghcr.io/dopos/powerdns-alpine:${PDNS_VER}
     restart: always
     ports:
       - "${PDNS_LISTEN}:53"

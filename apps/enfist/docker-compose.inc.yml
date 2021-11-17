@@ -1,6 +1,6 @@
   # ------------------------------------------------------------------------------
   enfist:
-    image: apisite/enfist:${ENFIST_VER}
+    image: ghcr.io/apisite/app-enfist:${ENFIST_VER}
     restart: always
     depends_on:
       db:
