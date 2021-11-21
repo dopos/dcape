@@ -108,6 +108,7 @@ dc: $(DCAPE_APP_DC_YML)
   -e DCAPE_TAG -e DCAPE_NET -e APP_ROOT -e APP_TAG \
   $(DCAPE_COMPOSE) \
   -p $$APP_TAG --env-file $(CFG) \
+  --project-directory $$PWD \
   $$args -f $(DCAPE_APP_DC_YML) $(CMD)
 
 # ------------------------------------------------------------------------------
