@@ -14,6 +14,7 @@ DRONE_DB_PASS      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head
 DRONE_VER          ?= $(DRONE_VER0)
 DRONE_RUNNER_VER   ?= 1.7.0
 DRONE_SHARED_KEY   ?= $(shell openssl rand -hex 16; echo)
+DRONE_COPLA_KEY    ?= $(shell openssl rand -hex 16; echo)
 DRONE_VAR_PATH     ?= $(PWD)/$(DCAPE_VAR)
 
 define CONFIG_DRONE
@@ -42,6 +43,8 @@ DRONE_DB_PASS=$(DRONE_DB_PASS)
 DRONE_SHARED_KEY=$(DRONE_SHARED_KEY)
 # Deployment persistent storage, absolute
 DRONE_VAR_PATH=$(DRONE_VAR_PATH)
+# Drone conversion for platform tag (drocopla) key
+DRONE_COPLA_KEY=$(DRONE_COPLA_KEY)
 
 # drone/drone docker image version
 DRONE_VER=$(DRONE_VER)

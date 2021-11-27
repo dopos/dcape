@@ -4,12 +4,13 @@
     restart: always
     depends_on:
       - drone-rd
+      - drone-copla
     labels:
       - "dcape.traefik.tag=${DCAPE_TAG}"
       - "traefik.enable=true"
       - "traefik.http.routers.drone.rule=Host(`${DRONE_HOST}`)"
     environment:
-      - DRONE_OPEN=true
+      - DRONE_OPEN=false
       - DRONE_SERVER_HOST=${DRONE_HOST}
       - DRONE_SERVER_PROTO=${DCAPE_SCHEME}
       - DRONE_TLS_AUTOCERT=false
@@ -23,6 +24,9 @@
       - DRONE_USER_CREATE=username:${DRONE_ADMIN},admin:true
       - DRONE_DATABASE_DRIVER=postgres
       - DRONE_DATABASE_DATASOURCE=postgresql://${DRONE_DB_TAG}:${DRONE_DB_PASS}@db:5432/${DRONE_DB_TAG}?sslmode=disable
+
+      - DRONE_CONVERT_PLUGIN_ENDPOINT=http://drone-copla:3000
+      - DRONE_CONVERT_PLUGIN_SECRET=${DRONE_COPLA_KEY}
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
@@ -34,8 +38,9 @@
     restart: always
     environment:
       - DRONE_LIMIT_TRUSTED=false
-      - DRONE_RPC_PROTO=${DCAPE_SCHEME}
-      - DRONE_RPC_HOST=${DRONE_HOST}
+      - DRONE_PLUGIN_PULL=true
+      - DRONE_RPC_PROTO=http
+      - DRONE_RPC_HOST=drone
       - DRONE_RPC_SECRET=${DRONE_SHARED_KEY}
       - DRONE_RUNNER_CAPACITY=2
       - DRONE_RUNNER_NAME=${HOSTNAME}
@@ -46,3 +51,12 @@
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock
+
+  drone-copla:
+    image: ghcr.io/dopos/drocopla:v0.1.0
+    restart: always
+    environment:
+      - DRONE_SECRET=${DRONE_COPLA_KEY}
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
