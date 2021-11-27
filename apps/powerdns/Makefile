@@ -76,3 +76,7 @@ powerdns-apply: docker-wait
 	    -vACME_DOMAIN=$$ACME_DOMAIN -vACME_NS=$$ACME_NS -vNS_ADMIN=$$ACME_ADMIN_EMAIL \
 	    || true ; \
 	fi
+
+# load powerdns zone from zone.sql
+powerdns-load-zone: zone.sql docker-wait
+	cat zone.sql | docker exec -i $$PG_CONTAINER psql -U $$PDNS_DB_TAG -d $$PDNS_DB_TAG
