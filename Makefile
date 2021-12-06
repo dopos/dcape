@@ -139,9 +139,9 @@ ifndef APPS
   APPS += $(APPS_ALWAYS)
 endif
 
-space :=
-space +=
-DCFILES = apps/$(subst $(space),/$(DCINC) apps/,$(APPS))/$(DCINC)
+## make a list $APP -> apps/$APP/$(DCINC)
+DCFILESP = $(addprefix apps/,$(APPS))
+DCFILES = $(addsuffix /$(DCINC),$(DCFILESP))
 
 # ------------------------------------------------------------------------------
 ## dcape Setup
