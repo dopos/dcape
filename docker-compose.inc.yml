@@ -9,6 +9,7 @@ services:
   # ------------------------------------------------------------------------------
   db:
     image: ${PG_IMAGE}
+    hostname: ${PG_HOSTNAME}
     volumes:
       - ./var/data/db:/var/lib/postgresql/data
       - ./var/data/db-backup:/opt/backup
