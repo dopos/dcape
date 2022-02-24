@@ -17,6 +17,8 @@ APPS             ?= traefik portainer enfist cis
 
 # Postgresql Database image
 PG_IMAGE         ?= postgres:12.1-alpine
+# Postgresql container hostname
+PG_HOSTNAME      ?= dcape-db
 # Postgresql Database superuser password
 PG_DB_PASS       ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
 # Postgresql Database encoding
@@ -56,6 +58,8 @@ TZ=$(TZ)
 
 # Postgresql Database image
 PG_IMAGE=$(PG_IMAGE)
+# Postgresql container hostname
+PG_HOSTNAME=$(PG_HOSTNAME)
 # Postgresql Database superuser password
 PG_DB_PASS=$(PG_DB_PASS)
 # Postgresql Database encoding
