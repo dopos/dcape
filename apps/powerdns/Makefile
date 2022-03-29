@@ -2,7 +2,7 @@
 # This file included by ../../Makefile
 SHELL             = /bin/bash
 # psitrax/powerdns docker image version by dcape
-PDNS_VER0        ?= master
+PDNS_VER0        ?= v4.6.1
 # Config vars are described below in section `define CONFIG_...`
 PDNS_LISTEN      ?= 54
 PDNS_HOST        ?= ns.$(DCAPE_DOMAIN)
