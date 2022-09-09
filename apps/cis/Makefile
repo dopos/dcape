@@ -9,6 +9,8 @@ DCAPE_USED         ?= 0
 CIS_WEBTAIL_VER0   ?= 0.34
 # Webtail Docker image version
 CIS_WEBTAIL_VER    ?= $(CIS_WEBTAIL_VER0)
+# Webhook Docker image
+CIS_WEBHOOK_IMAGE  ?= dopos/webhook
 # Webhook Docker image version by dcape
 CIS_WEBHOOK_VER0   ?= 0.10
 # Webtail Docker image version
@@ -56,7 +58,9 @@ CIS_DEPLOY_PASS=$(CIS_DEPLOY_PASS)
 
 # Webtail Docker image version
 CIS_WEBTAIL_VER=$(CIS_WEBTAIL_VER)
-# Webhook Docker image version
+# Webhook Docker image 
+CIS_WEBHOOK_IMAGE=$(CIS_WEBHOOK_IMAGE)
+# Webhook image version
 CIS_WEBHOOK_VER=$(CIS_WEBHOOK_VER)
 # Narra Docker image version
 CIS_NARRA_VER=$(CIS_NARRA_VER)
