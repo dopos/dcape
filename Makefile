@@ -17,6 +17,8 @@ APPS             ?= traefik portainer enfist cis
 
 # Postgresql Database image
 PG_IMAGE         ?= postgres:12.1-alpine
+# Postgresql container hostname
+PG_HOSTNAME      ?= db
 # Postgresql Database superuser password
 PG_DB_PASS       ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
 # Postgresql Database encoding
@@ -27,6 +29,8 @@ PG_PORT_LOCAL    ?= 5433
 PG_SOURCE_SUFFIX ?=
 # shared memory
 PG_SHM_SIZE      ?= 64mb
+# initdbargs for customise create postgres cluster
+INITDB_ARGS      ?= --lc-message=C
 
 # Docker-compose image tag
 DC_VER           ?= 1.23.2
@@ -56,6 +60,8 @@ TZ=$(TZ)
 
 # Postgresql Database image
 PG_IMAGE=$(PG_IMAGE)
+# Postgresql container hostname
+PG_HOSTNAME=$(PG_HOSTNAME)
 # Postgresql Database superuser password
 PG_DB_PASS=$(PG_DB_PASS)
 # Postgresql Database encoding
@@ -64,6 +70,8 @@ PG_ENCODING=$(PG_ENCODING)
 PG_PORT_LOCAL=$(PG_PORT_LOCAL)
 # shared memory
 PG_SHM_SIZE=$(PG_SHM_SIZE)
+# initdbargs for customise create postgres cluster
+INITDB_ARGS=$(INITDB_ARGS)
 
 endef
 export CONFIG_DEF

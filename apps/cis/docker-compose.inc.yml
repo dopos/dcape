@@ -24,7 +24,7 @@
 
   # ------------------------------------------------------------------------------
   webtail:
-    image: lekovr/webtail:${CIS_WEBTAIL_VER}
+    image: ${CIS_WEBTAIL_IMAGE}:${CIS_WEBTAIL_VER}
     restart: always
     labels:
       - "traefik.enable=false"
@@ -36,7 +36,7 @@
 
   # ------------------------------------------------------------------------------
   webhook:
-    image: dopos/webhook:${CIS_WEBHOOK_VER}
+    image: ${CIS_WEBHOOK_IMAGE}:${CIS_WEBHOOK_VER}
     restart: always
     labels:
       - "traefik.enable=false"
@@ -56,14 +56,14 @@
 
   # ------------------------------------------------------------------------------
   traefik-fl:
-    image: dopos/traefik-fl:0.2
+    image: ${CIS_TRAEFIK_FL_IMAGE}:${CIS_TRAEFIK_FL_VER}
     restart: always
     labels:
       - "traefik.enable=false"
 
   # ------------------------------------------------------------------------------
   narra:
-    image: dopos/narra:${CIS_NARRA_VER}
+    image: ${CIS_NARRA_IMAGE}:${CIS_NARRA_VER}
     restart: always
     labels:
       - "traefik.enable=false"

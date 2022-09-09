@@ -10,6 +10,8 @@ DCAPE_USED         ?= 0
 ENFIST_DB_TAG      ?= enfist
 # Database user password
 ENFIST_DB_PASS     ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
+# app-enfist docker image
+ENFIST_DOCKER_IMAGE ?= apisite/enfist
 # apisite/app-enfist docker image version by dcape
 ENFIST_VER0        ?= 0.6.2
 # apisite/app-enfist docker image version
@@ -25,6 +27,8 @@ ENFIST_DB_TAG=$(ENFIST_DB_TAG)
 # Database user password
 ENFIST_DB_PASS=$(ENFIST_DB_PASS)
 
+# app-enfist docker image
+ENFIST_DOCKER_IMAGE=$(ENFIST_DOCKER_IMAGE)
 # apisite/app-enfist docker image version
 ENFIST_VER=$(ENFIST_VER)
 

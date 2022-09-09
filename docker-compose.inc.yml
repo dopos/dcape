@@ -9,6 +9,7 @@ services:
   # ------------------------------------------------------------------------------
   db:
     image: ${PG_IMAGE}
+    hostname: ${PG_HOSTNAME}
     volumes:
       - ./var/data/db:/var/lib/postgresql/data
       - ./var/data/db-backup:/opt/backup
@@ -22,6 +23,7 @@ services:
       - POSTGRES_PASSWORD=${PG_DB_PASS}
       - TZ=${TZ}
       - LANG=${PG_ENCODING}
+      - POSTGRES_INITDB_ARGS=${INITDB_ARGS}
       - DCAPE_DB_DUMP_DEST=/opt/backup
     restart: unless-stopped
     labels:
