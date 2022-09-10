@@ -36,7 +36,7 @@
 
   # ------------------------------------------------------------------------------
   webhook:
-    image: dopos/webhook:${CIS_WEBHOOK_VER}
+    image: ${CIS_WEBHOOK_IMAGE}:${CIS_WEBHOOK_VER}
     restart: always
     labels:
       - "traefik.enable=false"
