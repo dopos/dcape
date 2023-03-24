@@ -6,8 +6,8 @@ SHELL               = /bin/bash
 # DCAPE_USED==1 when called from upper Makefile
 DCAPE_USED         ?= 0
 # Gitea Docker image version by dcape
-GITEA_VER0         ?= 1.10.0
-# Gitea Docker image version
+GITEA_VER0         ?= gitea/gitea:1.10.0
+# Gitea image name and version in Docker repository
 GITEA_VER          ?= $(GITEA_VER0)
 # Database name and database user name
 GITEA_DB_TAG       ?= gitea
@@ -27,7 +27,7 @@ define CONFIG_GITEA
 # ------------------------------------------------------------------------------
 # Gitea settings
 
-# Gitea Docker image version
+# Gitea image name and version in Docker repository
 GITEA_VER=$(GITEA_VER)
 
 # App hostname

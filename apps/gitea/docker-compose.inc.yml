@@ -1,6 +1,6 @@
   # ------------------------------------------------------------------------------
   gitea:
-    image: gitea/gitea:${GITEA_VER}
+    image: ${GITEA_VER}
     ports:
       - "${GITEA_SSH_PORT}:22"
     volumes:
