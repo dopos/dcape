@@ -2,7 +2,7 @@
 # This file included by ../../Makefile
 SHELL               = /bin/bash
 # Default docker image version
-GITEA_VER0         ?= 1.16.5
+GITEA_VER0         ?= 1.18.5
 # Config vars are described below in section `define CONFIG_...`
 GITEA_HOST         ?= git.$(DCAPE_DOMAIN)
 GITEA_SSH_PORT     ?= 10022

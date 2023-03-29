@@ -2,7 +2,7 @@
 # This file included by ../../Makefile
 SHELL                 = /bin/bash
 # Docker image version
-PORTAINER_VER0       ?= 2.11.1-alpine
+PORTAINER_VER0       ?= 2.15.1-alpine
 # Config vars are described below in section `define CONFIG_...`
 PORTAINER_HOST       ?= port.$(DCAPE_DOMAIN)
 PORTAINER_VER        ?= $(PORTAINER_VER0)
