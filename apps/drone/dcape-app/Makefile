@@ -29,6 +29,14 @@ DB_INIT_SQL     ?= schema.sql
 PERSIST_FILES   ?=
 # Empty or 'keep'
 SETUP_ROOT_OPTS ?=
+# Create extra database from this list
+PGDATABASE_EXRA ?=
+
+ifeq ($(USE_TLS),false)
+HTTP_PROTO ?= http
+else
+HTTP_PROTO ?= https
+endif
 
 # ------------------------------------------------------------------------------
 # .env template
@@ -50,7 +58,8 @@ USE_TLS=$(USE_TLS)
 IMAGE=$(IMAGE)
 # app image version
 IMAGE_VER=$(IMAGE_VER)
-#
+
+
 endef
 #export CONFIG_DEF
 
@@ -65,7 +74,8 @@ USER_NAME=$(USER_NAME)
 USER_EMAIL=$(USER_EMAIL)
 # Admin user password
 USER_PASS=$(USER_PASS)
-#
+
+
 endef
 export CONFIG_USER
 
@@ -129,7 +139,8 @@ PGPASSWORD=$(PGPASSWORD)
 # Database dump for import on create
 # Used as ${PG_DUMP_SOURCE}.{tar|tgz}
 PG_DUMP_SOURCE=$(PG_DUMP_SOURCE)
-#
+
+
 endef
 endif
 
@@ -179,7 +190,11 @@ ifeq ($(USE_DB),yes)
 	    || true ; \
 	  elif [ -f $(DB_INIT_SQL) ] ; then \
 	      cat $(DB_INIT_SQL) | docker exec -i $$PG_CONTAINER psql -U postgres -d $$PGDATABASE -vPGUSER=$$PGUSER; \
-	  fi \
+	  fi ; \
+	  for pgdb in $$PGDATABASE_EXTRA ; do \
+	    echo "$$pgdb..." ; \
+	    docker exec -i $$PG_CONTAINER psql -U postgres -c "CREATE DATABASE \"$$pgdb\" OWNER \"$$PGUSER\";" 2>&1 ; \
+	  done \
 	fi
 else
 	@echo "Target '$@' is disabled in app config"
@@ -193,6 +208,10 @@ db-drop: .docker-wait
 ifeq ($(USE_DB),yes)
 	@echo "*** $@ ***"
 	@docker exec -it $$PG_CONTAINER psql -U postgres -c "DROP DATABASE \"$$PGDATABASE\";" || true
+	@for pgdb in $$PGDATABASE_EXTRA ; do \
+	    echo "$$pgdb..." ; \
+	    docker exec -it $$PG_CONTAINER psql -U postgres -c "DROP DATABASE \"$$pgdb\";" || true ; \
+	  done
 	@docker exec -it $$PG_CONTAINER psql -U postgres -c "DROP USER \"$$PGUSER\";" || true
 else
 	@echo "Target '$@' is disabled in app config"
