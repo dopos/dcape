@@ -51,3 +51,6 @@ ping:
 
 log:
   level: INFO
+
+metrics:
+  prometheus: {}
