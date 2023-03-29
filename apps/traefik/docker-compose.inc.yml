@@ -18,6 +18,9 @@
       - "traefik.http.middlewares.hsts.headers.stsIncludeSubdomains=true"
       - "traefik.http.middlewares.hsts.headers.stsPreload=true"
       - "traefik.http.middlewares.hsts.headers.forceSTSHeader=true"
+      - "prometheus.io/scrape=true"
+      - "prometheus.io/port=8080"
+      - "prometheus.io/extra-labels=job:traefik"
     env_file:
       - ${DCAPE_VAR}/traefik/traefik.env
     volumes:

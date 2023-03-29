@@ -12,6 +12,10 @@
       - "traefik.enable=true"
       - "traefik.http.routers.gitea.rule=Host(`${GITEA_HOST}`)"
       - "traefik.http.services.gitea.loadbalancer.server.port=3000"
+    labels:
+      - "prometheus.io/scrape=true"
+      - "prometheus.io/port=3000"
+      - "prometheus.io/extra-labels=job:gitea"
     environment:
       - TZ
       - RUN_MODE=prod

@@ -19,6 +19,9 @@
       - "traefik.http.routers.powerdns.rule=Host(`${PDNS_HOST}`)"
       - "traefik.http.routers.powerdns.middlewares=narra"
       - "traefik.http.services.powerdns.loadbalancer.server.port=8081"
+      - "prometheus.io/scrape=true"
+      - "prometheus.io/port=8081"
+      - "prometheus.io/extra-labels=job:powerdns"
     environment:
       - MYSQL_DEFAULT_AUTOCONF=false
     volumes:

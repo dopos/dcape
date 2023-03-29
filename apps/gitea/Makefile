@@ -83,6 +83,8 @@ ENABLE_OPENID_SIGNUP = true
 [session]
 PROVIDER = file
 
+[metrics]
+ENABLED=true
 endef
 export INI_GITEA
 
