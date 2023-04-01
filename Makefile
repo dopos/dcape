@@ -267,7 +267,7 @@ psql:
 ## run local psql
 ## (requires pg client installed)
 psql-local:
-	@psql -h localhost -p $(PG_PORT_LOCAL)
+	@psql postgresql://postgres:$(PG_DB_PASS)@localhost:$(PG_PORT_LOCAL)/postgres?sslmode=disable
 
 # ------------------------------------------------------------------------------
 # setup gitea objects
