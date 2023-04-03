@@ -5,10 +5,14 @@ SHELL               = /bin/bash
 
 # DCAPE_USED==1 when called from upper Makefile
 DCAPE_USED         ?= 0
+# Gitea image name by Dcape
+GITEA_IMAGE0       ?= gitea/gitea
+# Gitea image version by Dcape
+GITEA_VER0         ?= 1.10.0
 # Gitea image name
-GITEA_IMAGE        ?= gitea/gitea
+GITEA_IMAGE        ?= $(GITEA_IMAGE0)
 # Gitea image version
-GITEA_VER          ?= 1.10.0
+GITEA_VER          ?= $(GITEA_VER0)
 # Database name and database user name
 GITEA_DB_TAG       ?= gitea
 # Database user password
@@ -76,6 +80,16 @@ gitea-init:
 	  echo "$$CONFIG_GITEA" >> .env ; \
 	  echo "** GITEA DB PASSWORD: $(GITEA_DB_PASS)" ; \
 	}
+
+	@if [[ "$$GITEA_VER0" != "$$GITEA_VER" ]] ; then \
+	  echo "Warning: GITEA_VER in dcape ($$GITEA_VER0) differs from yours ($$GITEA_VER)" ; \
+	fi
+
+	@if [[ "$$GITEA_IMAGE0" != "$$GITEA_IMAGE" ]] ; then \
+	  echo "Warning: GITEA_IMAGE in dcape ($$GITEA_IMAGE0) differs from yours ($$GITEA_IMAGE)" ; \
+	fi
+
+
 
 gitea-apply:
 	@$(MAKE) -s db-create NAME=GITEA
