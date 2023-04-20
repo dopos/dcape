@@ -12,7 +12,6 @@
       - "traefik.enable=true"
       - "traefik.http.routers.gitea.rule=Host(`${GITEA_HOST}`)"
       - "traefik.http.services.gitea.loadbalancer.server.port=3000"
-    labels:
       - "prometheus.io/scrape=true"
       - "prometheus.io/port=3000"
       - "prometheus.io/extra-labels=job:gitea"
@@ -30,5 +29,7 @@
       - DB_USER=${GITEA_DB_TAG}
       - DB_PASSWD=${GITEA_DB_PASS}
     volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
       - ./${DCAPE_VAR}/gitea:/data
       - ./${DCAPE_VAR}/gitea-app-data:/app/gitea/data
