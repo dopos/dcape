@@ -31,6 +31,8 @@ PERSIST_FILES   ?=
 SETUP_ROOT_OPTS ?=
 # Create extra database from this list
 PGDATABASE_EXRA ?=
+# User who runs DB_INIT_SQL and creates PGDATABASE_EXRA
+PG_ADMIN        ?= postgres
 
 ifeq ($(USE_TLS),false)
 HTTP_PROTO ?= http
@@ -189,11 +191,11 @@ ifeq ($(USE_DB),yes)
 	    && docker exec -i $$PG_CONTAINER psql -U postgres -c "COMMENT ON DATABASE \"$$PGDATABASE\" IS 'SOURCE $$PG_DUMP_SOURCE';" \
 	    || true ; \
 	  elif [ -f $(DB_INIT_SQL) ] ; then \
-	      cat $(DB_INIT_SQL) | docker exec -i $$PG_CONTAINER psql -U postgres -d $$PGDATABASE -vPGUSER=$$PGUSER; \
+	      cat $(DB_INIT_SQL) | docker exec -i $$PG_CONTAINER psql -U $(PG_ADMIN) -d $$PGDATABASE -vPGUSER=$$PGUSER; \
 	  fi ; \
 	  for pgdb in $$PGDATABASE_EXTRA ; do \
 	    echo "$$pgdb..." ; \
-	    docker exec -i $$PG_CONTAINER psql -U postgres -c "CREATE DATABASE \"$$pgdb\" OWNER \"$$PGUSER\";" 2>&1 ; \
+	    docker exec -i $$PG_CONTAINER psql -U $(PG_ADMIN) -c "CREATE DATABASE \"$$pgdb\" OWNER \"$$PGUSER\";" 2>&1 ; \
 	  done \
 	fi
 else
@@ -201,7 +203,7 @@ else
 endif
 
 db-load: $(DB_INIT_SQL)
-	cat $< | docker exec -i $$PG_CONTAINER psql -U postgres -d $$PGDATABASE
+	cat $< | docker exec -i $$PG_CONTAINER psql -U $(PG_ADMIN) -d $$PGDATABASE
 
 ## drop database and user
 db-drop: .docker-wait
