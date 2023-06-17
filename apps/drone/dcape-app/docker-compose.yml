@@ -1,6 +1,6 @@
 # Base docker-compose config for single application
 
-version: '2'
+version: '3.4'
 
 services:
   app:
@@ -10,7 +10,7 @@ services:
       - dcape.traefik.tag=${DCAPE_TAG}
       - traefik.http.routers.${APP_TAG}.rule=Host(`${APP_SITE:?Must be set}`)
       - traefik.http.routers.${APP_TAG}.tls=${USE_TLS}
-      - traefik.http.routers.${APP_TAG}.tls.certresolver=letsEncrypt
+      - traefik.http.routers.${APP_TAG}.tls.certresolver=stepca
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro

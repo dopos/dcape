@@ -13,7 +13,7 @@ DCAPE_NET_INTRA  ?= $(DCAPE_TAG)_intra
 DCAPE_DOMAIN     ?= dev.lan
 APPS_ALWAYS      ?= traefik narra enfist drone portainer
 TZ               ?= $(shell cat /etc/timezone)
-PG_IMAGE         ?= postgres:13.5-alpine
+PG_IMAGE         ?= postgres:15.2
 PG_DB_PASS       ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
 PG_ENCODING      ?= en_US.UTF-8
 PG_PORT_LOCAL    ?= 5433
@@ -203,6 +203,19 @@ dc: docker-compose.yml
 	@echo "Running dc command: $(CMD)"
 	@echo "Dcape URL: $(DCAPE_SCHEME)://$(DCAPE_HOST)"
 	@echo "------------------------------------------"
+	@docker run --rm -t -i \
+	  -v /var/run/docker.sock:/var/run/docker.sock \
+	  -v $$PWD:$$PWD -w $$PWD \
+	  $(DCAPE_TAG)-compose \
+	  -p $$DCAPE_TAG --env-file $(CFG) \
+	  $(CMD)
+
+dc-new:
+	@docker compose \
+	  -p $$DCAPE_TAG --env-file $(CFG) \
+	  $(CMD)
+
+dc-old:
 	@docker run --rm -t -i \
 	  -v /var/run/docker.sock:/var/run/docker.sock \
 	  -v $$PWD:$$PWD -w $$PWD \
