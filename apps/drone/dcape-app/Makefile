@@ -34,6 +34,11 @@ PGDATABASE_EXRA ?=
 # User who runs DB_INIT_SQL and creates PGDATABASE_EXRA
 PG_ADMIN        ?= postgres
 
+ifeq ($(USE_TLS),false)
+HTTP_PROTO ?= http
+else
+HTTP_PROTO ?= https
+endif
 
 # ------------------------------------------------------------------------------
 # .env template
@@ -84,14 +89,6 @@ export
 
 -include $(CFG)
 export
-
-# calculate values after includes
-
-ifeq ($(USE_TLS),false)
-HTTP_PROTO ?= http
-else
-HTTP_PROTO ?= https
-endif
 
 .PHONY: all up down dc .docker-wait db-create db-drop psql init config .drone-default help
 
