@@ -8,30 +8,30 @@ PDNS_VER0        ?= v4.8.0
 #- ******************************************************************************
 #- Powerdns: general config
 
-# [ip:]port powerdns listen on
+#- [ip:]port powerdns listen on
 PDNS_LISTEN      ?= 54
-# Stats site host
+#- Stats site host
 PDNS_HOST        ?= ns.$(DCAPE_DOMAIN)
-# Wildcard zone nameserver
-# NS value for $(DCAPE_DOMAIN) CNAME record
-# Used for zone SOA record & for internal access from traefik
+#- Wildcard zone nameserver
+#- NS value for $(DCAPE_DOMAIN) CNAME record
+#- Used for zone SOA record & for internal access from traefik
 ACME_NS          ?= ns.$(DCAPE_DOMAIN)
-# Setup ACME zone for this domain
-# CNAME value for $(DCAPE_DOMAIN) record
+#- Setup ACME zone for this domain
+#- CNAME value for $(DCAPE_DOMAIN) record
 ACME_DOMAIN      ?= acme-$(DCAPE_DOMAIN)
-# Admin email for wildcard zone SOA recors
+#- Admin email for wildcard zone SOA recors
 ACME_ADMIN_EMAIL ?= $(TRAEFIK_ACME_EMAIL)
 
 #- ------------------------------------------------------------------------------
 #- Powerdns: internal config
 
-# Database name and database user name
+#- Database name and database user name
 PDNS_DB_TAG      ?= pdns
-# Database user password
+#- Database user password
 PDNS_DB_PASS     ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
-# Powerdns API key for DNS-01 ACME challenges
+#- Powerdns API key for DNS-01 ACME challenges
 PDNS_API_KEY     ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c14; echo)
-# powerdns docker image version
+#- powerdns docker image version
 PDNS_VER         ?= $(PDNS_VER0)
 
 # ------------------------------------------------------------------------------

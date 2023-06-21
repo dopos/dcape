@@ -1,13 +1,11 @@
 services:
   cicd:
     extends:
-      file: ../core/docker-compose.tmpl.yml
+      file: ${DCAPE_ROOT}/apps/core/docker-compose.tmpl.yml
       service: template-traefik
     image: ${CICD_IMAGE}:${CICD_VER}
     labels:
       - traefik.http.routers.cicd.rule=Host(`${CICD_HOST}`)
-    volumes:
-      - ./woodpecker_empty:/var/lib/woodpecker/
     environment:
       - WOODPECKER_OPEN=false
       - WOODPECKER_HOST=${DCAPE_SCHEME}://${CICD_HOST}
@@ -20,11 +18,13 @@ services:
       - WOODPECKER_GITEA_URL=${CICD_GITEA_URL}
       - WOODPECKER_GITEA_CLIENT=${CICD_GITEA_CLIENT}
       - WOODPECKER_GITEA_SECRET=${CICD_GITEA_SECRET}
+      - WOODPECKER_DATABASE_DRIVER=postgres
+      - WOODPECKER_DATABASE_DATASOURCE=postgres://${CICD_DB_TAG}:${CICD_DB_PASS}@db/${CICD_DB_TAG}?sslmode=disable
       # TODO:      - DRONE_GIT_ALWAYS_AUTH=true
 
   cicd-agent:
     extends:
-      file: ../core/docker-compose.tmpl.yml
+      file: ${DCAPE_ROOT}/apps/core/docker-compose.tmpl.yml
       service: template
     image: woodpeckerci/woodpecker-agent:latest
     command: agent

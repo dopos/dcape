@@ -10,10 +10,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command:
-      --master --daemon=no --chroot=/ --socket-dir=/var/run --launch=gpgsql --api=yes --api-key=${PDNS_API_KEY}
-      --webserver --webserver-address=0.0.0.0 --webserver-port=8081 --webserver-allow-from=0.0.0.0/0
-      --gpgsql-host=db --gpgsql-dbname=${PDNS_DB_TAG} --gpgsql-user=${PDNS_DB_TAG} --gpgsql-password=${PDNS_DB_PASS}
     labels:
       - "dcape.traefik.tag=${DCAPE_TAG}"
       - "traefik.enable=true"
@@ -24,7 +20,26 @@ services:
       - "prometheus.io/port=8081"
       - "prometheus.io/extra-labels=job:powerdns"
     environment:
-      - MYSQL_DEFAULT_AUTOCONF=false
+      - PDNS_API_KEY=${PDNS_API_KEY}
+      - PDNS_API=yes
+      - PDNS_CHROOT=/
+      - PDNS_DAEMON=no
+      - PDNS_GPGSQL_DBNAME=${PDNS_DB_TAG}
+      - PDNS_GPGSQL_HOST=db
+      - PDNS_GPGSQL_PASSWORD=${PDNS_DB_PASS}
+      - PDNS_GPGSQL_PORT=5432
+      - PDNS_GPGSQL_USER=${PDNS_DB_TAG}
+      - PDNS_LAUNCH=gpgsql,bind
+      - PDNS_MASTER=yes
+      - PDNS_SOCKET_DIR=/var/run
+      - PDNS_WEBSERVER_ADDRESS=0.0.0.0
+      - PDNS_WEBSERVER_ALLOW_FROM=0.0.0.0/0
+      - PDNS_WEBSERVER_PORT=8081
+      - PDNS_WEBSERVER=yes
+#      - PDNS_LOG_DNS_QUERIES=yes
+#      - PDNS_LOGLEVEL=5
+
+
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro

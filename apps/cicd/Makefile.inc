@@ -1,7 +1,7 @@
 # app custom Makefile
 
 # Docker image version tested for actual dcape release
-CICD_VER0        ?= 0.15.7
+CICD_VER0        ?= v0.15.9-alpine
 
 #- ******************************************************************************
 #- CICD: general config

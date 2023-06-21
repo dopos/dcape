@@ -2,7 +2,7 @@ services:
   # ------------------------------------------------------------------------------
   enfist:
     extends:
-      file: ../core/docker-compose.tmpl.yml
+      file: ${DCAPE_ROOT}/apps/core/docker-compose.tmpl.yml
       service: template-traefik
     image: ghcr.io/apisite/app-enfist:${ENFIST_VER}
     depends_on:

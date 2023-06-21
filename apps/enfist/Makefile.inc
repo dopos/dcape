@@ -29,4 +29,4 @@ enfist-apply:
 	$(MAKE) -s db-create NAME=ENFIST
 	PGPASSWORD=$${ENFIST_DB_PASS} \
 	&& cat apps/enfist/migrate.sql | docker exec -i $$PG_CONTAINER psql -U $$ENFIST_DB_TAG $$ENFIST_DB_TAG
-	$(MAKE) -s dc CMD="run --rm enfist make poma-install"
+	$(MAKE) -s dc-dc CMD="run --rm enfist make poma-install"

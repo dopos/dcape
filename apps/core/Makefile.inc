@@ -165,7 +165,7 @@ env-set:
 	  | sed -E 's/^([^\n ]+)\ *\??=([^\n]*)$$/\1=$$(\1)\n/ ; s/^(#)-/\1/' >> $@
 	@echo "endef" >> $@
 
-ifneq ($(findstring $(MAKECMDGOALS),config config-force $(CFG).sample),)
+ifneq ($(findstring $(MAKECMDGOALS),config config-force config-if $(CFG).sample),)
 include .env.temp.mk
 endif
 
@@ -182,6 +182,10 @@ config: $(CFG).sample
 ## generate sample config and rename it to .env
 config-force: config
 	@mv $(CFG).sample $(CFG)
+
+## generate sample config and rename it to .env if not exists
+config-if: config
+	@[ -f $(CFG) ] || mv $(CFG).sample $(CFG)
 
 # ------------------------------------------------------------------------------
 
