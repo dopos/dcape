@@ -1,6 +1,6 @@
 # Base docker-compose config for single application
 
-version: '2'
+version: '3'
 
 services:
   app:
@@ -15,10 +15,3 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     restart: always
-    networks:
-      - lan
-
-networks:
-  lan:
-    external:
-      name: ${DCAPE_NET}

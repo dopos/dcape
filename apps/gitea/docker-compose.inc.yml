@@ -1,6 +1,7 @@
+services:
   # ------------------------------------------------------------------------------
   gitea:
-    image: gitea/gitea:${GITEA_VER}
+    image: ${GITEA_IMAGE}:${GITEA_VER}
     restart: always
     ports:
       - "${GITEA_SSH_PORT}:22"
@@ -23,11 +24,11 @@
       - USER_GID=1000
       - DOMAIN=${GITEA_HOST}
       - ROOT_URL=${DCAPE_SCHEME}://${GITEA_HOST}
-      - DB_TYPE=postgres
-      - DB_HOST=db:5432
-      - DB_NAME=${GITEA_DB_TAG}
-      - DB_USER=${GITEA_DB_TAG}
-      - DB_PASSWD=${GITEA_DB_PASS}
+      - GITEA__database__DB_TYPE=postgres
+      - GITEA__database__HOST=db:5432
+      - GITEA__database__NAME=${GITEA_DB_TAG}
+      - GITEA__database__USER=${GITEA_DB_TAG}
+      - GITEA__database__PASSWD=${GITEA_DB_PASS}
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro

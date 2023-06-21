@@ -1,43 +1,22 @@
-version: '3.8'
-
-networks:
-  default:
-    driver: bridge
-    name: ${DCAPE_NET}
-    driver_opts:
-      com.docker.network.bridge.name: ${DCAPE_NET}
-    ipam:
-      config:
-        - subnet: ${DCAPE_SUBNET}
-
-  intra:
-    driver: bridge
-    internal: true
-    name: ${DCAPE_NET_INTRA}
-    driver_opts:
-      com.docker.network.bridge.name: ${DCAPE_NET_INTRA}
-    ipam:
-      config:
-        - subnet: ${DCAPE_SUBNET_INTRA}
-
 services:
-
   # ------------------------------------------------------------------------------
   db:
-    image: ${PG_IMAGE}
+    image: ${PG_IMAGE}:${PG_VER}
+    hostname: ${PG_HOSTNAME}
     restart: always
     networks:
       - default
       - intra
     ports:
-      - "127.0.0.1:${PG_PORT_LOCAL}:5432"
+      - 127.0.0.1:${PG_PORT_LOCAL}:5432
     labels:
-      - "traefik.enable=false"
+      - traefik.enable=false
     environment:
       - POSTGRES_PASSWORD=${PG_DB_PASS}
       - TZ=${TZ}
       - LANG=${PG_ENCODING}
       - DCAPE_DB_DUMP_DEST=/opt/backup
+      - POSTGRES_INITDB_ARGS=${PG_INITDB_ARGS}
     volumes:
       - ./${DCAPE_VAR}/db/data:/var/lib/postgresql/data
       - ./${DCAPE_VAR}/db/backup:/opt/backup

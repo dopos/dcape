@@ -1,3 +1,4 @@
+services:
   # ------------------------------------------------------------------------------
   powerdns:
     image: ghcr.io/dopos/powerdns-alpine:${PDNS_VER}

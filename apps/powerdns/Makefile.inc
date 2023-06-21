@@ -1,58 +1,38 @@
 # powerdns init Makefile
 # This file included by ../../Makefile
 SHELL             = /bin/bash
-# psitrax/powerdns docker image version by dcape
-PDNS_VER0        ?= v4.6.1
-# Config vars are described below in section `define CONFIG_...`
-PDNS_LISTEN      ?= 54
-PDNS_HOST        ?= ns.$(DCAPE_DOMAIN)
-ACME_DOMAIN      ?= acme-$(DCAPE_DOMAIN)
-ACME_NS          ?= ns.$(DCAPE_DOMAIN)
-ACME_ADMIN_EMAIL ?= $(TRAEFIK_ACME_EMAIL)
-PDNS_DB_TAG      ?= pdns
-PDNS_DB_PASS     ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
-PDNS_API_KEY     ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c14; echo)
-PDNS_VER         ?= $(PDNS_VER0)
 
-define CONFIG_PDNS
-# ==============================================================================
-# Powerdns: general config
+# Docker image version tested for actual dcape release
+PDNS_VER0        ?= v4.8.0
+
+#- ******************************************************************************
+#- Powerdns: general config
 
 # [ip:]port powerdns listen on
-PDNS_LISTEN=$(PDNS_LISTEN)
-
+PDNS_LISTEN      ?= 54
 # Stats site host
-PDNS_HOST=$(PDNS_HOST)
-
+PDNS_HOST        ?= ns.$(DCAPE_DOMAIN)
 # Wildcard zone nameserver
 # NS value for $(DCAPE_DOMAIN) CNAME record
 # Used for zone SOA record & for internal access from traefik
-ACME_NS=$(ACME_NS)
-
+ACME_NS          ?= ns.$(DCAPE_DOMAIN)
 # Setup ACME zone for this domain
 # CNAME value for $(DCAPE_DOMAIN) record
-ACME_DOMAIN=$(ACME_DOMAIN)
-
+ACME_DOMAIN      ?= acme-$(DCAPE_DOMAIN)
 # Admin email for wildcard zone SOA recors
-ACME_ADMIN_EMAIL=$(ACME_ADMIN_EMAIL)
+ACME_ADMIN_EMAIL ?= $(TRAEFIK_ACME_EMAIL)
 
-# ------------------------------------------------------------------------------
-# Powerdns: internal config
+#- ------------------------------------------------------------------------------
+#- Powerdns: internal config
 
 # Database name and database user name
-PDNS_DB_TAG=$(PDNS_DB_TAG)
-
+PDNS_DB_TAG      ?= pdns
 # Database user password
-PDNS_DB_PASS=$(PDNS_DB_PASS)
-
+PDNS_DB_PASS     ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
 # Powerdns API key for DNS-01 ACME challenges
-PDNS_API_KEY=$(PDNS_API_KEY)
-
-# psitrax/powerdns docker image version
-PDNS_VER=$(PDNS_VER)
-
-endef
-export CONFIG_PDNS
+PDNS_API_KEY     ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c14; echo)
+# powerdns docker image version
+PDNS_VER         ?= $(PDNS_VER0)
 
 # ------------------------------------------------------------------------------
 

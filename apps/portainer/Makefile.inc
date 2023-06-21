@@ -1,25 +1,17 @@
 # Portainer init Makefile
 # This file included by ../../Makefile
 SHELL                 = /bin/bash
-# Docker image version
-PORTAINER_VER0       ?= 2.15.1-alpine
-# Config vars are described below in section `define CONFIG_...`
+
+# Docker image version tested for actual dcape release
+PORTAINER_VER0       ?= 2.18.3-alpine
+
+#- ******************************************************************************
+#- Portainer config
+
+#- Portainer hostname
 PORTAINER_HOST       ?= port.$(DCAPE_DOMAIN)
+#- Docker image version
 PORTAINER_VER        ?= $(PORTAINER_VER0)
-
-define CONFIG_PORTAINER
-# ==============================================================================
-# Portainer config
-
-# Portainer hostname
-PORTAINER_HOST=$(PORTAINER_HOST)
-
-# Docker image version
-PORTAINER_VER=$(PORTAINER_VER)
-
-endef
-
-export CONFIG_PORTAINER
 
 # ------------------------------------------------------------------------------
 

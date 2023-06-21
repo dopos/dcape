@@ -1,15 +1,16 @@
+services:
   # ------------------------------------------------------------------------------
   enfist:
+    extends:
+      file: ../core/docker-compose.tmpl.yml
+      service: template-traefik
     image: ghcr.io/apisite/app-enfist:${ENFIST_VER}
-    restart: always
     depends_on:
       db:
         condition: service_healthy
     command:
       /usr/bin/apisite --db.schema rpc --http_addr :8080
     labels:
-      - "dcape.traefik.tag=${DCAPE_TAG}"
-      - "traefik.enable=true"
       - "traefik.http.routers.enfist.rule=Host(`${DCAPE_HOST}`) && PathPrefix(`/conf/`)"
       - "traefik.http.middlewares.enfist-prefix.stripprefix.prefixes=/conf"
       - "traefik.http.routers.enfist.middlewares=narra,enfist-prefix@docker"
@@ -20,6 +21,3 @@
       - PGPASSWORD=${ENFIST_DB_PASS}
       - PGSSLMODE=disable
       - GIN_MODE=release
-    volumes:
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro

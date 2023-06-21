@@ -1,52 +1,34 @@
 # Traefik init Makefile
 # This file included by ../../Makefile
 SHELL               = /bin/bash
-# Docker image version
+
+# Docker image version tested for actual dcape release
 TRAEFIK_VER0       ?= 2.9.8
-# Config vars are described below in section `define CONFIG_...`
+
+#- ******************************************************************************
+#- Traefik: general config
+
+#- dcape services frontend hostname
 DCAPE_HOST         ?= $(DCAPE_DOMAIN)
+#- Traefik external http port
 TRAEFIK_LISTEN     ?= 80
+
+#- Traefik external https port
 TRAEFIK_LISTEN_SSL ?= 443
+#- Let's encrypt user email
+#- Value used only in `make apply` and saved in traefik.yml
 TRAEFIK_ACME_EMAIL ?= admin@$(DCAPE_DOMAIN)
+
+#- ------------------------------------------------------------------------------
+#- Traefik: internal config
+
+#- Docker image version
 TRAEFIK_VER        ?= $(TRAEFIK_VER0)
 
-define CONFIG_TRAEFIK
-# ==============================================================================
-# Traefik: general config
-
-# dcape services frontend hostname
-DCAPE_HOST=$(DCAPE_HOST)
-
-# Traefik external http port
-TRAEFIK_LISTEN=$(TRAEFIK_LISTEN)
-
-# Traefik external https port
-TRAEFIK_LISTEN_SSL=$(TRAEFIK_LISTEN_SSL)
-
-# Traefik hostname for internal access
-# This allows narra & drone internal access to local gitea without DNS
-# Used when host computer has no any ethernet interfaces
-TRAEFIK_ALIAS=$(TRAEFIK_ALIAS)
-
-endef
-
-define CONFIG_TRAEFIK_INTERNAL
-
-# ------------------------------------------------------------------------------
-# Traefik: internal config
-
-# Docker image version
-TRAEFIK_VER=$(TRAEFIK_VER)
-
-endef
-
-define CONFIG_TRAEFIK_EMAIL
-
-# Let's encrypt user email
-# Value used only in `make apply` and saved in traefik.yml
-TRAEFIK_ACME_EMAIL=$(TRAEFIK_ACME_EMAIL)
-
-endef
+#- Traefik hostname for internal access
+#- This allows narra & drone internal access to local gitea without DNS
+#- Used when host computer has no any ethernet interfaces
+TRAEFIK_ALIAS      ?=
 
 # ------------------------------------------------------------------------------
 
