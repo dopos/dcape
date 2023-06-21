@@ -57,6 +57,7 @@ DCINC             = docker-compose.inc.yml
 DCINC_CORE        = apps/core/docker-compose.inc.yml
 MK_CORE           = apps/core/Makefile.inc
 
+DCAPE_MODE        = core
 PG_CONTAINER     ?= $(DCAPE_TAG)-db-1
 
 # ------------------------------------------------------------------------------
@@ -114,9 +115,10 @@ DCAPE_SCHEME ?= https
 endif
 
 
-## make a list $APP -> apps/$APP/$(DCINC)
+# make a list $APP -> apps/$APP/$(DCINC)
 DCFILESP = $(addprefix apps/,$(APPS))
 DCFILES = $(addsuffix /$(DCINC),$(DCFILESP))
+
 MKFILES = $(addsuffix /Makefile.inc,$(DCFILESP))
 
 DC_ARG_SRC = $(addprefix -f ,$(DCINC_CORE) $(DCFILES))
@@ -124,30 +126,6 @@ DC_ARG_SRC = $(addprefix -f ,$(DCINC_CORE) $(DCFILES))
 include $(MK_CORE)
 include $(MKFILES)
 #apps/*/Makefile.inc
-
-# ------------------------------------------------------------------------------
-## Docker-compose commands
-#:
-
-## (re)start container(s)
-u: CMD=up -d $(APPS_SYS) $(shell echo $(APPS))
-u: dc-dc
-
-## stop (and remove) container(s)
-d: CMD=down
-d: dc-dc
-
-## restart container(s)
-ru: CMD=up --force-recreate -d $(APPS_SYS) $(shell echo $(APPS))
-ru: dc-dc
-
-dc-dc:
-	@echo "Running dc command: $(CMD)"
-	@echo "Dcape URL: $(DCAPE_SCHEME)://$(DCAPE_HOST)"
-	@echo "------------------------------------------"
-	@docker compose $(DC_ARG_SRC) \
-	  -p $$DCAPE_TAG --project-directory $$PWD \
-	  $(CMD)
 
 # ------------------------------------------------------------------------------
 ## dcape Setup
@@ -174,18 +152,3 @@ apply:
 
 ## do init..up steps via single command
 install: init apply gitea-setup u
-
-# ------------------------------------------------------------------------------
-## Other
-#:
-
-## delete unused docker images w/o name
-## (you should use portainer for this)
-clean-noname:
-	docker rmi $$(docker images | grep "<none>" | awk "{print \$$3}")
-
-## delete docker dangling volumes
-## (you should use portainer for this)
-clean-volume:
-	docker volume rm $$(docker volume ls -qf dangling=true)
-

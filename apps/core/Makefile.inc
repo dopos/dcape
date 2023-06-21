@@ -2,8 +2,50 @@
 CFG               ?= .env
 
 # ------------------------------------------------------------------------------
-## DB operations
+## Docker-compose commands
 #:
+
+ifeq ($(DCAPE_MODE),core)
+
+## (re)start container(s)
+up: CMD=up -d $(APPS_SYS) $(shell echo $(APPS))
+up: dc
+
+## restart container(s)
+reup: CMD=up --force-recreate -d $(APPS_SYS) $(shell echo $(APPS))
+reup: dc
+
+dc:
+	@echo "Running dc command: $(CMD)"
+	@echo "Dcape URL: $(DCAPE_SCHEME)://$(DCAPE_HOST)"
+	@echo "------------------------------------------"
+	@docker compose $(DC_ARG_SRC) \
+	  -p $$DCAPE_TAG --project-directory $$PWD \
+	  $(CMD)
+
+else
+
+up: CMD=up -d
+up: dc
+
+reup: CMD=up --force-recreate -d
+reup: dc
+
+dc:
+	docker compose -f $(DCAPE_ROOT)/apps/core/docker-compose.yml -f docker-compose.yml \
+  --project-directory $$PWD \
+  $(CMD)
+
+endif
+
+## stop (and remove) container(s)
+down:
+down: CMD=down
+down: dc
+
+
+# ------------------------------------------------------------------------------
+# DB operations
 
 PGDATABASE      ?= $(APP_NAME)
 PGUSER          ?= $(APP_NAME)
@@ -27,46 +69,6 @@ PG_DUMP_SOURCE=$(PG_DUMP_SOURCE)
 
 endef
 endif
-
-# ------------------------------------------------------------------------------
-## Docker-compose commands
-#:
-
-## (re)start container(s)
-up:
-up: CMD=up -d $(APPS_SYS) $(shell echo $(APPS))
-up: dc
-
-## stop (and remove) container(s)
-down:
-down: CMD=down
-down: dc
-
-## restart container(s)
-reup:
-reup: CMD=up --force-recreate -d $(APPS_SYS) $(shell echo $(APPS))
-reup: dc
-
-
-dc:
-	docker compose -f docker-compose.yml -f ../docker-common.yml \
-  --project-directory $$PWD \
-  $(CMD)
-
-# $$PWD usage allows host directory mounts in child containers
-# Thish works if path is the same for host, docker, docker-compose and child container
-## run $(CMD) via docker-compose
-dc-old: docker-compose.yml
-	@echo "Running dc command: $(CMD)"
-	@echo "Dcape URL: $(DCAPE_SCHEME)://$(DCAPE_HOST)"
-	@echo "------------------------------------------"
-	@docker run --rm -t -i \
-	  -v /var/run/docker.sock:/var/run/docker.sock \
-	  -v $$PWD:$$PWD -w $$PWD \
-	  $(DCAPE_TAG)-compose \
-	  -p $$DCAPE_TAG --env-file $(CFG) \
-	  $(CMD)
-
 
 # ------------------------------------------------------------------------------
 ## Database commands
@@ -152,7 +154,7 @@ env-set:
 
 
 # ------------------------------------------------------------------------------
-## Other
+## .env operations
 #:
 
 # This code generates $(CFG).sample from Makefile vars with previous comment line(s)
@@ -188,6 +190,19 @@ config-if: config
 	@[ -f $(CFG) ] || mv $(CFG).sample $(CFG)
 
 # ------------------------------------------------------------------------------
+## Other
+#:
+
+## delete unused docker images w/o name
+## (you should use portainer for this)
+clean-noname:
+	@docker images | grep -q "<none>" && docker rmi $$(docker images | grep "<none>" | awk "{print \$$3}") || echo "None found"
+
+## delete docker dangling volumes
+## (you should use portainer for this)
+clean-volume:
+	@vols=$$(docker volume ls -qf dangling=true) ; \
+	[ $$vols ] && docker volume rm $$vols || echo "None found"
 
 # This code handles group header and target comment with one or two lines only
 ## list Makefile targets

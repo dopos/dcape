@@ -1,4 +1,5 @@
-# app custom Makefile
+# woodpecker init Makefile
+# This file included by ../../Makefile
 
 # Docker image version tested for actual dcape release
 CICD_VER0        ?= v0.15.9-alpine
@@ -46,7 +47,7 @@ CICD_IMAGE         ?= woodpeckerci/woodpecker-server
 #- Docker image version
 CICD_VER           ?= $(CICD_VER0)
 
-## add config to $(CFG)
+# add config to $(CFG)
 cicd-init:
 	@if [[ "$$CICD_VER0" != "$$CICD_VER" ]] ; then \
 	  echo "Warning: CICD_VER in dcape ($$CICD_VER0) differs from yours ($$CICD_VER)" ; \
@@ -54,7 +55,7 @@ cicd-init:
 	@echo "  URL: $(DCAPE_SCHEME)://$(CICD_HOST)"
 	@echo "  Admin: $(CICD_ADMIN)"
 
-## create DB
+# create DB
 cicd-apply:
 	@cmd=create ; \
 	$(MAKE) -s db-create NAME=CICD
