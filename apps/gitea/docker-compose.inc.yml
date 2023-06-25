@@ -24,13 +24,20 @@ services:
       - USER_GID=1000
       - DOMAIN=${GITEA_HOST}
       - ROOT_URL=${DCAPE_SCHEME}://${GITEA_HOST}
-      - GITEA__database__DB_TYPE=postgres
-      - GITEA__database__HOST=db:5432
-      - GITEA__database__NAME=${GITEA_DB_TAG}
-      - GITEA__database__USER=${GITEA_DB_TAG}
-      - GITEA__database__PASSWD=${GITEA_DB_PASS}
+      - GITEA__mailer__ENABLED=${GITEA_MAILER_ENABLED}
+      - GITEA__mailer__SMTP_ADDR=${GITEA_MAILER_ADDR}
+      - GITEA__mailer__SMTP_PORT=${GITEA_MAILER_PORT}
+      - GITEA__mailer__FROM=${GITEA_MAILER_FROM}
+      - GITEA__mailer__USER=${GITEA_MAILER_USER}
+      - GITEA__mailer__PASSWD=${GITEA_MAILER_PASS}
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - ./${DCAPE_VAR}/gitea:/data
       - ./${DCAPE_VAR}/gitea-app-data:/app/gitea/data
+    healthcheck:
+      test: curl -fSs 127.0.0.1:3000/api/healthz || exit 1
+      start_period: 60s
+      interval: 10s
+      timeout: 5s
+      retries: 10
