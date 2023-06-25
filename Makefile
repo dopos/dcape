@@ -53,9 +53,6 @@ APPS_SYS         ?= db
 APPS_ALWAYS      ?= db traefik narra enfist cicd portainer
 
 CFG_BAK          ?= $(CFG).bak
-DCINC             = docker-compose.inc.yml
-DCINC_CORE        = apps/core/docker-compose.inc.yml
-MK_CORE           = apps/core/Makefile.inc
 
 DCAPE_MODE        = core
 PG_CONTAINER     ?= $(DCAPE_TAG)-db-1
@@ -72,7 +69,7 @@ export
 -include $(CFG)
 export
 
-.PHONY: init apply up reup down install dc-dc docker-wait db-create db-drop psql psql-local gitea-setup env-ls env-get env-set help
+.PHONY: init apply install
 
 all: help
 
@@ -80,9 +77,6 @@ all: help
 define CONFIG_DEF
 # ******************************************************************************
 # dcape extra config
-
-# Dcape service apps
-#APPS=$(APPS)
 
 # Gitea host for auth
 AUTH_SERVER=$(AUTH_SERVER)
@@ -114,18 +108,16 @@ else
 DCAPE_SCHEME ?= https
 endif
 
+# docker compose -f args
+DC_SOURCES        = $(shell find apps -maxdepth 3 -mindepth 2 -name docker-compose.inc.yml -printf '%p\n')
+DC_ARG_SRC        = $(addprefix -f ,$(DC_SOURCES))
 
-# make a list $APP -> apps/$APP/$(DCINC)
-DCFILESP = $(addprefix apps/,$(APPS))
-DCFILES = $(addsuffix /$(DCINC),$(DCFILESP))
 
-MKFILES = $(addsuffix /Makefile.inc,$(DCFILESP))
+# make a list $APP -> apps/$APP/Makefile.inc
+MK_DIRS = $(addprefix apps/,core db $(APPS))
+MK_SOURCES = $(addsuffix /Makefile.inc,$(MK_DIRS))
 
-DC_ARG_SRC = $(addprefix -f ,$(DCINC_CORE) $(DCFILES))
-
-include $(MK_CORE)
-include $(MKFILES)
-#apps/*/Makefile.inc
+include $(MK_SOURCES)
 
 # ------------------------------------------------------------------------------
 ## dcape Setup
@@ -147,8 +139,8 @@ $(DCAPE_VAR):
 ## Apply config to app files & db
 apply:
 	@echo "*** $@ $(APPS) ***"
-	@$(MAKE) -s dc-dc CMD="up -d $(APPS_SYS)" || echo ""
+	@$(MAKE) -s dc CMD="up -d $(APPS_SYS)" || echo ""
 	@for f in $(shell echo $(APPS)) ; do $(MAKE) -s $${f}-apply ; done
 
 ## do init..up steps via single command
-install: init apply gitea-setup u
+install: init apply gitea-setup up

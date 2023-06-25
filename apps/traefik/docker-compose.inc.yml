@@ -29,6 +29,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./${DCAPE_VAR}/traefik:/etc/traefik
+      - /etc/ssl/certs:/etc/ssl/certs:ro
     networks:
       intra:
       default:

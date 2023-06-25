@@ -1,6 +1,8 @@
 
 CFG               ?= .env
 
+.PHONY: up reup down dc docker-wait db-create db-drop psql psql-local env-ls env-get env-set help
+
 # ------------------------------------------------------------------------------
 ## Docker-compose commands
 #:
@@ -8,17 +10,17 @@ CFG               ?= .env
 ifeq ($(DCAPE_MODE),core)
 
 ## (re)start container(s)
-up: CMD=up -d $(APPS_SYS) $(shell echo $(APPS))
+up: CMD=up -d $(APPS)
 up: dc
 
 ## restart container(s)
-reup: CMD=up --force-recreate -d $(APPS_SYS) $(shell echo $(APPS))
+reup: CMD=up --force-recreate -d $(APPS)
 reup: dc
 
 dc:
-	@echo "Running dc command: $(CMD)"
-	@echo "Dcape URL: $(DCAPE_SCHEME)://$(DCAPE_HOST)"
-	@echo "------------------------------------------"
+	@>&2 echo "Running dc command: $(CMD)"
+	@>&2 echo "Dcape URL: $(DCAPE_SCHEME)://$(DCAPE_HOST)"
+	@>&2 echo "------------------------------------------"
 	@docker compose $(DC_ARG_SRC) \
 	  -p $$DCAPE_TAG --project-directory $$PWD \
 	  $(CMD)
@@ -39,17 +41,15 @@ dc:
 endif
 
 ## stop (and remove) container(s)
-down:
 down: CMD=down
 down: dc
-
 
 # ------------------------------------------------------------------------------
 # DB operations
 
 PGDATABASE      ?= $(APP_NAME)
 PGUSER          ?= $(APP_NAME)
-PGPASSWORD      ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c14; echo)
+PGPASSWORD      ?= $(shell openssl rand -hex 16; echo)
 PG_DUMP_SOURCE  ?=
 
 ifeq ($(USE_DB),yes)

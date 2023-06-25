@@ -10,7 +10,7 @@ ENFIST_VER0        ?= v0.6.12
 #- Database name and database user name
 ENFIST_DB_TAG      ?= enfist
 #- Database user password
-ENFIST_DB_PASS     ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
+ENFIST_DB_PASS     ?= $(shell openssl rand -hex 16; echo)
 #- apisite/app-enfist docker image version
 ENFIST_VER         ?= $(ENFIST_VER0)
 

@@ -19,3 +19,4 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - ./apps/narra/html:/html:ro
+      - /etc/ssl/certs:/etc/ssl/certs:ro

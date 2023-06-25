@@ -1,6 +1,6 @@
 # dcape Makefile
-SHELL             = /bin/bash
-CFG               = .env
+SHELL            ?= /bin/bash
+CFG              ?= .env
 
 #- ******************************************************************************
 #- Postgresql: general config
@@ -18,7 +18,7 @@ PG_VER           ?= 11.3-alpine
 PG_HOSTNAME      ?= db
 
 #- Postgresql Database superuser password
-PG_DB_PASS       ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
+PG_DB_PASS       ?= $(shell openssl rand -hex 16; echo)
 #- Postgresql Database encoding
 PG_ENCODING      ?= en_US.UTF-8
 #- port on localhost postgresql listen on
@@ -32,3 +32,6 @@ PG_INITDB_ARGS      ?= --lc-message=C
 
 # ------------------------------------------------------------------------------
 
+db-init:
+
+db-apply:

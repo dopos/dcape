@@ -28,9 +28,9 @@ ACME_ADMIN_EMAIL ?= $(TRAEFIK_ACME_EMAIL)
 #- Database name and database user name
 PDNS_DB_TAG      ?= pdns
 #- Database user password
-PDNS_DB_PASS     ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c14; echo)
+PDNS_DB_PASS     ?= $(shell openssl rand -hex 16; echo)
 #- Powerdns API key for DNS-01 ACME challenges
-PDNS_API_KEY     ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 | head -c14; echo)
+PDNS_API_KEY     ?= $(shell openssl rand -hex 16; echo)
 #- powerdns docker image version
 PDNS_VER         ?= $(PDNS_VER0)
 

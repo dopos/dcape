@@ -10,26 +10,28 @@ CICD_VER0        ?= v0.15.9-alpine
 #- CICD hostname
 CICD_HOST          ?= cicd.$(DCAPE_DOMAIN)
 
-#- CICD admin user(s)
-CICD_ADMIN_USERS   ?= jean
+#- CICD admin user
+CICD_ADMIN         ?= $(GITEA_ADMIN_NAME)
 
 #- VCS (Version control systems) (gitea/github) config
 
+#- Use GitHub
 CICD_GITHUB_USED   ?= false
 #- Github URL for auth and repos
 CICD_GITHUB_URL    ?= http://git.dev.lan
 #- Github client ID
-CICD_GITHUB_CLIENT ?= **VCS APP ID**
+CICD_GITHUB_CLIENT ?= SET_GITHUB_CLIENT_ID_HERE
 #- Github client secret
-CICD_GITHUB_SECRET ?= **VCS APP SECRET**
+CICD_GITHUB_SECRET ?= SET_GITHUB_CLIENT_SECRET_HERE
 
+#- Use Gitea
 CICD_GITEA_USED    ?= true
 #- Gitea URL for auth and repos
-CICD_GITEA_URL     ?= http://git.dev.lan
+CICD_GITEA_URL     ?= $(AUTH_SERVER)
 #- Gitea client ID
-CICD_GITEA_CLIENT  ?= **VCS APP ID**
+CICD_GITEA_CLIENT  ?= SET_GITEA_CLIENT_ID_HERE
 #- Gitea client secret
-CICD_GITEA_SECRET  ?= **VCS APP SECRET**
+CICD_GITEA_SECRET  ?= SET_GITEA_CLIENT_SECRET_HERE
 
 #- ------------------------------------------------------------------------------
 #- CICD: internal config
@@ -39,7 +41,7 @@ CICD_DB_TAG        ?= cicd
 #- Database user password
 CICD_DB_PASS       ?= $(shell openssl rand -hex 16; echo)
 
-# Agent secret
+#- Agent secret
 CICD_AGENT_SECRET  ?= $(shell openssl rand -hex 32; echo)
 
 #- Docker repo & image name without version

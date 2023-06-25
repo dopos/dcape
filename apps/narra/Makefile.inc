@@ -11,17 +11,17 @@ NARRA_VER0         ?= v0.25.0
 #- Gitea organization for users who has access to private areas
 NARRA_GITEA_ORG    ?= dcape
 #- Auth service access token: client ID
-NARRA_CLIENT_ID    ?= =NARRA_CLIENT_ID=
+NARRA_CLIENT_ID    ?= SET_NARRA_CLIENT_ID_HERE
 #- Auth service access token: key
-NARRA_CLIENT_KEY   ?= =NARRA_CLIENT_KEY=
+NARRA_CLIENT_KEY   ?= SET_NARRA_CLIENT_SECRET_HERE
 
 #- ------------------------------------------------------------------------------
 #- Narra: internal config
 
 #- Key to sign narra token
-NARRA_SIGN_KEY     ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c32; echo)
+NARRA_SIGN_KEY     ?= $(shell openssl rand -hex 32; echo)
 #- Key to crypt narra token
-NARRA_CRYPT_KEY    ?= $(shell < /dev/urandom tr -dc A-Za-z0-9 2>/dev/null | head -c32; echo)
+NARRA_CRYPT_KEY    ?= $(shell openssl rand -hex 32; echo)
 #- Narra Docker image version
 NARRA_VER          ?= $(NARRA_VER0)
 

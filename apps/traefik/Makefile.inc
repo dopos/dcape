@@ -3,7 +3,7 @@
 SHELL               = /bin/bash
 
 # Docker image version tested for actual dcape release
-TRAEFIK_VER0       ?= 2.9.8
+TRAEFIK_VER0       ?= 2.9.10
 
 #- ******************************************************************************
 #- Traefik: general config
