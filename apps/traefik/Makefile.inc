@@ -30,6 +30,12 @@ TRAEFIK_VER        ?= $(TRAEFIK_VER0)
 #- Used when host computer has no any ethernet interfaces
 TRAEFIK_ALIAS      ?=
 
+# Used in traefik.acme-step.yml only
+# TODO: add TRAEFIK_CONFIG_TAG(s)
+TRAEFIK_RESOLVER   ?= letsEncrypt
+# StepCA URL, example: https://ca.dev.lan/acme/acme/directory
+TRAEFIK_CA_SERVER  ?=
+
 # ------------------------------------------------------------------------------
 
 # TRAEFIK_CONFIG_TAG - Tag for apps/traefik/traefik.TAG.yml
@@ -71,7 +77,9 @@ $(DCAPE_VAR)/traefik/custom:
 	@mkdir -p $@
 
 $(DCAPE_VAR)/traefik/traefik.yml: apps/traefik/traefik.$(TRAEFIK_CONFIG_TAG).yml
-	@sed "s/=DCAPE_TAG=/$$DCAPE_TAG/g ; s/=DCAPE_DOMAIN=/$$DCAPE_DOMAIN/g ; s/=TRAEFIK_EMAIL=/$$TRAEFIK_ACME_EMAIL/g" $<  > $@
+	@sed "s/=DCAPE_TAG=/$$DCAPE_TAG/g ; s/=DCAPE_DOMAIN=/$$DCAPE_DOMAIN/g ; \
+	  s/=TRAEFIK_RESOLVER=/$$TRAEFIK_RESOLVER/g ; s/=TRAEFIK_CA_SERVER=/$$TRAEFIK_CA_SERVER/g ;
+	  s/=TRAEFIK_EMAIL=/$$TRAEFIK_ACME_EMAIL/g" $<  > $@
 
 $(DCAPE_VAR)/traefik/acme.json:
 	@touch $@
@@ -85,6 +93,9 @@ define ENV_TRAEFIK
 ##LEGO_EXPERIMENTAL_CNAME_SUPPORT=true
 ##PDNS_API_URL=http://powerdns:8081
 ##PDNS_API_KEY=$(PDNS_API_KEY)
+
+# Own CA cert
+# LEGO_CA_CERTIFICATES=/etc/traefik/root_ca.crt
 
 endef
 export ENV_TRAEFIK

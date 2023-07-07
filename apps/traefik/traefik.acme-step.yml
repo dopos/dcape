@@ -1,0 +1,86 @@
+# Traefik v2 config template for WAN use with HTTP-01 and DNS-01 (via local PowerDNS) acme challenges
+# with support of LetsEncrypt and Step CA
+
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: true
+
+entryPoints:
+  web:
+    address: "0.0.0.0:80"
+    forwardedHeaders:
+      insecure: true
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: false
+
+  websecure:
+    address: "0.0.0.0:443"
+    forwardedHeaders:
+      insecure: true
+    http:
+      tls:
+        certResolver: =TRAEFIK_RESOLVER=
+        domains:
+          - main: "=DCAPE_DOMAIN="
+            sans:
+              - "*.=DCAPE_DOMAIN="
+
+# Defailt cert sourse
+tls:
+  stores:
+    default:
+      defaultGeneratedCert:
+        resolver: =TRAEFIK_RESOLVER=
+        domain:
+          - main: "=DCAPE_DOMAIN="
+            sans:
+              - "*.=DCAPE_DOMAIN="
+
+certificatesResolvers:
+  letsEncrypt:
+    acme:
+      email: =TRAEFIK_EMAIL=
+      storage: /etc/traefik/acme.json
+      # caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+      dnsChallenge:
+        provider: pdns
+      httpChallenge:
+        entryPoint: web
+
+  stepca:
+    acme:
+      email: =TRAEFIK_EMAIL=
+      storage: /etc/traefik/acme-step.json
+      caServer: =TRAEFIK_CA_SERVER=
+      certificatesDuration: 2160 # 90 days
+      tlsChallenge: true
+      dnsChallenge:
+        provider: pdns
+      httpChallenge:
+        entryPoint: web
+
+providers:
+  docker:
+    exposedByDefault: false
+     # TODO: cli version does not work
+    constraints: "Label(`dcape.traefik.tag`,`=DCAPE_TAG=`)"
+
+  file:
+    directory: /etc/traefik/custom
+    watch: true
+
+api:
+  insecure: false
+
+ping:
+  manualRouting: true
+
+log:
+  level: INFO
+
+metrics:
+  prometheus: {}
