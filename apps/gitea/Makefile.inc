@@ -80,7 +80,7 @@ REQUIRE_SIGNIN_VIEW               = false
 DEFAULT_KEEP_EMAIL_PRIVATE        = false
 DEFAULT_ALLOW_CREATE_ORGANIZATION = true
 DEFAULT_ENABLE_TIMETRACKING       = true
-NO_REPLY_ADDRESS                  = noreply.$(DOMAIN)
+NO_REPLY_ADDRESS                  = noreply.$(DCAPE_DOMAIN)
 
 [security]
 INSTALL_LOCK   = true
@@ -97,7 +97,11 @@ ENABLE_OPENID_SIGNUP = true
 PROVIDER = file
 
 [metrics]
-ENABLED=true
+ENABLED = true
+
+[webhook]
+ALLOWED_HOST_LIST = $(CICD_HOST)
+
 endef
 export INI_GITEA
 
