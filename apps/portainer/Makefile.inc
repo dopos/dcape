@@ -3,7 +3,7 @@
 SHELL                 = /bin/bash
 
 # Docker image version tested for actual dcape release
-PORTAINER_VER0       ?= 2.18.3-alpine
+PORTAINER_VER0       ?= 2.18.4-alpine
 
 #- ******************************************************************************
 #- Portainer config
