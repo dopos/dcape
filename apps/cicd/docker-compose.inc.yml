@@ -23,7 +23,10 @@ services:
       - WOODPECKER_GITEA_SECRET=${CICD_GITEA_SECRET}
       - WOODPECKER_DATABASE_DRIVER=postgres
       - WOODPECKER_DATABASE_DATASOURCE=postgres://${CICD_DB_TAG}:${CICD_DB_PASS}@db/${CICD_DB_TAG}?sslmode=disable
-      # TODO:      - DRONE_GIT_ALWAYS_AUTH=true
+      - WOODPECKER_ENVIRONMENT=DCAPE_TAG:${DCAPE_TAG},DCAPE_NET:${DCAPE_NET},DCAPE_ROOT:${DCAPE_ROOT}/${DCAPE_VAR},DCAPE_COMPOSE:${DCAPE_TAG}-compose,DCAPE_SCM:${GITEA_HOST}
+#      - WOODPECKER_ESCALATE=docker,plugins/docker,plugins/gcr,plugins/ecr,woodpeckerci/plugin-docker,woodpeckerci/plugin-docker-buildx
+      - WOODPECKER_LOG_LEVEL=debug
+      #- WOODPECKER_AUTHENTICATE_PUBLIC_REPOS=true
     volumes:
       - /etc/ssl/certs:/etc/ssl/certs:ro
 
@@ -34,10 +37,14 @@ services:
     image: woodpeckerci/woodpecker-agent:latest
     command: agent
     volumes:
+#      - /etc/ssl/certs:/etc/ssl/certs:ro
+      - /etc/docker/certs.d:/etc/docker/certs.d:ro
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - WOODPECKER_SERVER=cicd:9000 # GRPC server
       - WOODPECKER_AGENT_SECRET=${CICD_AGENT_SECRET}
       - WOODPECKER_DATABASE_DRIVER=postgres
       - WOODPECKER_DATABASE_DATASOURCE=postgres://${CICD_DB_TAG}:${CICD_DB_PASS}@db/${CICD_DB_TAG}?sslmode=disable
-
+      - WOODPECKER_LOG_LEVEL=debug
+      - WOODPECKER_BACKEND_DOCKER_VOLUMES=/etc/ssl/certs:/etc/ssl/certs:ro,/etc/docker/certs.d:/etc/docker/certs.d:ro
+      - WOODPECKER_ENVIRONMENT=DCAPE_TAG:${DCAPE_TAG},DCAPE_NET:${DCAPE_NET},DCAPE_ROOT:${DCAPE_ROOT}/${DCAPE_VAR},DCAPE_COMPOSE:${DCAPE_TAG}-compose,DCAPE_SCM:${GITEA_HOST}
