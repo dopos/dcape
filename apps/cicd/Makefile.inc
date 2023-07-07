@@ -2,52 +2,52 @@
 # This file included by ../../Makefile
 
 # Docker image version tested for actual dcape release
-CICD_VER0        ?= v0.15.9-alpine
+CICD_VER0              ?= v0.15.9-alpine
 
 #- ******************************************************************************
 #- CICD: general config
 
 #- CICD hostname
-CICD_HOST          ?= cicd.$(DCAPE_DOMAIN)
+CICD_HOST              ?= cicd.$(DCAPE_DOMAIN)
 
 #- CICD admin user
-CICD_ADMIN         ?= $(GITEA_ADMIN_NAME)
+CICD_ADMIN             ?= $(GITEA_ADMIN_NAME)
 
 #- VCS (Version control systems) (gitea/github) config
 
 #- Use GitHub
-CICD_GITHUB_USED   ?= false
+CICD_GITHUB_USED       ?= false
 #- Github URL for auth and repos
-CICD_GITHUB_URL    ?= http://git.dev.lan
+CICD_GITHUB_URL        ?= http://git.dev.lan
 #- Github client ID
-CICD_GITHUB_CLIENT ?= SET_GITHUB_CLIENT_ID_HERE
+CICD_GITHUB_CLIENT_ID  ?= SET_GITHUB_CLIENT_ID_HERE
 #- Github client secret
-CICD_GITHUB_SECRET ?= SET_GITHUB_CLIENT_SECRET_HERE
+CICD_GITHUB_CLIENT_KEY ?= SET_GITHUB_CLIENT_SECRET_HERE
 
 #- Use Gitea
-CICD_GITEA_USED    ?= true
+CICD_GITEA_USED        ?= true
 #- Gitea URL for auth and repos
-CICD_GITEA_URL     ?= $(AUTH_SERVER)
+CICD_GITEA_URL         ?= $(AUTH_SERVER)
 #- Gitea client ID
-CICD_GITEA_CLIENT  ?= SET_GITEA_CLIENT_ID_HERE
+CICD_GITEA_CLIENT_ID   ?= SET_GITEA_CLIENT_ID_HERE
 #- Gitea client secret
-CICD_GITEA_SECRET  ?= SET_GITEA_CLIENT_SECRET_HERE
+CICD_GITEA_CLIENT_KEY  ?= SET_GITEA_CLIENT_SECRET_HERE
 
 #- ------------------------------------------------------------------------------
 #- CICD: internal config
 
 #- Database name and database user name
-CICD_DB_TAG        ?= cicd
+CICD_DB_TAG            ?= cicd
 #- Database user password
-CICD_DB_PASS       ?= $(shell openssl rand -hex 16; echo)
+CICD_DB_PASS           ?= $(shell openssl rand -hex 16; echo)
 
 #- Agent secret
-CICD_AGENT_SECRET  ?= $(shell openssl rand -hex 32; echo)
+CICD_AGENT_SECRET      ?= $(shell openssl rand -hex 32; echo)
 
 #- Docker repo & image name without version
-CICD_IMAGE         ?= woodpeckerci/woodpecker-server
+CICD_IMAGE             ?= woodpeckerci/woodpecker-server
 #- Docker image version
-CICD_VER           ?= $(CICD_VER0)
+CICD_VER               ?= $(CICD_VER0)
 
 # add config to $(CFG)
 cicd-init:

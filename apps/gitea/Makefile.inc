@@ -142,7 +142,8 @@ APP_CREATE_URL       = $(AUTH_SERVER)/api/v1/user/applications/oauth2
 
 # Create gitea admin user
 gitea-admin:
-	@$(MAKE) -s dc CMD="exec gitea su git -c 'gitea admin user create --admin --username $(GITEA_ADMIN_NAME) --password $(GITEA_ADMIN_PASS) --email $(GITEA_ADMIN_EMAIL)'"
+	@$(MAKE) -s dc CMD="exec gitea su git -c \
+	  'gitea admin user create --admin --username $(GITEA_ADMIN_NAME) --password $(GITEA_ADMIN_PASS) --email $(GITEA_ADMIN_EMAIL)'"
 
 
 define GITEA_ORG_CREATE
@@ -240,14 +241,14 @@ token-use:
 	if resp=$$(echo $$NARRA_APP_CREATE | curl -gsS -X POST $(APP_CREATE_URL) $(POST_CMD) -d @-) ; then \
 	  client_id=$$(echo $$resp | jq -r '.client_id') ; \
 	  client_secret=$$(echo $$resp | jq -r '.client_secret') ; \
-	  sed -i "s/SET_NARRA_CLIENT_ID_HERE/$$client_id/ ; s/SET_NARRA_CLIENT_SECRET_HERE/$$client_secret/ " $(CFG) ; \
+	  sed -i "s/^\(NARRA_CLIENT_ID=\).*/\1$$client_id/ ; s/^\(NARRA_CLIENT_KEY=\).*/\1$$client_secret/ " $(CFG) ; \
 	  echo " Done" ; \
 	else false ; fi
 	@echo -n "create CICD app..." ; \
 	if resp=$$(echo $$CICD_APP_CREATE | curl -gsS -X POST $(APP_CREATE_URL) $(POST_CMD) -d @-) ; then \
 	  client_id=$$(echo $$resp | jq -r '.client_id') ; \
 	  client_secret=$$(echo $$resp | jq -r '.client_secret') ; \
-	  sed -i "s/SET_GITEA_CLIENT_ID_HERE/$$client_id/ ; s/SET_GITEA_CLIENT_SECRET_HERE/$$client_secret/ " $(CFG) ; \
+	  sed -i "s/^\(CICD_GITEA_CLIENT_ID=\).*/\1$$client_id/ ; s/^\(CICD_GITEA_CLIENT_KEY=\).*/\1$$client_secret/ " $(CFG) ; \
 	  echo " Done" ; \
 	else false ; fi
 	@echo "Gitea setup complete, do reup"
