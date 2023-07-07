@@ -19,9 +19,9 @@ NARRA_CLIENT_KEY   ?= SET_NARRA_CLIENT_SECRET_HERE
 #- Narra: internal config
 
 #- Key to sign narra token
-NARRA_SIGN_KEY     ?= $(shell openssl rand -hex 32; echo)
+NARRA_SIGN_KEY     ?= $(shell openssl rand -hex 16; echo)
 #- Key to crypt narra token
-NARRA_CRYPT_KEY    ?= $(shell openssl rand -hex 32; echo)
+NARRA_CRYPT_KEY    ?= $(shell openssl rand -hex 16; echo)
 #- Narra Docker image version
 NARRA_VER          ?= $(NARRA_VER0)
 
