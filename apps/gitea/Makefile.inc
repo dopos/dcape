@@ -140,8 +140,7 @@ GITEA_CREATE_TOKEN_URL = $(AUTH_SERVER)/api/v1/users/$(GITEA_ADMIN_NAME)/tokens
 GITEA_ORG_CREATE_URL = $(AUTH_SERVER)/api/v1/admin/users/$(GITEA_ADMIN_NAME)/orgs
 APP_CREATE_URL       = $(AUTH_SERVER)/api/v1/user/applications/oauth2
 
-
-
+# Create gitea admin user
 gitea-admin:
 	@$(MAKE) -s dc CMD="exec gitea su git -c 'gitea admin user create --admin --username $(GITEA_ADMIN_NAME) --password $(GITEA_ADMIN_PASS) --email $(GITEA_ADMIN_EMAIL)'"
 
@@ -170,11 +169,15 @@ define CICD_APP_CREATE
 }
 endef
 
-define POST_CMD
+define POST_CMD_PRE
  -H "Accept: application/json" \
  -H "Content-Type: application/json" \
- -H "Sudo: $(NARRA_GITEA_ORG)" \
  -H "Authorization: token $(TOKEN)"
+endef
+
+define POST_CMD
+ $(POST_CMD_PRE) \
+ -H "Sudo: $(NARRA_GITEA_ORG)"
 endef
 
 TOKEN_NAME ?= install
@@ -225,7 +228,7 @@ token-use:
 	@echo "Gitea org:   $(NARRA_GITEA_ORG)"
 	@echo "Token:       $(TOKEN)"
 	@echo -n "create org... " ; \
-	if resp=$$(echo $$GITEA_ORG_CREATE | curl -gsS -X POST $(GITEA_ORG_CREATE_URL) $(POST_CMD) -d @-) ; then \
+	if resp=$$(echo $$GITEA_ORG_CREATE | curl -gsS -X POST $(GITEA_ORG_CREATE_URL) $(POST_CMD_PRE) -d @-) ; then \
 	  if echo $$resp | jq -re '.id' > /dev/null ; then \
 	    echo "Org $(NARRA_GITEA_ORG): Done" ; \
 	  else \
