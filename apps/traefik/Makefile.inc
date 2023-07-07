@@ -77,9 +77,7 @@ $(DCAPE_VAR)/traefik/custom:
 	@mkdir -p $@
 
 $(DCAPE_VAR)/traefik/traefik.yml: apps/traefik/traefik.$(TRAEFIK_CONFIG_TAG).yml
-	@sed "s/=DCAPE_TAG=/$$DCAPE_TAG/g ; s/=DCAPE_DOMAIN=/$$DCAPE_DOMAIN/g ; \
-	  s/=TRAEFIK_RESOLVER=/$$TRAEFIK_RESOLVER/g ; s/=TRAEFIK_CA_SERVER=/$$TRAEFIK_CA_SERVER/g ;
-	  s/=TRAEFIK_EMAIL=/$$TRAEFIK_ACME_EMAIL/g" $<  > $@
+	@sed "s/=DCAPE_TAG=/$$DCAPE_TAG/g ; s/=DCAPE_DOMAIN=/$$DCAPE_DOMAIN/g ; s/=TRAEFIK_RESOLVER=/$$TRAEFIK_RESOLVER/g ; s/=TRAEFIK_CA_SERVER=/$$TRAEFIK_CA_SERVER/g ; s/=TRAEFIK_EMAIL=/$$TRAEFIK_ACME_EMAIL/g" $<  > $@
 
 $(DCAPE_VAR)/traefik/acme.json:
 	@touch $@
