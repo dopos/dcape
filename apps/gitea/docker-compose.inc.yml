@@ -33,6 +33,7 @@ services:
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
+      - /etc/ssl/certs:/etc/ssl/certs:ro
       - ./${DCAPE_VAR}/gitea:/data
       - ./${DCAPE_VAR}/gitea-app-data:/app/gitea/data
     healthcheck:
