@@ -142,5 +142,10 @@ apply:
 	@$(MAKE) -s dc CMD="up -d $(APPS_SYS)" || echo ""
 	@for f in $(shell echo $(APPS)) ; do $(MAKE) -s $${f}-apply ; done
 
+gitea-install:
+	@$(MAKE) -s dc CMD="up -d gitea" || echo ""
+	@$(MAKE) -s gitea-admin
+	@$(MAKE) -s gitea-setup
+
 ## do init..up steps via single command
-install: init apply gitea-setup up
+install: init apply gitea-install up
