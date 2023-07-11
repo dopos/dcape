@@ -1,5 +1,11 @@
+# dcape application Makefile
+# included by Makefile.app and Makefile.dcape
 
+SHELL             = /bin/bash
 CFG               ?= .env
+
+# User who runs DB_INIT_SQL and creates PGDATABASE_EXRA
+DB_ADMIN_USER    ?= postgres
 
 .PHONY: up reup down dc docker-wait db-create db-drop psql psql-local env-ls env-get env-set help
 
@@ -7,68 +13,9 @@ CFG               ?= .env
 ## Docker-compose commands
 #:
 
-ifeq ($(DCAPE_MODE),core)
-
-## (re)start container(s)
-up: CMD=up -d $(APPS)
-up: dc
-
-## restart container(s)
-reup: CMD=up --force-recreate -d $(APPS)
-reup: dc
-
-dc:
-	@>&2 echo "Running dc command: $(CMD)"
-	@>&2 echo "Dcape URL: $(DCAPE_SCHEME)://$(DCAPE_HOST)"
-	@>&2 echo "------------------------------------------"
-	@docker compose $(DC_ARG_SRC) \
-	  -p $$DCAPE_TAG --project-directory $$PWD \
-	  $(CMD)
-
-else
-
-up: CMD=up -d
-up: dc
-
-reup: CMD=up --force-recreate -d
-reup: dc
-
-dc:
-	docker compose -f $(DCAPE_ROOT)/apps/core/docker-compose.yml -f docker-compose.yml \
-  --project-directory $$PWD \
-  $(CMD)
-
-endif
-
 ## stop (and remove) container(s)
 down: CMD=down
 down: dc
-
-# ------------------------------------------------------------------------------
-# DB operations
-
-PGDATABASE      ?= $(APP_NAME)
-PGUSER          ?= $(APP_NAME)
-PGPASSWORD      ?= $(shell openssl rand -hex 16; echo)
-PG_DUMP_SOURCE  ?=
-
-ifeq ($(USE_DB),yes)
-
-define CONFIG_DB
-
-# ------------------------------------------------------------------------------
-# Database name
-PGDATABASE=$(PGDATABASE)
-# Database user name
-PGUSER=$(PGUSER)
-# Database user password
-PGPASSWORD=$(PGPASSWORD)
-# Database dump for import on create
-# Used as ${PG_DUMP_SOURCE}.{tar|tgz}
-PG_DUMP_SOURCE=$(PG_DUMP_SOURCE)
-
-endef
-endif
 
 # ------------------------------------------------------------------------------
 ## Database commands
@@ -77,7 +24,7 @@ endif
 # Wait for postgresql container start
 docker-wait:
 	@echo -n "Checking PG is ready..." ; \
-	until [[ `docker inspect -f "{{.State.Health.Status}}" $$PG_CONTAINER` == healthy ]] ; do sleep 1 ; echo -n "." ; done
+	until [[ `docker inspect -f "{{.State.Health.Status}}" $${DB_CONTAINER:?Must be set}` == healthy ]] ; do sleep 1 ; echo -n "." ; done
 	@echo "Ok"
 
 # Database import script
@@ -100,29 +47,40 @@ fi
 endef
 export IMPORT_SCRIPT
 
-## create database and user
-db-create: docker-wait
-	@echo "*** $@ ***" \
-	&& varname=$(NAME)_DB_PASS && pass=$${!varname} \
-	&& varname=$(NAME)_DB_TAG && dbname=$${!varname} \
-	&& docker exec -i $$PG_CONTAINER psql -U postgres -c "CREATE USER \"$$dbname\" WITH PASSWORD '$$pass';" 2> >(grep -v "already exists" >&2) || true \
-	&& docker exec -i $$PG_CONTAINER psql -U postgres -c "CREATE DATABASE \"$$dbname\" OWNER \"$$dbname\";" 2> >(grep -v "already exists" >&2) || db_exists=1 ; \
-	if [[ ! "$$db_exists" ]] && [[ "$(PG_SOURCE_SUFFIX)" ]] ; then \
-	    echo "$$IMPORT_SCRIPT" | docker exec -i $$PG_CONTAINER bash -s - $$dbname $$dbname $$pass $$dbname$(PG_SOURCE_SUFFIX) \
-	    && docker exec -i $$PG_CONTAINER psql -U postgres -c "COMMENT ON DATABASE \"$$dbname\" IS 'SOURCE $$dbname$(PG_SOURCE_SUFFIX)';" \
+.lib-db-create: docker-wait
+	@echo "Create db $$PGDATABASE for user $$PGUSER via $$DB_CONTAINER... with =$(DB_INIT_SQL)="
+	sql="CREATE USER \"$$PGUSER\" WITH PASSWORD '$$PGPASSWORD'" ; \
+	docker exec -i $$DB_CONTAINER psql -U postgres -c "$$sql" 2>&1 > .psql.log | grep -v "already exists" > /dev/null || true ; \
+	cat .psql.log ; \
+	docker exec -i $$DB_CONTAINER psql -U postgres -c "CREATE DATABASE \"$$PGDATABASE\" OWNER \"$$PGUSER\";" 2>&1 > .psql.log | grep  "already exists" > /dev/null || db_created=1 ; \
+	cat .psql.log ; rm .psql.log ; \
+	if [ "$$db_created" = "1" ] ; then \
+	  if [ "$$PG_DUMP_SOURCE" ] ; then \
+	    echo "*** db data load" ; \
+	    echo "$$IMPORT_SCRIPT" | docker exec -i $$DB_CONTAINER bash -s - $$PGDATABASE $$PGUSER $$PGPASSWORD $$PG_DUMP_SOURCE \
+	    && docker exec -i $$DB_CONTAINER psql -U postgres -c "COMMENT ON DATABASE \"$$PGDATABASE\" IS 'SOURCE $$PG_DUMP_SOURCE';" \
 	    || true ; \
+	  elif [[ "$(DB_INIT_SQL)" && -f "$(DB_INIT_SQL)" ]] ; then \
+	      echo "$(DB_INIT_SQL)  -i $$DB_CONTAINER psql -U $(DB_ADMIN_USER) -d $$PGDATABASE -vPGUSER=$$PGUSER" ; \
+	      cat $(DB_INIT_SQL) | docker exec -i $$DB_CONTAINER psql -U $(DB_ADMIN_USER) -d $$PGDATABASE -vPGUSER=$$PGUSER ; \
+	  fi ; \
+	  for pgdb in $$PGDATABASE_EXTRA ; do \
+	    echo "$$pgdb..." ; \
+	    docker exec -i $$DB_CONTAINER psql -U $(DB_ADMIN_USER) -c "CREATE DATABASE \"$$pgdb\" OWNER \"$$PGUSER\";" 2>&1 ; \
+	  done \
 	fi
 
-## drop database and user
-db-drop:
-	@echo "*** $@ ***" \
-	&& varname=$(NAME)_DB_TAG && dbname=$${!varname} \
-	&& docker exec -i $$PG_CONTAINER psql -U postgres -c "DROP DATABASE \"$$dbname\";" \
-	&& docker exec -i $$PG_CONTAINER psql -U postgres -c "DROP USER \"$$dbname\";"
+.lib-db-drop: docker-wait
+	@docker exec -it $$DB_CONTAINER psql -U postgres -c "DROP DATABASE \"$$PGDATABASE\";" || true
+	@for pgdb in $$PGDATABASE_EXTRA ; do \
+	    echo "$$pgdb..." ; \
+	    docker exec -it $$DB_CONTAINER psql -U postgres -c "DROP DATABASE \"$$pgdb\";" || true ; \
+	  done
+	@docker exec -it $$DB_CONTAINER psql -U postgres -c "DROP USER \"$$PGUSER\";" || true
 
 ## exec psql inside db container
-psql:
-	@docker exec -it $$PG_CONTAINER psql -U postgres
+psql: docker-wait
+	@docker exec -it $$DB_CONTAINER psql -U postgres
 
 ## run local psql
 ## (requires pg client installed)
@@ -152,6 +110,66 @@ env-set:
 	&& jq -R -sc ". | {\"code\":\"$(TAG)\",\"data\":.}" < $(TAG).env | \
 	  docker run --rm -i --network $${DCAPE_NET} $${DCAPE_TAG}_drone-compose curl -gsd @- $${ENFIST_URL}/tag_set > /dev/null
 
+# ------------------------------------------------------------------------------
+## OAuth2 setup
+#:
+
+OAUTH_APP_CREATE_URL = $(AUTH_URL)/api/v1/user/applications/oauth2
+OAUTH_ORG_CREATE_URL = $(AUTH_URL)/api/v1/admin/users/$(GITEA_ADMIN_NAME)/orgs
+
+
+define OAUTH_ORG_CREATE
+{
+  "username": "$(ORG)",
+  "visibility": "limited",
+  "repo_admin_change_team_access": true
+}
+endef
+
+define POST_CMD_PRE
+ -H "Accept: application/json" \
+ -H "Content-Type: application/json" \
+ -H "Authorization: token $(TOKEN)"
+endef
+
+define POST_CMD
+ $(POST_CMD_PRE) \
+ -H "Sudo: $(NARRA_GITEA_ORG)"
+endef
+
+## create VCS org via VCS API
+oauth2-org-create:
+	@echo -n "create org ($${ORG:?Must be set})... " ; \
+	echo "CMD: $(POST_CMD_PRE)" ; \
+	echo "URL: $(OAUTH_ORG_CREATE_URL)" ; \
+	echo "POST: $$OAUTH_ORG_CREATE" ; \
+	if resp=$$(echo $$OAUTH_ORG_CREATE | curl -gsS -X POST \
+	   $(OAUTH_ORG_CREATE_URL) $(POST_CMD_PRE) -d @-) ; then \
+	  if echo $$resp | jq -re '.id' > /dev/null ; then \
+	    echo "Org $(ORG): Done" ; \
+	  else \
+	    echo -n "ERROR: " ; \
+	    echo $$resp | jq -re '.message' ; \
+	  fi ; \
+	else false ; fi
+
+
+
+## create OAuth2 app via VCS API
+oauth2-app-create:
+	@echo -n "create OAuth2 app..." ; \
+	echo "CMD: $(POST_CMD)" ; \
+	echo "URL: $(OAUTH_APP_CREATE_URL)" ; \
+	echo "PWD: $$PWD" ; \
+	echo "CFG: $(CFG)" ; \
+	echo "POST: {\"name\": \"$(HOST)\", \"confidential_client\": true, \"redirect_uris\": [ \"$(DCAPE_SCHEME)://$(HOST)$(URL)\" ]}" ; \
+	if resp=$$(echo "{\"name\": \"$(HOST)\", \"confidential_client\": true, \"redirect_uris\": [ \"$(DCAPE_SCHEME)://$(HOST)$(URL)\" ]}" | curl -gsS -X POST $(OAUTH_APP_CREATE_URL) $(POST_CMD) -d @-) ; then \
+	  client_id=$$(echo $$resp | jq -r '.client_id') ; \
+	  client_secret=$$(echo $$resp | jq -r '.client_secret') ; \
+	  sed -i "s/\(_CLIENT_ID=\).*/\1$$client_id/ ; s/\(_CLIENT_KEY=\).*/\1$$client_secret/ " $(CFG) ; \
+	  sed -i "s/^\($(PREFIX)_CLIENT_ID=\).*/\1$$client_id/ ; s/^\($(PREFIX)_CLIENT_KEY=\).*/\1$$client_secret/ " ../../$(CFG) ; \
+	  echo " Done" ; \
+	else false ; fi
 
 # ------------------------------------------------------------------------------
 ## .env operations
@@ -160,14 +178,19 @@ env-set:
 # This code generates $(CFG).sample from Makefile vars with previous comment line(s)
 # See https://gist.github.com/LeKovr/2697fe02504d7c081b0bf79427c93db6
 
+make-info:
+	@echo Makefiles: $(MAKEFILE_LIST)
+	@echo Makegoals: $(MAKECMDGOALS)
+
 # Internal: generate config sample data
-.env.temp.mk:
+.env.temp.mk: Makefile
 	@echo "define CFVAR" > $@
 	@grep -A 1 -h "^#- " $(MAKEFILE_LIST) | grep -vE "^--" \
 	  | sed -E 's/^([^\n ]+)\ *\??=([^\n]*)$$/\1=$$(\1)\n/ ; s/^(#)-/\1/' >> $@
 	@echo "endef" >> $@
+	@echo "export CFVAR" >> $@
 
-ifneq ($(findstring $(MAKECMDGOALS),config config-force config-if $(CFG).sample),)
+ifneq ($(findstring $(MAKECMDGOALS),config config-force config-if $(CFG).sample $(CFG) install ),)
 include .env.temp.mk
 endif
 

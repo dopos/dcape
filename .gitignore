@@ -2,3 +2,4 @@
 .env.*
 var*
 /docker-compose.yml
+apps

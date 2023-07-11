@@ -1,0 +1,112 @@
+# dcape install makefile
+# this file used by dcape Makefile for `make install` only
+
+
+# Install variables
+# most of them used once and does not saved to .env
+
+
+# Token for client app registration
+# Local gitea server will be used if empty
+AUTH_TOKEN        ?=
+
+# External gitea URL
+# Required if AUTH_TOKEN is not empty
+# install will set to local url otherwise
+AUTH_URL          ?=
+
+# Enable ACME (Let's Encrypt) certificates: [no]|http|wild
+# http - use individual host cert
+# wild - use wildcard domain for DCAPE_DOMAIN
+ACME             ?= no
+
+# Enable powerdns on this host: [no]|yes|wild
+# yes - just setup and start
+# wild - use as wildcard domain nameserver
+DNS              ?= no
+
+DCAPE_DB_REPO_NAME      ?= postgres
+DCAPE_NS_REPO_NAME      ?= powerdns
+DCAPE_VCS_REPO_NAME     ?= gitea
+DCAPE_ROUTER_REPO_NAME  ?= traefik
+DCAPE_CICD_REPO_NAME    ?= woodpecker
+DCAPE_AUTH_REPO_NAME    ?= narra
+DCAPE_CONFIG_REPO_NAME  ?= enfist
+DCAPE_MANAGER_REPO_NAME ?= portainer
+
+DCAPE_REPO_BASE         ?= https://github.com/dopos/dcape-app-
+
+DCAPE_DB_REPO_URL       ?= $(DCAPE_REPO_BASE)$(DCAPE_DB_REPO_NAME)
+DCAPE_NS_REPO_URL       ?= $(DCAPE_REPO_BASE)$(DCAPE_NS_REPO_NAME)
+DCAPE_VCS_REPO_URL      ?= $(DCAPE_REPO_BASE)$(DCAPE_VCS_REPO_NAME)
+DCAPE_ROUTER_REPO_URL   ?= $(DCAPE_REPO_BASE)$(DCAPE_ROUTER_REPO_NAME)
+DCAPE_CICD_REPO_URL     ?= $(DCAPE_REPO_BASE)$(DCAPE_CICD_REPO_NAME)
+DCAPE_AUTH_REPO_URL     ?= $(DCAPE_REPO_BASE)$(DCAPE_AUTH_REPO_NAME)
+DCAPE_CONFIG_REPO_URL   ?= $(DCAPE_REPO_BASE)$(DCAPE_CONFIG_REPO_NAME)
+DCAPE_MANAGER_REPO_URL  ?= $(DCAPE_REPO_BASE)$(DCAPE_MANAGER_REPO_NAME)
+
+
+APPS_ALWAYS      ?= auth config cicd manager
+
+ifndef APPS
+  APPS += db
+
+  ifneq ($(DNS),no)
+    APPS += ns
+  endif
+
+  ifeq ($(ACME),no)
+    DCAPE_SCHEME := http
+  else
+    DCAPE_SCHEME := https
+  endif
+  APPS += router
+  ifndef AUTH_TOKEN
+    APPS += vcs
+    ifndef AUTH_URL
+      AUTH_URL := $(DCAPE_SCHEME)://git.$(DCAPE_DOMAIN)
+    endif
+  else
+    ifndef AUTH_URL
+      $(error AUTH_URL required if AUTH_TOKEN is set)
+    endif
+  endif
+  APPS += $(APPS_ALWAYS)
+endif
+
+$(DCAPE_VAR):
+	@mkdir -p $(DCAPE_VAR)
+
+# download apps and create all of .env
+init-all: $(CFG).sample $(DCAPE_VAR)
+	@cp $(CFG).sample $(CFG)
+	@for app in $(APPS); do \
+	  echo -n "Installing $$app"; \
+	  app_uc=$${app^^}; \
+	  varname=DCAPE_$${app_uc}_REPO_NAME && name=$${!varname} ; \
+	  varname=DCAPE_$${app_uc}_REPO_URL &&  url=$${!varname} ; \
+	  echo " with $$name from $$url..." ; \
+	  [ -d apps/$$name ] || git clone $$url apps/$$name ; \
+	  [ -e apps/_$$app ] || ln -s $$name apps/_$$app ; \
+	  pushd apps/$$name > /dev/null ; \
+	  [ -f $(CFG) ] || $(MAKE) -s config-if && $(MAKE) -s init ; \
+	  cat $(CFG) >> ../../$(CFG) ; \
+	  popd > /dev/null ; \
+	done
+
+setup-all: APPS_DIRS  = $(addprefix $(DCAPE_ROOT)/apps/_,$(APPS))
+setup-all: DC_SOURCES = $(addsuffix /docker-compose.inc.yml,$(APPS_DIRS))
+setup-all: docker-compose.yml
+	@for app in $(APPS); do \
+	  echo "Setting $$app up..."; \
+	  app_uc=$${app^^}; \
+	  varname=DCAPE_$${app_uc}_REPO_NAME && name=$${!varname} ; \
+	  varname=DCAPE_$${app_uc}_REPO_URL &&  url=$${!varname} ; \
+	  pushd apps/$$name > /dev/null ; \
+	    $(MAKE) -s setup APP_ROOT=$(DCAPE_ROOT)/apps/$$name ; \
+	  popd > /dev/null ; \
+	  [[ $$app == db ]] || $(MAKE) -s up-$$app ; \
+	done
+
+install: init-all setup-all ps
+	@echo "SCHEME: $(APPS) - $(DCAPE_SCHEME) - $$AUTH_URL"

@@ -1,40 +1,45 @@
 # dcape Makefile
+# used to control dcape stack
+
 SHELL             = /bin/bash
 CFG               = .env
 
 #- ******************************************************************************
 #- DCAPE: general config
 
-#- Enable local gitea on this host: [yes]|<URL>
-#- <URL> - external gitea URL
-GITEA            ?= yes
+#- dcape containers hostname domain
+DCAPE_DOMAIN     ?= dev.lan
 
-#- Enable powerdns on this host: [no]|yes|wild
-#- yes - just setup and start
-#- wild - use as wildcard domain nameserver
-DNS              ?= no
-
-#- Enable Let's Encrypt certificates: [no]|http|wild
-#- http - use individual host cert
-#- wild - use wildcard domain for DCAPE_DOMAIN
-ACME             ?= no
+#- dcape containers hostname domain
+DCAPE_ROOT       ?= $(PWD)
 
 #- container name prefix
 DCAPE_TAG        ?= dcape
 
-#- dcape containers hostname domain
-DCAPE_DOMAIN     ?= dev.lan
+#- CICD_ADMIN - CICD admin user
+#- GITEA_ADMIN_NAME - Gitea admin user name
+DCAPE_ADMIN_USER ?= dcapeadmin
+
+# VCS OAuth app owner
+DCAPE_ADMIN_ORG  ?= dcape
+
+#- dcape apps
+#- calculated by install
+#- used in make only
+APPS     ?=
+
+# internal makefile var
+DCAPE_STACK = yes
 
 #- ------------------------------------------------------------------------------
 #- DCAPE: internal config
 
+#- dcape services frontend hostname
+DCAPE_HOST         ?= $(DCAPE_DOMAIN)
 #- docker network name
 DCAPE_NET        ?= $(DCAPE_TAG)
 #- docker internal network name
 DCAPE_NET_INTRA  ?= $(DCAPE_TAG)_intra
-#- container(s) required for up in any case
-#- used in make only
-APPS             ?=
 #- create db cluster with this timezone
 #- (also used by containers)
 TZ               ?= $(shell cat /etc/timezone)
@@ -43,109 +48,48 @@ DCAPE_SUBNET     ?= 100.127.0.0/24
 #- docker intra network subnet
 DCAPE_SUBNET_INTRA ?= 100.127.255.0/24
 #- Deployment persistent storage, relative
-DCAPE_VAR        ?= var
+DCAPE_VAR        ?= $(DCAPE_ROOT)/var
 
-#- Dcape root
-DCAPE_ROOT       ?= $(PWD)
+#- (auto) http(s)
+DCAPE_SCHEME ?=
+#- gitea url
+AUTH_URL ?=
+#- db container
+DB_CONTAINER     ?= $(DCAPE_TAG)-db-1
 
 ENFIST_URL       ?= http://enfist:8080/rpc
-APPS_SYS         ?= db
-APPS_ALWAYS      ?= db traefik narra enfist cicd portainer
 
-CFG_BAK          ?= $(CFG).bak
-
-DCAPE_MODE        = core
-PG_CONTAINER     ?= $(DCAPE_TAG)-db-1
-
-# ------------------------------------------------------------------------------
+DCAPE_CORE = yes
 
 
-# ------------------------------------------------------------------------------
-
-# if exists - load old values
--include $(CFG_BAK)
-export
-
+-include $(CFG).bak
 -include $(CFG)
 export
 
-.PHONY: init apply install
-
 all: help
 
-# ------------------------------------------------------------------------------
-define CONFIG_DEF
-# ******************************************************************************
-# dcape extra config
-
-# Gitea host for auth
-AUTH_SERVER=$(AUTH_SERVER)
-
-# http if ACME=no, https otherwise
-DCAPE_SCHEME=$(DCAPE_SCHEME)
-endef
-export CONFIG_DEF
-
-
-ifndef APPS
-  ifneq ($(DNS),no)
-    APPS += powerdns
-  endif
-
-
-  ifeq ($(GITEA),yes)
-    APPS += gitea
-    AUTH_SERVER ?= $(DCAPE_SCHEME)://$(GITEA_HOST)
-  else
-    AUTH_SERVER ?= $(GITEA)
-  endif
-  APPS += $(APPS_ALWAYS)
+ifneq ($(findstring $(MAKECMDGOALS),install),)
+  include Makefile.install
 endif
 
-ifeq ($(ACME),no)
-DCAPE_SCHEME ?= http
-else
-DCAPE_SCHEME ?= https
-endif
+APPS_DIRS  = $(addprefix $(DCAPE_ROOT)/apps/_,$(APPS))
 
-# docker compose -f args
-DC_SOURCES        = $(shell find apps -maxdepth 3 -mindepth 2 -name docker-compose.inc.yml)
-DC_ARG_SRC        = $(addprefix -f ,$(DC_SOURCES))
+# make a list $APP -> -f apps/$APP/docker-compose.inc.yml
+DC_SOURCES = $(addsuffix /docker-compose.inc.yml,$(APPS_DIRS))
+DC_SRC_ARG = $(addprefix -f ,$(DC_SOURCES))
+
+# make a list $APP -> --env-file apps/$APP/.env
+DC_ENV_SOURCES = $(addsuffix /.env,$(APPS_DIRS))
+DC_ENV_ARG = $(addprefix --env-file ,$(DC_ENV_SOURCES))
+DC_INC = docker-compose.inc.yml
 
 
-# make a list $APP -> apps/$APP/Makefile.inc
-MK_DIRS = $(addprefix apps/,core db $(APPS))
-MK_SOURCES = $(addsuffix /Makefile.inc,$(MK_DIRS))
-
-include $(MK_SOURCES)
-
-# ------------------------------------------------------------------------------
-## dcape Setup
-#:
+include Makefile.dcape
 
 # create docker-compose image
 compose:
-	docker build -t ${DCAPE_TAG}-compose --build-arg DRONE_ROOT=${PWD}/apps/core  ./apps/core
+	docker build -t ${DCAPE_TAG}-compose --build-arg DCAPE_HOST_ROOT=${PWD} .
 
-## Initially create $(CFG) file with defaults
-init: $(DCAPE_VAR)
-	@echo "*** $@ $(APPS) ***"
-	@$(MAKE) -s config-if
-	@for f in $(shell echo $(APPS)) ; do echo $$f ; $(MAKE) -s $${f}-init ; done
+info-dcape:
+	@echo $(APPS)
 
-$(DCAPE_VAR):
-	@mkdir -p $(DCAPE_VAR)
-
-## Apply config to app files & db
-apply:
-	@echo "*** $@ $(APPS) ***"
-	@$(MAKE) -s dc CMD="up -d $(APPS_SYS)" || echo ""
-	@for f in $(shell echo $(APPS)) ; do $(MAKE) -s $${f}-apply ; done
-
-gitea-install:
-	@$(MAKE) -s dc CMD="up -d gitea" || echo ""
-	@$(MAKE) -s gitea-admin
-	@$(MAKE) -s gitea-setup
-
-## do init..up steps via single command
-install: init apply gitea-install up

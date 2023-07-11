@@ -1,11 +1,13 @@
 services:
   template:
+    # common part for any dcape core app
     restart: always
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
 
   template-traefik:
+    # common part for dcape core app with access from outside
     extends:
       service: template
     labels:

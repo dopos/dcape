@@ -20,4 +20,4 @@ networks:
       config:
         - subnet: ${DCAPE_SUBNET_INTRA}
 
-
+services:
