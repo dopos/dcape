@@ -109,7 +109,7 @@ DCAPE_SCHEME ?= https
 endif
 
 # docker compose -f args
-DC_SOURCES        = $(shell find apps -maxdepth 3 -mindepth 2 -name docker-compose.inc.yml -printf '%p\n')
+DC_SOURCES        = $(shell find apps -maxdepth 3 -mindepth 2 -name docker-compose.inc.yml)
 DC_ARG_SRC        = $(addprefix -f ,$(DC_SOURCES))
 
 
