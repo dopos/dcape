@@ -50,6 +50,18 @@ dc: $(ENV) docker-compose.yml
 	@>&2 echo "------------------------------------------"
 	docker compose -p $$DCAPE_TAG --project-directory $(DCAPE_ROOT) $(CMD)
 
+## run git on every app
+## sample: make git-status-s
+git-%:
+	@echo "*** $@ ***" ; \
+	x=$@ ; cmdd=$${x#git-} ; cmd=$${cmdd/-/ -} ; \
+	for app in $(APPS); do \
+	  echo "Run '$$cmd' in $$app..."; \
+	  pushd apps/_$$app > /dev/null ; \
+	    git $$cmd ; \
+	  popd > /dev/null ; \
+	done
+
 ## create database and user
 db-create: docker-wait
 	@echo "*** $@ ***" \
