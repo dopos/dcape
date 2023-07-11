@@ -10,7 +10,7 @@ CFG               = .env
 #- dcape containers hostname domain
 DCAPE_DOMAIN     ?= dev.lan
 
-#- dcape containers hostname domain
+#- dcape root directory
 DCAPE_ROOT       ?= $(PWD)
 
 #- container name prefix
@@ -35,7 +35,7 @@ DCAPE_STACK = yes
 #- DCAPE: internal config
 
 #- dcape services frontend hostname
-DCAPE_HOST         ?= $(DCAPE_DOMAIN)
+DCAPE_HOST       ?= $(DCAPE_DOMAIN)
 #- docker network name
 DCAPE_NET        ?= $(DCAPE_TAG)
 #- docker internal network name
@@ -51,16 +51,16 @@ DCAPE_SUBNET_INTRA ?= 100.127.255.0/24
 DCAPE_VAR        ?= $(DCAPE_ROOT)/var
 
 #- (auto) http(s)
-DCAPE_SCHEME ?=
+DCAPE_SCHEME     ?=
 #- gitea url
-AUTH_URL ?=
+AUTH_URL         ?=
 #- db container
 DB_CONTAINER     ?= $(DCAPE_TAG)-db-1
 
 ENFIST_URL       ?= http://enfist:8080/rpc
 
-DCAPE_CORE = yes
-
+DCAPE_CORE        = yes
+#- ------------------------------------------------------------------------------
 
 -include $(CFG).bak
 -include $(CFG)
@@ -68,7 +68,7 @@ export
 
 all: help
 
-ifneq ($(findstring $(MAKECMDGOALS),install),)
+ifneq ($(findstring $(MAKECMDGOALS),install oauth-again),)
   include Makefile.install
 endif
 

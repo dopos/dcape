@@ -216,6 +216,11 @@ config-if: config
 ## Other
 #:
 
+.stamp:
+	@echo -n $(shell date --rfc-3339=seconds) ' '
+	@echo -ne $$_{1..40}'\b='
+	@echo ' '$(msg)
+
 ## delete unused docker images w/o name
 ## (you should use portainer for this)
 clean-noname:

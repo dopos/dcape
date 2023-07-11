@@ -108,5 +108,15 @@ setup-all: docker-compose.yml
 	  [[ $$app == db ]] || $(MAKE) -s up-$$app ; \
 	done
 
-install: init-all setup-all ps
-	@echo "SCHEME: $(APPS) - $(DCAPE_SCHEME) - $$AUTH_URL"
+install: msg = Dcape install start
+install: .stamp init-all setup-all ps
+	@$(MAKE) -s .stamp msg="Dcape install done"
+
+# Repeat OAuth apps linking
+oauth-again:
+	@pushd apps/_vcs  > /dev/null ; $(MAKE) -s token ; popd > /dev/null
+	@pushd apps/_auth > /dev/null ; $(MAKE) -s oauth2-create ; popd > /dev/null
+	@$(MAKE) -s reup-auth
+	@pushd apps/_cicd > /dev/null ; $(MAKE) -s oauth2-create ; popd > /dev/null
+	@$(MAKE) -s reup-cicd
+# TODO: token-delete
