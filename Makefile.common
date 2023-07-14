@@ -48,7 +48,7 @@ endef
 export IMPORT_SCRIPT
 
 .lib-db-create: docker-wait
-	@echo "Create db $$PGDATABASE for user $$PGUSER via $$DB_CONTAINER... with =$(DB_INIT_SQL)="
+	@echo "Create db $$PGDATABASE for user $$PGUSER via $$DB_CONTAINER..."
 	sql="CREATE USER \"$$PGUSER\" WITH PASSWORD '$$PGPASSWORD'" ; \
 	docker exec -i $$DB_CONTAINER psql -U postgres -c "$$sql" 2>&1 > .psql.log | grep -v "already exists" > /dev/null || true ; \
 	cat .psql.log ; \
@@ -61,7 +61,6 @@ export IMPORT_SCRIPT
 	    && docker exec -i $$DB_CONTAINER psql -U postgres -c "COMMENT ON DATABASE \"$$PGDATABASE\" IS 'SOURCE $$PG_DUMP_SOURCE';" \
 	    || true ; \
 	  elif [[ "$(DB_INIT_SQL)" && -f "$(DB_INIT_SQL)" ]] ; then \
-	      echo "$(DB_INIT_SQL)  -i $$DB_CONTAINER psql -U $(DB_ADMIN_USER) -d $$PGDATABASE -vPGUSER=$$PGUSER" ; \
 	      cat $(DB_INIT_SQL) | docker exec -i $$DB_CONTAINER psql -U $(DB_ADMIN_USER) -d $$PGDATABASE -vPGUSER=$$PGUSER ; \
 	  fi ; \
 	  for pgdb in $$PGDATABASE_EXTRA ; do \
@@ -115,7 +114,7 @@ env-set:
 #:
 
 OAUTH_APP_CREATE_URL = $(AUTH_URL)/api/v1/user/applications/oauth2
-OAUTH_ORG_CREATE_URL = $(AUTH_URL)/api/v1/admin/users/$(GITEA_ADMIN_NAME)/orgs
+OAUTH_ORG_CREATE_URL = $(AUTH_URL)/api/v1/admin/users/$(DCAPE_ADMIN_USER)/orgs
 
 
 define OAUTH_ORG_CREATE
@@ -134,15 +133,12 @@ endef
 
 define POST_CMD
  $(POST_CMD_PRE) \
- -H "Sudo: $(NARRA_GITEA_ORG)"
+ -H "Sudo: $(DCAPE_ADMIN_ORG)"
 endef
 
 ## create VCS org via VCS API
 oauth2-org-create:
 	@echo -n "create org ($${ORG:?Must be set})... " ; \
-	echo "CMD: $(POST_CMD_PRE)" ; \
-	echo "URL: $(OAUTH_ORG_CREATE_URL)" ; \
-	echo "POST: $$OAUTH_ORG_CREATE" ; \
 	if resp=$$(echo $$OAUTH_ORG_CREATE | curl -gsS -X POST \
 	   $(OAUTH_ORG_CREATE_URL) $(POST_CMD_PRE) -d @-) ; then \
 	  if echo $$resp | jq -re '.id' > /dev/null ; then \
@@ -153,16 +149,9 @@ oauth2-org-create:
 	  fi ; \
 	else false ; fi
 
-
-
 ## create OAuth2 app via VCS API
 oauth2-app-create:
-	@echo -n "create OAuth2 app..." ; \
-	echo "CMD: $(POST_CMD)" ; \
-	echo "URL: $(OAUTH_APP_CREATE_URL)" ; \
-	echo "PWD: $$PWD" ; \
-	echo "CFG: $(CFG)" ; \
-	echo "POST: {\"name\": \"$(HOST)\", \"confidential_client\": true, \"redirect_uris\": [ \"$(DCAPE_SCHEME)://$(HOST)$(URL)\" ]}" ; \
+	@echo -n "create OAuth2 app for $(PREFIX)..." ; \
 	if resp=$$(echo "{\"name\": \"$(HOST)\", \"confidential_client\": true, \"redirect_uris\": [ \"$(DCAPE_SCHEME)://$(HOST)$(URL)\" ]}" | curl -gsS -X POST $(OAUTH_APP_CREATE_URL) $(POST_CMD) -d @-) ; then \
 	  client_id=$$(echo $$resp | jq -r '.client_id') ; \
 	  client_secret=$$(echo $$resp | jq -r '.client_secret') ; \
@@ -177,10 +166,6 @@ oauth2-app-create:
 
 # This code generates $(CFG).sample from Makefile vars with previous comment line(s)
 # See https://gist.github.com/LeKovr/2697fe02504d7c081b0bf79427c93db6
-
-make-info:
-	@echo Makefiles: $(MAKEFILE_LIST)
-	@echo Makegoals: $(MAKECMDGOALS)
 
 # Internal: generate config sample data
 .env.temp.mk: Makefile

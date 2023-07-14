@@ -1,11 +1,12 @@
 # dcape application Makefile
 # included by separate dcape app
 
-SHELL             = /bin/bash
+SHELL          = /bin/bash
+CFG           ?= .env
 
-USE_DB       ?= no
-USE_TLS      ?= no
-TLS_RESOLVER ?= letsEncrypt
+USE_DB        ?= no
+USE_TLS       ?= no
+TLS_RESOLVER  ?= letsEncrypt
 
 USE_DCAPE_DC  ?= yes
 DCAPE_DC_YML  ?= $(DCAPE_ROOT)/docker-compose.app.yml
@@ -13,12 +14,14 @@ DCAPE_DC_YML  ?= $(DCAPE_ROOT)/docker-compose.app.yml
 mkfile_path := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
 include $(mkfile_path)/Makefile.common
 
+# ------------------------------------------------------------------------------
+# Docker operations
+
 up: CMD=up -d
 up: dc
 
 reup: CMD=up --force-recreate -d
 reup: dc
-
 
 dc:
 	@[ "$(DCAPE_DC_USED)" != yes ] || args="-f $(DCAPE_DC_YML)" ; \

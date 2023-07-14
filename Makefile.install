@@ -79,7 +79,6 @@ $(DCAPE_VAR):
 
 # download apps and create all of .env
 init-all: $(CFG).sample $(DCAPE_VAR)
-	@cp $(CFG).sample $(CFG)
 	@for app in $(APPS); do \
 	  echo -n "Installing $$app"; \
 	  app_uc=$${app^^}; \
@@ -88,24 +87,29 @@ init-all: $(CFG).sample $(DCAPE_VAR)
 	  echo " with $$name from $$url..." ; \
 	  [ -d apps/$$name ] || git clone $$url apps/$$name ; \
 	  [ -e apps/_$$app ] || ln -s $$name apps/_$$app ; \
+	  [ ! -f apps/$$name/.env ] || continue ; \
 	  pushd apps/$$name > /dev/null ; \
-	  [ -f $(CFG) ] || $(MAKE) -s config-if && $(MAKE) -s init ; \
-	  cat $(CFG) >> ../../$(CFG) ; \
+	    $(MAKE) -s config-if CFG=.env && $(MAKE) -s init CFG=.env ; \
 	  popd > /dev/null ; \
 	done
+	@mv $(CFG).sample $(CFG)
+	$(MAKE) -s .env
 
 setup-all: APPS_DIRS  = $(addprefix $(DCAPE_ROOT)/apps/_,$(APPS))
 setup-all: DC_SOURCES = $(addsuffix /docker-compose.inc.yml,$(APPS_DIRS))
-setup-all: docker-compose.yml
+setup-all: .env docker-compose.yml
 	@for app in $(APPS); do \
 	  echo "Setting $$app up..."; \
 	  app_uc=$${app^^}; \
 	  varname=DCAPE_$${app_uc}_REPO_NAME && name=$${!varname} ; \
 	  varname=DCAPE_$${app_uc}_REPO_URL &&  url=$${!varname} ; \
 	  pushd apps/$$name > /dev/null ; \
-	    $(MAKE) -s setup APP_ROOT=$(DCAPE_ROOT)/apps/$$name ; \
+	    $(MAKE) -s .setup-before-up APP_ROOT=$(DCAPE_ROOT)/apps/$$name CFG=.env ; \
 	  popd > /dev/null ; \
-	  [[ $$app == db ]] || $(MAKE) -s up-$$app ; \
+	  $(MAKE) -s up-$$app ; \
+	  pushd apps/$$name > /dev/null ; \
+	    $(MAKE) -s .setup-after-up APP_ROOT=$(DCAPE_ROOT)/apps/$$name CFG=.env || true ; \
+	  popd > /dev/null ; \
 	done
 
 install: msg = Dcape install start
