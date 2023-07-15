@@ -7,7 +7,8 @@ ENV DOCKERFILE_VERSION  20230710
 RUN apk add --no-cache curl git make jq
 
 #COPY setup /usr/local/bin/
-COPY Makefile.common Makefile.app  docker-compose.app.yml /opt/dcape
+RUN mkdir /opt/dcape
+COPY Makefile.common Makefile.app  docker-compose.app.yml /opt/dcape/
 ENV DCAPE_ROOT /opt/dcape
 
 ARG DCAPE_HOST_ROOT
