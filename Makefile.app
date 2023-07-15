@@ -121,7 +121,7 @@ endif
 	fi ; \
 	echo -n "Setup config for $${ENFIST_TAG}... " ; \
 	if curl -gs http://config:8080/rpc/tag_vars?code=$$ENFIST_TAG | jq -er '.' > $(CFG) then \
-	  echo "Ok" ; \
+	  echo "Ok"  \
 	else \
 	  rm $(CFG) # here will be `null` if tag does not exists ; \
 	  echo "NOT FOUND" ; \
