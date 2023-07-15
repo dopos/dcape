@@ -120,8 +120,8 @@ endif
 	  ENFIST_TAG=$${CI_REPO_OWNER}--$${CI_REPO_NAME}--$${CI_COMMIT_BRANCH} ; \
 	fi ; \
 	echo -n "Setup config for $${ENFIST_TAG}... " ; \
-	if curl -gs http://config:8080/rpc/tag_vars?code=$$ENFIST_TAG | jq -er '.' > $(CFG) then \
-	  echo "Ok"  \
+	if curl -gs http://config:8080/rpc/tag_vars?code=$$ENFIST_TAG | jq -er '.' > $(CFG) ; then \
+	  echo "Ok" ; \
 	else \
 	  rm $(CFG) # here will be `null` if tag does not exists ; \
 	  echo "NOT FOUND" ; \
@@ -129,5 +129,5 @@ endif
 	  jq -R -sc ". | {\"code\":\"$$ENFIST_TAG.sample\",\"data\":.}" < $(CFG).sample \
 	    | curl -gsd \@- "http://config:8080/rpc/tag_set" | jq '.' ; \
 	  echo "Edit config $$ENFIST_TAG.sample and rename it to $$ENFIST_TAG" ; \
-	  exit 1  \
+	  exit 1 ; \
 	fi
