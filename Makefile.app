@@ -4,12 +4,39 @@
 SHELL          = /bin/bash
 CFG           ?= .env
 
-USE_DB        ?= no
+DOT       := .
+DASH      := -
+
+
+# website host, value must be set in app Makefile
+APP_SITE        ?= app.dev.lan
+
+#- Unique traefik router name
+#- Container name prefix
+#- Value is optional, derived from APP_SITE if empty
+APP_TAG         ?= $(subst $(DOT),$(DASH),$(APP_SITE))
+
+#- Enable tls in traefik
+#- Values: [false]|true
 USE_TLS       ?= no
+
+USE_DB        ?= no
+
+#- tls cert resolver
 TLS_RESOLVER  ?= letsEncrypt
+
+#- dc root
+DCAPE_ROOT         ?= /opt/dcape
+
+#- dcape stack traefik tag
+DCAPE_TAG       ?= dcape
+
+#- dcape stack network
+DCAPE_NET       ?= $(DCAPE_TAG)
 
 USE_DCAPE_DC  ?= yes
 DCAPE_DC_YML  ?= $(DCAPE_ROOT)/docker-compose.app.yml
+
 
 mkfile_path := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
 include $(mkfile_path)/Makefile.common
@@ -24,7 +51,7 @@ reup: CMD=up --force-recreate -d
 reup: dc
 
 dc:
-	@[ "$(DCAPE_DC_USED)" != yes ] || args="-f $(DCAPE_DC_YML)" ; \
+	@[ "$(USE_DCAPE_DC)" != yes ] || args="-f $(DCAPE_DC_YML)" ; \
 	docker compose $$args -f docker-compose.yml \
 	  --project-directory $$PWD \
 	  $(CMD)
@@ -74,3 +101,30 @@ ifeq ($(USE_DB),yes)
 else
 	@echo "Target '$@' is disabled in app config"
 endif
+
+## run app by CICD
+## use inside .woodpecker.yml only
+.default-deploy: .config-link
+	@echo "*** $@ ***" ; \
+	[ "$$USE_DB" != "yes" ] || $(MAKE) -s db-create ; \
+	if [ ! -z "$$PERSIST_FILES" ] ; then \
+	  . setup root $(SETUP_ROOT_OPTS) ; \
+	  cp -r $$PERSIST_FILES $$APP_ROOT ; \
+	fi ; \
+	[ "$(DCAPE_DC_USED)" != true ] || args="-f $(DCAPE_DC_YML)" ; \
+	  docker compose -p $(APP_TAG) --env-file $(CFG) $$args -f $(DCAPE_APP_DC_YML) up -d --force-recreate
+
+.config-link:
+	@if [ -z "$$ENFIST_TAG" ]; then
+	  ENFIST_TAG=$${CI_REPO_OWNER}--$${CI_REPO_NAME}--$${CI_COMMIT_BRANCH} ; \
+	fi ; \
+	echo -n "Setup config for $${ENFIST_TAG}... " ; \
+	curl -gs http://enfist:8080/rpc/tag_vars?code=$$ENFIST_TAG | jq -er '.' > $$CFG || {  \
+	  rm $$CFG # here will be `null` if tag does not exists ; \
+	  echo "WARNING: Config $$ENFIST_TAG not found. Preparing $$ENFIST_TAG.sample" ; \
+	  [ -f $${CFG}.sample ] || $(MAKE) -s $${CFG}.sample ; \
+	  jq -R -sc ". | {\"code\":\"$$ENFIST_TAG.sample\",\"data\":.}" < $${CFG}.sample \
+	    | curl -gsd @-  "http://enfist:8080/rpc/tag_set" | jq '.' ; \
+	  echo "Edit config $$ENFIST_TAG.sample and rename it to $$ENFIST_TAG" ; \
+	  exit 1 ; \
+	}
