@@ -36,7 +36,7 @@ DCAPE_NET       ?= $(DCAPE_TAG)
 
 USE_DCAPE_DC  ?= yes
 DCAPE_DC_YML  ?= $(DCAPE_ROOT)/docker-compose.app.yml
-
+DCAPE_APP_DC_YML ?= docker-compose.yml
 
 mkfile_path := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
 include $(mkfile_path)/Makefile.common
@@ -52,7 +52,7 @@ reup: dc
 
 dc:
 	@[ "$(USE_DCAPE_DC)" != yes ] || args="-f $(DCAPE_DC_YML)" ; \
-	docker compose $$args -f docker-compose.yml \
+	docker compose $$args -f $(DCAPE_APP_DC_YML) \
 	  --project-directory $$PWD \
 	  $(CMD)
 
@@ -108,23 +108,24 @@ endif
 	@echo "*** $@ ***" ; \
 	[ "$$USE_DB" != "yes" ] || $(MAKE) -s db-create ; \
 	if [ ! -z "$$PERSIST_FILES" ] ; then \
-	  . setup root $(SETUP_ROOT_OPTS) ; \
-	  cp -r $$PERSIST_FILES $$APP_ROOT ; \
+	  echo "Persist not implemented" ; \
+	 # . setup root $(SETUP_ROOT_OPTS) ; \
+	 # cp -r $$PERSIST_FILES $$APP_ROOT ; \
 	fi ; \
-	[ "$(DCAPE_DC_USED)" != true ] || args="-f $(DCAPE_DC_YML)" ; \
-	  docker compose -p $(APP_TAG) --env-file $(CFG) $$args -f $(DCAPE_APP_DC_YML) up -d --force-recreate
+	[ "$(USE_DCAPE_DC)" != yes ] || args="-f $(DCAPE_DC_YML)" ; \
+	docker compose -p $(APP_TAG) --env-file $(CFG) $$args -f $(DCAPE_APP_DC_YML) up -d --force-recreate
 
 .config-link:
 	@if [ -z "$$ENFIST_TAG" ]; then \
 	  ENFIST_TAG=$${CI_REPO_OWNER}--$${CI_REPO_NAME}--$${CI_COMMIT_BRANCH} ; \
 	fi ; \
 	echo -n "Setup config for $${ENFIST_TAG}... " ; \
-	curl -gs http://enfist:8080/rpc/tag_vars?code=$$ENFIST_TAG | jq -er '.' > $(CFG) || {  \
+	curl -gs http://config:8080/rpc/tag_vars?code=$$ENFIST_TAG | jq -er '.' > $(CFG) && echo "Ok" || { \
 	  rm $(CFG) # here will be `null` if tag does not exists ; \
-	  echo "WARNING: Config $$ENFIST_TAG not found. Preparing $$ENFIST_TAG.sample" ; \
+	  echo "NOT FOUND" ; \
 	  [ -f $(CFG).sample ] || $(MAKE) -s $(CFG).sample ; \
 	  jq -R -sc ". | {\"code\":\"$$ENFIST_TAG.sample\",\"data\":.}" < $(CFG).sample \
-	    | curl -gsd @-  "http://enfist:8080/rpc/tag_set" | jq '.' ; \
+	    | curl -gsd \@- "http://config:8080/rpc/tag_set" | jq '.' ; \
 	  echo "Edit config $$ENFIST_TAG.sample and rename it to $$ENFIST_TAG" ; \
 	  exit 1 ; \
 	}
