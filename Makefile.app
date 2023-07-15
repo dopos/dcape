@@ -115,15 +115,15 @@ endif
 	  docker compose -p $(APP_TAG) --env-file $(CFG) $$args -f $(DCAPE_APP_DC_YML) up -d --force-recreate
 
 .config-link:
-	@if [ -z "$$ENFIST_TAG" ]; then
+	@if [ -z "$$ENFIST_TAG" ]; then \
 	  ENFIST_TAG=$${CI_REPO_OWNER}--$${CI_REPO_NAME}--$${CI_COMMIT_BRANCH} ; \
 	fi ; \
 	echo -n "Setup config for $${ENFIST_TAG}... " ; \
-	curl -gs http://enfist:8080/rpc/tag_vars?code=$$ENFIST_TAG | jq -er '.' > $$CFG || {  \
-	  rm $$CFG # here will be `null` if tag does not exists ; \
+	curl -gs http://enfist:8080/rpc/tag_vars?code=$$ENFIST_TAG | jq -er '.' > $(CFG) || {  \
+	  rm $(CFG) # here will be `null` if tag does not exists ; \
 	  echo "WARNING: Config $$ENFIST_TAG not found. Preparing $$ENFIST_TAG.sample" ; \
-	  [ -f $${CFG}.sample ] || $(MAKE) -s $${CFG}.sample ; \
-	  jq -R -sc ". | {\"code\":\"$$ENFIST_TAG.sample\",\"data\":.}" < $${CFG}.sample \
+	  [ -f $(CFG).sample ] || $(MAKE) -s $(CFG).sample ; \
+	  jq -R -sc ". | {\"code\":\"$$ENFIST_TAG.sample\",\"data\":.}" < $(CFG).sample \
 	    | curl -gsd @-  "http://enfist:8080/rpc/tag_set" | jq '.' ; \
 	  echo "Edit config $$ENFIST_TAG.sample and rename it to $$ENFIST_TAG" ; \
 	  exit 1 ; \

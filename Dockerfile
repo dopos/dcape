@@ -4,7 +4,7 @@ FROM docker:24.0.3
 
 ENV DOCKERFILE_VERSION  20230710
 
-RUN apk add --no-cache curl git make jq
+RUN apk add --no-cache curl git make jq bash
 
 #COPY setup /usr/local/bin/
 RUN mkdir /opt/dcape
