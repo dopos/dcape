@@ -8,8 +8,8 @@ DOT       := .
 DASH      := -
 
 
-# website host, value must be set in app Makefile
-APP_SITE        ?= app.dev.lan
+#- Site host
+APP_SITE        ?= $(APP_NAME).$(DCAPE_DOMAIN)
 
 #- Unique traefik router name
 #- Container name prefix
@@ -18,8 +18,10 @@ APP_TAG         ?= $(subst $(DOT),$(DASH),$(APP_SITE))
 
 #- Enable tls in traefik
 #- Values: [false]|true
-USE_TLS       ?= no
+USE_TLS       ?= false
 
+#- Attach database
+#- Values: [no]|yes
 USE_DB        ?= no
 
 #- tls cert resolver
@@ -39,7 +41,18 @@ DCAPE_DC_YML  ?= $(DCAPE_ROOT)/docker-compose.app.yml
 DCAPE_APP_DC_YML ?= docker-compose.yml
 
 mkfile_path := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
+
+-include $(mkfile_path)/.dcape.env
 include $(mkfile_path)/Makefile.common
+
+# ------------------------------------------------------------------------------
+
+# used in URL generation
+ifeq ($(USE_TLS),false)
+HTTP_PROTO ?= http
+else
+HTTP_PROTO ?= https
+endif
 
 # ------------------------------------------------------------------------------
 # Docker operations
@@ -82,6 +95,7 @@ PG_DUMP_SOURCE=$(PG_DUMP_SOURCE)
 
 endef
 endif
+export CONFIG_DB
 
 ## create database and user
 db-create:
@@ -120,7 +134,7 @@ endif
 	  ENFIST_TAG=$${CI_REPO_OWNER}--$${CI_REPO_NAME}--$${CI_COMMIT_BRANCH} ; \
 	fi ; \
 	echo -n "Setup config for $${ENFIST_TAG}... " ; \
-	if curl -gs http://config:8080/rpc/tag_vars?code=$$ENFIST_TAG | jq -er '.' > $(CFG) ; then \
+	if curl -gsS "http://config:8080/rpc/tag_vars?code=$$ENFIST_TAG" | jq -er '.' > $(CFG) ; then \
 	  echo "Ok" ; \
 	else \
 	  rm $(CFG) # here will be `null` if tag does not exists ; \
