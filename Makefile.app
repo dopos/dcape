@@ -129,5 +129,5 @@ endif
 	  jq -R -sc ". | {\"code\":\"$$ENFIST_TAG.sample\",\"data\":.}" < $(CFG).sample \
 	    | curl -gsd \@- "http://config:8080/rpc/tag_set" | jq '.' ; \
 	  echo "Edit config $$ENFIST_TAG.sample and rename it to $$ENFIST_TAG" ; \
-	  exit 1 ; \
+	  exit 1  \
 	fi
