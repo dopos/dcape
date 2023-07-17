@@ -136,6 +136,8 @@ define POST_CMD
  -H "Sudo: $(DCAPE_ADMIN_ORG)"
 endef
 
+ifeq ($(TOKEN),)
+
 ## create VCS org via VCS API
 oauth2-org-create:
 	@echo -n "create org ($${ORG:?Must be set})... " ; \
@@ -160,6 +162,17 @@ oauth2-app-create:
 	  echo " Done" ; \
 	else false ; fi
 
+else
+
+oauth2-org-create:
+	@echo "create org: TOKEN must be set"
+	@echo "Try to refresh it: cd apps/gitea && make token DCAPE_CORE=yes"
+
+oauth2-app-create:
+	@echo "create OAuth2 app for $(PREFIX): TOKEN must be set"
+	@echo "Try to refresh it: cd apps/gitea && make token DCAPE_CORE=yes"
+
+endif
 # ------------------------------------------------------------------------------
 ## .env operations
 #:
