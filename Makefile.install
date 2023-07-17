@@ -119,8 +119,8 @@ install: .stamp init-all setup-all ps
 # Repeat OAuth apps linking
 oauth-again:
 	@pushd apps/_vcs  > /dev/null ; $(MAKE) -s token ; popd > /dev/null
-	@pushd apps/_auth > /dev/null ; $(MAKE) -s oauth2-create ; popd > /dev/null
+	@pushd apps/_auth > /dev/null ; $(MAKE) -s oauth2-create CFG=.env ; popd > /dev/null
 	@$(MAKE) -s reup-auth
-	@pushd apps/_cicd > /dev/null ; $(MAKE) -s oauth2-create ; popd > /dev/null
+	@pushd apps/_cicd > /dev/null ; $(MAKE) -s oauth2-create CFG=.env ; popd > /dev/null
 	@$(MAKE) -s reup-cicd
 # TODO: token-delete
