@@ -7,6 +7,7 @@ CFG           ?= .env
 DOT       := .
 DASH      := -
 
+APP_NAME           ?= $(lastword $(subst /, ,$(PWD)))
 
 #- Site host
 APP_SITE        ?= $(APP_NAME).$(DCAPE_DOMAIN)
@@ -24,8 +25,8 @@ USE_TLS       ?= false
 #- Values: [no]|yes
 USE_DB        ?= no
 
-#- tls cert resolver
-TLS_RESOLVER  ?= letsEncrypt
+# tls cert resolver
+#TLS_RESOLVER  ?= default
 
 #- dc root
 DCAPE_ROOT         ?= /opt/dcape
