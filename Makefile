@@ -64,6 +64,9 @@ AUTH_URL         ?=
 #- db container
 DB_CONTAINER     ?= $(DCAPE_TAG)-db-1
 
+#- gitea allowed webhook host
+CICD_HOST              ?= cicd.$(DCAPE_DOMAIN)
+
 ENFIST_URL       ?= http://enfist:8080/rpc
 
 DCAPE_CORE        = yes
@@ -92,6 +95,8 @@ DC_INC = docker-compose.inc.yml
 
 
 include Makefile.dcape
+
+.PHONY: $(CFG)
 
 # create docker-compose image
 build-compose:
