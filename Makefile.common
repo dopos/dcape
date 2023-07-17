@@ -136,7 +136,7 @@ define POST_CMD
  -H "Sudo: $(DCAPE_ADMIN_ORG)"
 endef
 
-ifeq ($(TOKEN),)
+ifneq ($(TOKEN),)
 
 ## create VCS org via VCS API
 oauth2-org-create:
