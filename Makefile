@@ -95,7 +95,7 @@ include Makefile.dcape
 
 # create docker-compose image
 build-compose:
-	docker build -t ${DCAPE_TAG}-compose --build-arg DCAPE_HOST_ROOT=${PWD} .
+	docker build -t $(DCAPE_TAG)-compose --build-arg DCAPE_HOST_ROOT=$(PWD) .
 
 # build .env file from app templates
 .env: $(DC_ENV_SOURCES)
