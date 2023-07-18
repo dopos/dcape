@@ -80,7 +80,7 @@ Creating mysite-dev-lan_www_1 ... done
 
 * компьютер с linux, docker и установленными [зависимостями](#зависимости)
 * зарегистрированный в DNS для ip этого компьютера wildcard-домен (например - `*.srv1.domain.tld`)
-* `$TOKEN` для gitea API
+* `$AUTH_TOKEN` для gitea API
 
 ```bash
 MY_HOST=${MY_HOST:-srv1.domain.tld}
@@ -99,7 +99,7 @@ $ make install ACME=wild DNS=wild DCAPE_DOMAIN=${MY_HOST} \
   DRONE_ADMIN=${GITEA_USER} \
   PDNS_LISTEN=${MY_IP}:53 \
   GITEA=${GITEA_URL} \
-  TOKEN=${$TOKEN}
+  AUTH_TOKEN=${$TOKEN}
 ..
 Running dc command: up -d db powerdns traefik narra enfist drone portainer
 Dcape URL: https://srv1.domain.tld

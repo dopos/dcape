@@ -159,7 +159,7 @@ endef
 define POST_CMD_PRE
  -H "Accept: application/json" \
  -H "Content-Type: application/json" \
- -H "Authorization: token $(TOKEN)"
+ -H "Authorization: token $(AUTH_TOKEN)"
 endef
 
 define POST_CMD
@@ -167,7 +167,7 @@ define POST_CMD
  -H "Sudo: $(DCAPE_ADMIN_ORG)"
 endef
 
-ifneq ($(TOKEN),)
+ifneq ($(AUTH_TOKEN),)
 
 ## create VCS org via VCS API
 oauth2-org-create:
@@ -196,11 +196,11 @@ oauth2-app-create:
 else
 
 oauth2-org-create:
-	@echo "create org: TOKEN must be set"
+	@echo "create org: AUTH_TOKEN must be set"
 	@echo "Try to refresh it: cd apps/gitea && make token DCAPE_STACK=yes"
 
 oauth2-app-create:
-	@echo "create OAuth2 app for $(PREFIX): TOKEN must be set"
+	@echo "create OAuth2 app for $(PREFIX): AUTH_TOKEN must be set"
 	@echo "Try to refresh it: cd apps/gitea && make token DCAPE_STACK=yes"
 
 endif
