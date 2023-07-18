@@ -153,3 +153,7 @@ git-%:
 	    git $$cmd ; \
 	  popd > /dev/null ; \
 	done
+
+## exec psql inside db container
+psql:
+	@docker compose exec db psql -U postgres

@@ -23,17 +23,20 @@ db-drop:
 	&& echo "Drop db ($$NAME) $$dbname..." ; \
 	$(MAKE) -s .lib-db-drop PGUSER=$$dbname PGDATABASE=$$dbname
 
-## exec psql inside db container
-psql: docker-wait
-	@echo "*** $@ ***" \
-	&& varname=$${NAME:?Must be set}_DB_TAG && dbname=$${!varname}  \
-	docker compose exec -T db psql -d $$dbname -U $$dbname
+## exec psql inside db container from apps/*/
+## Example: make psql-docker DCAPE_STACK=yes
+psql-docker:
+	@varname=$${NAME}_DB_TAG && dbname=$${!varname} ; \
+	[[ $$dbname ]] || dbname=postgres ; \
+	echo "psql for $$dbname" ; \
+	docker exec -it $${DB_CONTAINER:?Must be set} psql -d $$dbname -U $$dbname
 
-## drop database and user
+## run local psql from apps/*/
+## Example: make psql-local DCAPE_STACK=yes PGPORT=5433
 psql-local:
-	@echo "*** $@ ***" \
-	&& varname=$${NAME:?Must be set}_DB_PASS && pass=$${!varname} \
-	&& varname=$${NAME:?Must be set}_DB_TAG && dbname=$${!varname}  \
+	@varname=$${NAME:?Must be set}_DB_PASS && pass=$${!varname} \
+	&& varname=$${NAME}_DB_TAG && dbname=$${!varname} ; \
+	echo "*** $@:$$dbname ***" ; \
 	$(MAKE) -s .lib-db-psql PGUSER=$$dbname PGDATABASE=$$dbname PGPASSWORD=$$pass
 
 # called in app Makefile to run dcape stack commands
