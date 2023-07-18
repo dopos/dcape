@@ -25,8 +25,8 @@ USE_TLS       ?= false
 #- Values: [no]|yes
 USE_DB        ?= no
 
-# tls cert resolver
-#TLS_RESOLVER  ?= default
+#- Add user account data to config
+ADD_USER      ?= no
 
 #- dc root
 DCAPE_ROOT         ?= /opt/dcape
@@ -73,31 +73,6 @@ dc:
 # ------------------------------------------------------------------------------
 # DB operations
 
-PGDATABASE      ?= $(APP_NAME)
-PGUSER          ?= $(APP_NAME)
-PGPASSWORD      ?= $(shell openssl rand -hex 16; echo)
-PG_DUMP_SOURCE  ?=
-
-
-ifeq ($(USE_DB),yes)
-
-define CONFIG_DB
-
-# ------------------------------------------------------------------------------
-# Database name
-PGDATABASE=$(PGDATABASE)
-# Database user name
-PGUSER=$(PGUSER)
-# Database user password
-PGPASSWORD=$(PGPASSWORD)
-# Database dump for import on create
-# Used as ${PG_DUMP_SOURCE}.{tar|tgz}
-PG_DUMP_SOURCE=$(PG_DUMP_SOURCE)
-
-endef
-endif
-export CONFIG_DB
-
 ## create database and user
 db-create:
 ifeq ($(USE_DB),yes)
@@ -107,12 +82,28 @@ else
 	@echo "Target '$@' is disabled in app config"
 endif
 
-
 ## drop database and user
 db-drop:
 ifeq ($(USE_DB),yes)
 	@echo "*** $@ ***"
 	$(MAKE) -s .lib-db-drop
+else
+	@echo "Target '$@' is disabled in app config"
+endif
+
+## exec psql inside db container
+psql: docker-wait
+ifeq ($(USE_DB),yes)
+	@echo "*** $@ ***"
+	@docker exec -it $${DB_CONTAINER:?Must be set} psql -d $$PGDATABASE -U $$PGUSER
+else
+	@echo "Target '$@' is disabled in app config"
+endif
+
+psql-local:
+ifeq ($(USE_DB),yes)
+	@echo "*** $@ ***"
+	$(MAKE) -s .lib-db-psql
 else
 	@echo "Target '$@' is disabled in app config"
 endif

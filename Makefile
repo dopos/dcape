@@ -68,8 +68,6 @@ DB_CONTAINER     ?= $(DCAPE_TAG)-db-1
 CICD_HOST              ?= cicd.$(DCAPE_DOMAIN)
 
 ENFIST_URL       ?= http://enfist:8080/rpc
-
-DCAPE_CORE        = yes
 #- ------------------------------------------------------------------------------
 
 -include $(CFG).bak
