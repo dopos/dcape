@@ -147,7 +147,7 @@ reup: dc
 git-%:
 	@echo "*** $@ ***" ; \
 	x=$@ ; cmdd=$${x#git-} ; cmd=$${cmdd/-/ -} ; \
-	for app in $(APPS); do \
+	for app in $${APPS:?Must be set} ; do \
 	  echo "Run '$$cmd' in $$app..."; \
 	  pushd apps/_$$app > /dev/null ; \
 	    git $$cmd ; \
