@@ -27,7 +27,7 @@ db-drop:
 psql: docker-wait
 	@echo "*** $@ ***" \
 	&& varname=$${NAME:?Must be set}_DB_TAG && dbname=$${!varname}  \
-	@docker compose exec -T db psql -d $$dbname -U $$dbname
+	docker compose exec -T db psql -d $$dbname -U $$dbname
 
 ## drop database and user
 psql-local:
