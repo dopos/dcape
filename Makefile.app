@@ -37,14 +37,18 @@ DCAPE_TAG       ?= dcape
 #- dcape stack network
 DCAPE_NET       ?= $(DCAPE_TAG)
 
+# Docker compose project name (container name prefix)
+PROJECT_NAME  ?= $(APP_TAG)
+
 USE_DCAPE_DC  ?= yes
 DCAPE_DC_YML  ?= $(DCAPE_ROOT)/docker-compose.app.yml
 DCAPE_APP_DC_YML ?= docker-compose.yml
 
-mkfile_path := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
+all: help
 
--include $(mkfile_path)/.dcape.env
-include $(mkfile_path)/Makefile.common
+DCAPE_ROOT ?= $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
+-include $(DCAPE_ROOT)/.dcape.env
+include $(DCAPE_ROOT)/Makefile.common
 
 # ------------------------------------------------------------------------------
 
@@ -56,22 +60,39 @@ HTTP_PROTO ?= https
 endif
 
 # ------------------------------------------------------------------------------
-# Docker operations
+## Docker operations
+#:
 
+## (re)start container(s)
 up: CMD=up -d
 up: dc
 
+## restart container
 reup: CMD=up --force-recreate -d
 reup: dc
+
+## stop (and remove) container(s)
+#down: CMD=down
+down: CMD=rm -f -s
+down: dc
+
+## Build docker image
+docker-build: CMD=build --no-cache app
+docker-build: dc
+
+## Remove docker image & temp files
+docker-clean:
+	[ "$$(docker images -q $(DC_IMAGE) 2> /dev/null)" = "" ] || docker rmi $(DC_IMAGE)
 
 dc:
 	@[ "$(USE_DCAPE_DC)" != yes ] || args="-f $(DCAPE_DC_YML)" ; \
 	docker compose $$args -f $(DCAPE_APP_DC_YML) \
-	  --project-directory $$PWD \
+	  -p $(PROJECT_NAME) --project-directory $$PWD \
 	  $(CMD)
 
 # ------------------------------------------------------------------------------
-# DB operations
+## DB operations
+#:
 
 ## create database and user
 db-create:
@@ -100,6 +121,7 @@ else
 	@echo "Target '$@' is disabled in app config"
 endif
 
+## run local psql
 psql-local:
 ifeq ($(USE_DB),yes)
 	@echo "*** $@ ***"
@@ -107,6 +129,10 @@ ifeq ($(USE_DB),yes)
 else
 	@echo "Target '$@' is disabled in app config"
 endif
+
+# ------------------------------------------------------------------------------
+## CI/CD operations
+#:
 
 ## run app by CICD
 ## use inside .woodpecker.yml only
@@ -121,6 +147,8 @@ endif
 	[ "$(USE_DCAPE_DC)" != yes ] || args="-f $(DCAPE_DC_YML)" ; \
 	docker compose -p $(APP_TAG) --env-file $(CFG) $$args -f $(DCAPE_APP_DC_YML) up -d --force-recreate
 
+## setup .env by CICD
+## use inside .woodpecker.yml only
 .config-link:
 	@if [ -z "$$ENFIST_TAG" ]; then \
 	  ENFIST_TAG=$${CI_REPO_OWNER}--$${CI_REPO_NAME}--$${CI_COMMIT_BRANCH} ; \

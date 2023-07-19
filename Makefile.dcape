@@ -1,12 +1,13 @@
 # dcape application Makefile
 # included by dcape app inside dcapr
 
-SHELL  = /bin/bash
-DC_INC = docker-compose.inc.yml
+SHELL       = /bin/bash
 
-mkfile_path := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
--include $(mkfile_path)/.dcape.env
-include $(mkfile_path)/Makefile.common
+DCAPE_ROOT ?= $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
+-include $(DCAPE_ROOT)/.dcape.env
+include $(DCAPE_ROOT)/Makefile.common
+
+# ------------------------------------------------------------------------------
 
 ## create database and user
 db-create: docker-wait

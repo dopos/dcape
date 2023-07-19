@@ -46,18 +46,6 @@ USER_PASS=$(USER_PASS)
 
 endef
 
-# ------------------------------------------------------------------------------
-## Docker-compose commands
-#:
-
-## stop (and remove) container(s)
-down: CMD=down
-down: dc
-
-# ------------------------------------------------------------------------------
-## Database commands
-#:
-
 # Wait for postgresql container start
 docker-wait:
 	@echo -n "Checking PG is ready..." ; \

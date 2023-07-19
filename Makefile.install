@@ -1,10 +1,10 @@
 # dcape install makefile
-# this file used by dcape Makefile for `make install` only
+# this file used by dcape Makefile for `make install` and `make oauth-again` only
 
+# ------------------------------------------------------------------------------
 
 # Install variables
 # most of them used once and does not saved to .env
-
 
 # Token for client app registration
 # Local gitea server will be used if empty
@@ -45,8 +45,9 @@ DCAPE_AUTH_REPO_URL     ?= $(DCAPE_REPO_BASE)$(DCAPE_AUTH_REPO_NAME)
 DCAPE_CONFIG_REPO_URL   ?= $(DCAPE_REPO_BASE)$(DCAPE_CONFIG_REPO_NAME)
 DCAPE_MANAGER_REPO_URL  ?= $(DCAPE_REPO_BASE)$(DCAPE_MANAGER_REPO_NAME)
 
+APPS_ALWAYS             ?= auth config cicd manager
 
-APPS_ALWAYS      ?= auth config cicd manager
+# ------------------------------------------------------------------------------
 
 ifndef APPS
   APPS += db
@@ -74,6 +75,8 @@ ifndef APPS
   APPS += $(APPS_ALWAYS)
 endif
 
+# ------------------------------------------------------------------------------
+
 $(DCAPE_VAR):
 	@mkdir -p $(DCAPE_VAR)
 
@@ -95,6 +98,7 @@ init-all: $(CFG).sample $(DCAPE_VAR)
 	@mv $(CFG).sample $(CFG)
 	$(MAKE) -s .env
 
+# Setup and run dcape apps
 setup-all: APPS_DIRS  = $(addprefix $(DCAPE_ROOT)/apps/_,$(APPS))
 setup-all: DC_SOURCES = $(addsuffix /docker-compose.inc.yml,$(APPS_DIRS))
 setup-all: .env docker-compose.yml
@@ -112,6 +116,7 @@ setup-all: .env docker-compose.yml
 	  popd > /dev/null ; \
 	done
 
+# Install dcape
 install: msg = Dcape install start
 install: .stamp init-all setup-all ps
 	@$(MAKE) -s .stamp msg="Dcape install done"
