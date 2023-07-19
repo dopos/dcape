@@ -72,9 +72,10 @@ reup: CMD=up --force-recreate -d
 reup: dc
 
 ## stop (and remove) container(s)
-#down: CMD=down
 down: CMD=rm -f -s
 down: dc
+
+#down: CMD=down
 
 ## Build docker image
 docker-build: CMD=build --no-cache app
