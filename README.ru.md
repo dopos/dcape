@@ -119,8 +119,87 @@ Creating dcape_enfist_1        ... done
 
 Все готово - сервер `srv1.domain.tld` готов к деплою приложений, интерфейсы приложений **dcape** доступны по адресу `https://srv1.domain.tld`.
 
+## Использование
+
+dcape Makefile. Application environment commands
+
+### Git commands
+
+#### git-%
+
+run git for every app.
+sample:
+```
+make git-status-s
+```
+
+### Docker-compose commands
+
+```
+    build-compose   create docker-compose image 
+    ps              show stack containers 
+    up              (re)start container(s) 
+    up-%            start container 
+    reup-%          restart container 
+    reup            restart container(s) 
+    down            stop (and remove) container(s) 
+```
+
+### Database commands
+
+```
+    psql            exec psql inside db container 
+    db-create       create database and user 
+    db-drop         drop database and user 
+    psql-docker     exec psql inside db container from apps/*/ Example: make psql-docker DCAPE_STACK=yes
+    psql-local      run local psql from apps/*/ Example: make psql-local DCAPE_STACK=yes PGPORT=5433
+```
+
+### App config storage commands
+
+```
+    env-get         get env tag from store, `make env-get TAG=app--config--tag` 
+    env-ls          list env tags in store 
+    env-set         set env tag in store, `make env-set TAG=app--config--tag` 
+```
+
+### OAuth2 setup
+
+```
+    oauth2-org-create create VCS org via VCS API 
+    oauth2-app-create create OAuth2 app via VCS API 
+```
+
+### .env operations
+
+```
+    config          generate sample config 
+    config-force    generate sample config and rename it to .env 
+    config-if       generate sample config and rename it to .env if not exists 
+```
+
+### Other
+
+```
+    clean-noname    delete unused docker images w/o name (you should use portainer for this)
+    clean-volume    delete docker dangling volumes (you should use portainer for this)
+    help            list Makefile targets (this is default target)
+```
+
+## Переменные
+
+| Имя | По умолчанию | Описание |
+| --- | ------------ | -------- |
+| DCAPE_DOMAIN | dev.lan | dcape containers hostname domain |
+| DCAPE_ROOT | $(PWD) | dcape root directory |
+| DCAPE_TAG | dcape | container name prefix |
+| DCAPE_ADMIN_USER | dcapeadmin | CICD_ADMIN - CICD admin user<br>GITEA_ADMIN_NAME - Gitea admin user name |
+| DCAPE_ADMIN_ORG | dcape | VCS OAuth app owner group<br>* NARRA_GITEA_ORG - user group with access to auth protected resources<br>* config oauth app owner<br>* CICD oauth app owner |
+| APPS | - | dcape apps<br>calculated by install<br>used in make only |
+
+
 ## Лицензия
 
 The MIT License (MIT), see [LICENSE](LICENSE).
 
-Copyright (c) 2017-2021 Алексей Коврижкин <lekovr+dopos@gmail.com>
+Copyright (c) 2017-2023 Алексей Коврижкин <lekovr+dopos@gmail.com>
