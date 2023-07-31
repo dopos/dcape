@@ -127,11 +127,6 @@ git-%:
 	  popd > /dev/null ; \
 	done
 
-## print config var
-## make echo-gitea-admin-pass
-echo-%:
-	@x=$@ ; x1=$${x#echo-} ; x2=$${x1//-/_} ; name=$${x2^^} ; val=$${!name} ; echo $$val
-
 # ------------------------------------------------------------------------------
 ## Docker-compose commands
 #:
