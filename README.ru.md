@@ -51,7 +51,7 @@
 * собственную настройку приложения (БД, первичные данные)
 * настройку взаимодействия (адреса для запросов, ключи доступа)
 
-В максимальном варианте процесс настройки всего комплекса приложений включает задание значений для ~90 параметров. В **dcape** это количество [уменьшено до 3х](#install-full).
+В максимальном варианте процесс настройки всего комплекса приложений включает задание значений для ~90 параметров. В **dcape** это количество [уменьшено до 3х](#install-full) для некоторых конфигураций.
 
 Примерную схему взаимодействий между приложениями можно посмотреть [тут](charts.md#arch)
 
@@ -59,7 +59,9 @@
 
 См. [dopos.github.io/dcape](https://dopos.github.io/dcape)
 
-## Зависимости {: #requirements }
+<a name="requirements"></a>
+
+## Зависимости
 
 * [linux](https://ubuntu.com/download) + `sudo apt -y install git make sed curl jq вшп`
 * [docker](https://docs.docker.com/engine/install/ubuntu/) + `sudo apt -y install docker-compose-plugin`
@@ -101,6 +103,7 @@ Creating mysite-dev-lan_www_1 ... done
 * зарегистрированный в DNS для ip этого компьютера wildcard-домен (например - `*.srv1.domain.tld`)
 
 <a name="install-full"></a>
+
 #### Конфигурация с локальным gitea
 
 ```bash
