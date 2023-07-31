@@ -1,13 +1,13 @@
 <p align="center">
-  <a href="README.md#readme">English</a> |
-  <span>Pусский</span>
+  <span>Pусский</span> |
+  <a href="README.md#readme">English</a>
 </p>
 
 ---
 
 # dopos/dcape
 
-> Среда управления docker-приложениями
+> Деплой приложений с docker-compose и make
 
 [![GitHub Release][1]][2]
 ![GitHub code size in bytes][3]
@@ -19,7 +19,7 @@
 [4]: https://img.shields.io/github/license/dopos/dcape.svg
 [5]: LICENSE
 
-[Dcape](https://github.com/dopos/dcape) - это инструмент создания окружения (среды) для развёртывания [docker](https://www.docker.com/)-приложений по технологии [GitOps](https://www.gitops.tech/), который с помощью [make](https://www.gnu.org/software/make/) и [docker-compose](https://docs.docker.com/compose/), позволяет решить следующие задачи:
+[Dcape](https://github.com/dopos/dcape) - это инструмент для развёртывания [docker](https://www.docker.com/)-приложений по технологии [GitOps](https://www.gitops.tech/), который с помощью [make](https://www.gnu.org/software/make/) и [docker-compose](https://docs.docker.com/compose/), позволяет решить следующие задачи:
 
 * командами `make up` запускать приложения, использующие
   * **общий порт** (например 80)
@@ -30,27 +30,39 @@
 * обслуживать работу с letsencrypt сертификатами **wildcard-доменов**
 * **управлять инфраструктурой docker**
 
+**Dcape** представляет собой набор **Makefile** и настроек, позволяющий подготовить и развернуть на сервере комплекс согласованных между собой приложений.
+
+**Dcape** не является постоянно работающим сервисом.
+
 ## Приложения
 
-Для решения этих задач в **dcape** используются docker-образы следующих приложений:
+Для решения поставленных задач могут быть использованы docker-образы следующих приложений:
 
 * **общий порт**  - [traefik](https://traefik.io/)
   * **БД** - [postgresql](https://www.postgresql.org)
-* **удаленно разворачивать приложения** - [drone](https://github.com/drone) (на каждом компьютере) и на каком-то одном - [gitea](https://gitea.io/) (или аналог)
+* **удаленно разворачивать приложения** - [Woodpecker CI](https://woodpecker-ci.org/) (на каждом компьютере) и на каком-то одном - [gitea](https://gitea.io/) (или аналог)
 * **управлять конфигурациями** - [enfist](https://github.com/apisite/app-enfist)
 * **ограничивать доступ** - [narra](https://github.com/dopos/narra), в качестве группы пользователей используется организация [gitea](https://gitea.io/)
 * **wildcard-домены** - [powerdns](https://www.powerdns.com/)
 * **управлять инфраструктурой docker** - [portainer](https://portainer.io/)
 
+Все эти приложения распространяются независимо от **dcape** и могут быть развернуты самостоятельно.
+При этом, в процессе деплоя необходимо выполнить
+* собственную настройку приложения (БД, первичные данные)
+* настройку взаимодействия (адреса для запросов, ключи доступа)
+
+В максимальном варианте процесс настройки всего комплекса приложений включает задание значений для ~90 параметров. В **dcape** это количество [уменьшено до 3х](#install-full).
+
+Примерную схему взаимодействий между приложениями можно посмотреть [тут](charts.md#arch)
+
 ## Документация
 
 См. [dopos.github.io/dcape](https://dopos.github.io/dcape)
 
-## Зависимости
+## Зависимости {#requirements}
 
-* [linux](https://ubuntu.com/download)
-* [docker](https://docs.docker.com/engine/install/ubuntu/)
-* `sudo apt -y install git make sed curl jq`
+* [linux](https://ubuntu.com/download) + `sudo apt -y install git make sed curl jq вшп`
+* [docker](https://docs.docker.com/engine/install/ubuntu/) + `sudo apt -y install docker-compose-plugin`
 
 ## Примеры использования
 
@@ -64,34 +76,58 @@
 #### Пример для статического сайта и nginx
 
 ```bash
-$ git clone -b v2 --single-branch --depth 1 https://github.com/dopos/dcape-app-nginx-sample.git
+$ git clone https://github.com/dopos/dcape-app-nginx-sample.git
 ..
 $ cd dcape-app-nginx-sample
-$ make init up APP_SITE=mysite.dev.lan
+$ make config-if
+... <edit .env>
+$ make up
 ..
 Creating mysite-dev-lan_www_1 ... done
 ```
 
 Все готово - `http://mysite.dev.lan/` и `http://www.mysite.dev.lan/` запущены.
 
-### Установка dcape без gitea
+### Запуск приложения удаленно
+
+* [Диаграмма первичного развертывания](charts.md#install-app-1st-deploy)
+* [Диаграмма обновления приложения](charts.md#update)
+
+### Установка dcape
 
 Требования:
 
-* компьютер с linux, docker и установленными [зависимостями](#зависимости)
+* компьютер с linux, docker и установленными [зависимостями](#requirements)
 * зарегистрированный в DNS для ip этого компьютера wildcard-домен (например - `*.srv1.domain.tld`)
+
+#### Конфигурация с локальным gitea {#install-full}
+
+```bash
+MY_HOST=demo.dcape.ru
+MY_IP=${MY_IP:-192.168.23.10}
+LE_ADMIN=admin@dcape.ru
+
+$ git clone https://github.com/dopos/dcape.git
+$ cd dcape
+$ make install ACME=wild DNS=wild DCAPE_DOMAIN=${MY_HOST} \
+  TRAEFIK_ACME_EMAIL=${LE_ADMIN} PDNS_LISTEN=${MY_IP}:53
+```
+
+#### Конфигурация с удаленным gitea
+
+Дополнительные требования для регистрации приложений на удаленном gitea
+
 * `$AUTH_TOKEN` для gitea API
+
 
 ```bash
 MY_HOST=${MY_HOST:-srv1.domain.tld}
-MY_IP=${MY_IP:-192.168.23.10}
 LE_ADMIN=${LE_ADMIN:-admin@domain.tld}
 GITEA_URL=${GITEA_URL:-https://git.domain.tld}
 GITEA_ORG=${GITEA_ORG:-dcape}
 GITEA_USER=${GITEA_USER:-dcapeadmin}
 
-$ git clone -b v2 --single-branch --depth 1 https://github.com/dopos/dcape.git
-..
+$ git clone https://github.com/dopos/dcape.git
 $ cd dcape
 $ make install ACME=wild DNS=wild DCAPE_DOMAIN=${MY_HOST} \
   TRAEFIK_ACME_EMAIL=${LE_ADMIN} \
@@ -99,29 +135,14 @@ $ make install ACME=wild DNS=wild DCAPE_DOMAIN=${MY_HOST} \
   DRONE_ADMIN=${GITEA_USER} \
   PDNS_LISTEN=${MY_IP}:53 \
   GITEA=${GITEA_URL} \
-  AUTH_TOKEN=${$TOKEN}
-..
-Running dc command: up -d db powerdns traefik narra enfist drone portainer
-Dcape URL: https://srv1.domain.tld
-------------------------------------------
-Creating network "dcape" with driver "bridge"
-Creating dcape_narra_1         ... done
-Creating dcape_db_1            ... done
-Creating dcape_drone-compose_1 ... done
-Creating dcape_portainer_1     ... done
-Creating dcape_traefik_1       ... done
-Creating dcape_drone-rd_1      ... done
-Creating dcape_drone_1         ... done
-Creating dcape_powerdns_1      ... done
-Creating dcape_enfist_1        ... done
-
+  AUTH_TOKEN=${AUTH_TOKEN}
 ```
 
 Все готово - сервер `srv1.domain.tld` готов к деплою приложений, интерфейсы приложений **dcape** доступны по адресу `https://srv1.domain.tld`.
 
 ## Использование
 
-dcape Makefile. Application environment commands
+Команды(targets) Makefile. Актуальный список доступен по команде `make[ help]`
 
 ### Git commands
 
