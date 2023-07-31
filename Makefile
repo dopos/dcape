@@ -70,6 +70,11 @@ DB_CONTAINER     ?= $(DCAPE_TAG)-db-1
 CICD_HOST              ?= cicd.$(DCAPE_DOMAIN)
 
 ENFIST_URL       ?= http://enfist:8080/rpc
+
+# helpers, use: make echo-dcape-version
+DCAPE_VERSION    ?= $(shell git describe --tags --always)
+DCAPE_RELEASE    ?= $(shell git describe --tags --abbrev=0 --always)
+
 #- ------------------------------------------------------------------------------
 
 -include $(CFG_BAK)
@@ -92,7 +97,6 @@ DC_SRC_ARG = $(addprefix -f ,$(DC_SOURCES))
 DC_ENV_SOURCES = .dcape.env $(addsuffix /.env,$(APPS_DIRS))
 DC_ENV_ARG = $(addprefix --env-file ,$(DC_ENV_SOURCES))
 DC_INC = docker-compose.inc.yml
-
 
 include Makefile.dcape
 
