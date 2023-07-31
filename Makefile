@@ -115,8 +115,8 @@ docker-compose.yml: $(DC_INC) $(DC_SOURCES)
 ## Git commands
 #:
 
-## run git for every app
-## sample: make git-status-s
+## run git for every app.
+## Sample: make git-status-s
 git-%:
 	@echo "*** $@ ***" ; \
 	x=$@ ; cmdd=$${x#git-} ; cmd=$${cmdd/-/ -} ; \
@@ -125,6 +125,7 @@ git-%:
 	  pushd apps/_$$app > /dev/null ; \
 	    git $$cmd ; \
 	  popd > /dev/null ; \
+	  echo "---" ; \
 	done
 
 # ------------------------------------------------------------------------------

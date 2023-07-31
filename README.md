@@ -78,14 +78,11 @@
 #### Пример для статического сайта и nginx
 
 ```bash
-$ git clone https://github.com/dopos/dcape-app-nginx-sample.git
-..
-$ cd dcape-app-nginx-sample
-$ make config-if
-... <edit .env>
-$ make up
-..
-Creating mysite-dev-lan_www_1 ... done
+git clone https://github.com/dopos/dcape-app-nginx-sample.git
+cd dcape-app-nginx-sample
+make config-if
+# <edit .env>
+make up
 ```
 
 Все готово - `http://mysite.dev.lan/` и `http://www.mysite.dev.lan/` запущены.
@@ -111,10 +108,11 @@ MY_HOST=demo.dcape.ru
 MY_IP=${MY_IP:-192.168.23.10}
 LE_ADMIN=admin@dcape.ru
 
-$ git clone https://github.com/dopos/dcape.git
-$ cd dcape
-$ make install ACME=wild DNS=wild DCAPE_DOMAIN=${MY_HOST} \
+git clone https://github.com/dopos/dcape.git
+cd dcape
+make install ACME=wild DNS=wild DCAPE_DOMAIN=${MY_HOST} \
   TRAEFIK_ACME_EMAIL=${LE_ADMIN} PDNS_LISTEN=${MY_IP}:53
+make echo-gitea-admin-pass
 ```
 
 #### Конфигурация с удаленным gitea
@@ -131,31 +129,28 @@ GITEA_URL=${GITEA_URL:-https://git.domain.tld}
 GITEA_ORG=${GITEA_ORG:-dcape}
 GITEA_USER=${GITEA_USER:-dcapeadmin}
 
-$ git clone https://github.com/dopos/dcape.git
-$ cd dcape
-$ make install ACME=wild DNS=wild DCAPE_DOMAIN=${MY_HOST} \
+git clone https://github.com/dopos/dcape.git
+cd dcape
+make install ACME=wild DNS=wild DCAPE_DOMAIN=${MY_HOST} \
   TRAEFIK_ACME_EMAIL=${LE_ADMIN} \
   NARRA_GITEA_ORG=${GITEA_ORG} \
   DRONE_ADMIN=${GITEA_USER} \
   PDNS_LISTEN=${MY_IP}:53 \
   GITEA=${GITEA_URL} \
   AUTH_TOKEN=${AUTH_TOKEN}
+make echo-gitea-admin-pass
 ```
 
 Все готово - сервер `srv1.domain.tld` готов к деплою приложений, интерфейсы приложений **dcape** доступны по адресу `https://srv1.domain.tld`.
 
 ## Использование
 
-Команды(targets) Makefile. Актуальный список доступен по команде `make[ help]`
+Команды (targets) Makefile. Актуальный список: `make[ help]`.
 
 ### Git commands
 
-#### git-%
-
-run git for every app.
-sample:
 ```
-make git-status-s
+    git-%           run git for every app. Sample: make git-status-s
 ```
 
 ### Docker-compose commands
@@ -206,6 +201,7 @@ make git-status-s
 ### Other
 
 ```
+    echo-%          print config var. Sample: make echo-gitea-admin-pass
     clean-noname    delete unused docker images w/o name (you should use portainer for this)
     clean-volume    delete docker dangling volumes (you should use portainer for this)
     help            list Makefile targets (this is default target)
