@@ -3,7 +3,7 @@
 ## Arch
 
 ```mermaid
-%%{init: {"theme": "neutral","flowchart": {"defaultRenderer": "elk", "curve": "linear"}} }%%
+%%{init: {"flowchart": {"defaultRenderer": "elk", "curve": "linear"}} }%%
 flowchart TD
   subgraph web[Internet]
     wc[Web client]
@@ -69,7 +69,7 @@ TODO: скринкаст окна браузера, где мы
 ## Install app (1st Deploy)
 
 ```mermaid
-%%{init: {"theme": "neutral","flowchart": { "curve": "linear"}} }%%
+%%{init: {"flowchart": { "curve": "linear"}} }%%
 sequenceDiagram
     autonumber
     participant A as DevOps
@@ -104,7 +104,7 @@ sequenceDiagram
 ## Update
 
 ```mermaid
-%%{init: {"theme": "neutral","flowchart": { "curve": "linear"}} }%%
+%%{init: {"flowchart": { "curve": "linear"}} }%%
 sequenceDiagram
     autonumber
     participant A as DevOps
@@ -124,7 +124,7 @@ sequenceDiagram
 ## Serve
 
 ```mermaid
-%%{init: {"theme": "neutral","flowchart": { "curve": "linear"}} }%%
+%%{init: {"flowchart": { "curve": "linear"}} }%%
 sequenceDiagram
   autonumber
   participant U as User
