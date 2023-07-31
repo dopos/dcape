@@ -4,6 +4,7 @@
 
 SHELL             = /bin/bash
 CFG               = .dcape.env
+CFG_BAK          ?= .env.bak
 
 #- ******************************************************************************
 #- DCAPE: general config
@@ -71,7 +72,7 @@ CICD_HOST              ?= cicd.$(DCAPE_DOMAIN)
 ENFIST_URL       ?= http://enfist:8080/rpc
 #- ------------------------------------------------------------------------------
 
--include $(CFG).bak
+-include $(CFG_BAK)
 -include $(CFG)
 export
 
@@ -126,6 +127,11 @@ git-%:
 	  popd > /dev/null ; \
 	done
 
+## print config var
+## make echo-gitea-admin-pass
+echo-%:
+	@x=$@ ; x1=$${x#echo-} ; x2=$${x1//-/_} ; name=$${x2^^} ; val=$${!name} ; echo $$val
+
 # ------------------------------------------------------------------------------
 ## Docker-compose commands
 #:
@@ -134,7 +140,7 @@ git-%:
 build-compose:
 	docker build -t $(DCAPE_TAG)-compose --build-arg DCAPE_HOST_ROOT=$(PWD) .
 
-dc: $(ENV) docker-compose.yml
+dc: $(CFG) docker-compose.yml
 	@>&2 echo "Running dc command: $(CMD)"
 	@>&2 echo "Dcape URL: $(DCAPE_SCHEME)://$(DCAPE_HOST)"
 	@>&2 echo "------------------------------------------"
