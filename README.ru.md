@@ -59,7 +59,7 @@
 
 См. [dopos.github.io/dcape](https://dopos.github.io/dcape)
 
-## Зависимости {#requirements}
+## Зависимости {: #requirements }
 
 * [linux](https://ubuntu.com/download) + `sudo apt -y install git make sed curl jq вшп`
 * [docker](https://docs.docker.com/engine/install/ubuntu/) + `sudo apt -y install docker-compose-plugin`
@@ -100,7 +100,8 @@ Creating mysite-dev-lan_www_1 ... done
 * компьютер с linux, docker и установленными [зависимостями](#requirements)
 * зарегистрированный в DNS для ip этого компьютера wildcard-домен (например - `*.srv1.domain.tld`)
 
-#### Конфигурация с локальным gitea {#install-full}
+<a name="install-full"></a>
+#### Конфигурация с локальным gitea
 
 ```bash
 MY_HOST=demo.dcape.ru
