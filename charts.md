@@ -52,7 +52,8 @@ flowchart TD
 MY_HOST=demo.dcape.ru
 LE_ADMIN=admin@dcape.ru
 
-git clone -b v3 --single-branch --depth 1 https://github.com/dopos/dcape.git
+git clone https://github.com/dopos/dcape.git
+cd dcape
 make install ACME=wild DNS=wild DCAPE_DOMAIN=${MY_HOST} \
   TRAEFIK_ACME_EMAIL=${LE_ADMIN} PDNS_LISTEN=$(dig +short $MY_HOST):53
 make echo-gitea-admin-pass
