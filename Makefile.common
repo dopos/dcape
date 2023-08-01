@@ -240,7 +240,8 @@ config-if: config
 ## print config var.
 ## Sample: make echo-gitea-admin-pass
 echo-%:
-	@x=$@ ; x1=$${x#echo-} ; x2=$${x1//-/_} ; name=$${x2^^} ; val=$${!name} ; echo "$$name: $$val"
+	@x=$@ ; x1=$${x#echo-} ; x2=$${x1//-/_} ; name=$${x2^^} ; val=$${!name} ; \
+	if [ "$$val" ] ; then echo "$$name: $$val" ; else grep "$$name=" .env ; fi
 
 .stamp:
 	@echo -n $(shell date --rfc-3339=seconds) ' '
