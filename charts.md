@@ -137,7 +137,12 @@ sequenceDiagram
   loop if URL protected
     T->>N: access request
     N->>G: OAuth2
-    N->>T: <Accept. User=%USER%
+    loop if no oauth cookie
+      G->>U: > Login Request
+      U->>G: Login credentials
+    end
+    G->>N: User accepted
+    N->>T: < Accept. User=%USER%
   end
   T->>A: HTTP request
   A->>T: HTTP response
