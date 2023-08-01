@@ -78,7 +78,7 @@
 
 ## Зависимости
 
-* [linux](https://ubuntu.com/download) + `sudo apt -y install git make sed curl jq вшп`
+* [linux](https://ubuntu.com/download) + `sudo apt -y install git make sed curl jq`
 * [docker](https://docs.docker.com/engine/install/ubuntu/) + `sudo apt -y install docker-compose-plugin`
 
 ## Примеры использования
