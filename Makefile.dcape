@@ -24,7 +24,7 @@ db-drop:
 	&& echo "Drop db ($$NAME) $$dbname..." ; \
 	$(MAKE) -s .lib-db-drop PGUSER=$$dbname PGDATABASE=$$dbname
 
-## exec psql inside db container from apps/*/
+## exec psql inside db container from apps.
 ## Example: make psql-docker DCAPE_STACK=yes
 psql-docker:
 	@varname=$${NAME}_DB_TAG && dbname=$${!varname} ; \
@@ -32,7 +32,7 @@ psql-docker:
 	echo "psql for $$dbname" ; \
 	docker exec -it $${DB_CONTAINER:?Must be set} psql -d $$dbname -U $$dbname
 
-## run local psql from apps/*/
+## run local psql from apps.
 ## Example: make psql-local DCAPE_STACK=yes PGPORT=5433
 psql-local:
 	@varname=$${NAME:?Must be set}_DB_PASS && pass=$${!varname} \
