@@ -5,20 +5,30 @@ SHELL               = /bin/bash
 
 # DCAPE_USED==1 when called from upper Makefile
 DCAPE_USED         ?= 0
+# Webtail Docker image
+CIS_WEBTAIL_IMAGE  ?= lekovr/webtail
 # Webtail Docker image version by dcape
-CIS_WEBTAIL_VER0   ?= 0.34
+CIS_WEBTAIL_VER0   ?= 0.43.1
 # Webtail Docker image version
 CIS_WEBTAIL_VER    ?= $(CIS_WEBTAIL_VER0)
 # Webhook Docker image
 CIS_WEBHOOK_IMAGE  ?= dopos/webhook
 # Webhook Docker image version by dcape
 CIS_WEBHOOK_VER0   ?= 0.10
-# Webtail Docker image version
+# Webhook Docker image version
 CIS_WEBHOOK_VER    ?= $(CIS_WEBHOOK_VER0)
+# Narra Docker image
+CIS_NARRA_IMAGE  ?= dopos/narra
 # Narra Docker image version by dcape
 CIS_NARRA_VER0     ?= 0.3
-# Webtail Docker image version
+# Narra Docker image version
 CIS_NARRA_VER      ?= $(CIS_NARRA_VER0)
+# Traefik-fl Docker image
+CIS_TRAEFIK_FL_IMAGE  ?= dopos/traefik-fl
+# Traefik-fl Docker image version by dcape
+CIS_TRAEFIK_FL_VER0   ?= 0.2
+# Traefik-fl Docker image version
+CIS_TRAEFIK_FL_VER    ?= $(CIS_TRAEFIK_FL_VER0)
 # CIS hostname prefix
 CIS_HOST_PREFIX    ?= cis
 # CIS hostname
@@ -56,14 +66,22 @@ CIS_CRYPT_KEY=$(CIS_CRYPT_KEY)
 # Webhook access password
 CIS_DEPLOY_PASS=$(CIS_DEPLOY_PASS)
 
+# Webtail Docker image
+CIS_WEBTAIL_IMAGE=$(CIS_WEBTAIL_IMAGE)
 # Webtail Docker image version
 CIS_WEBTAIL_VER=$(CIS_WEBTAIL_VER)
 # Webhook Docker image 
 CIS_WEBHOOK_IMAGE=$(CIS_WEBHOOK_IMAGE)
 # Webhook image version
 CIS_WEBHOOK_VER=$(CIS_WEBHOOK_VER)
+# Narra Docker image
+CIS_NARRA_IMAGE=$(CIS_NARRA_IMAGE)
 # Narra Docker image version
 CIS_NARRA_VER=$(CIS_NARRA_VER)
+# Traefik-fl Docker image
+CIS_TRAEFIK_FL_IMAGE=$(CIS_TRAEFIK_FL_IMAGE)
+# Traefik-fl Docker image version
+CIS_TRAEFIK_FL_VER=$(CIS_TRAEFIK_FL_VER)
 
 # CIS webhook must have same root as dcape
 DCAPE_ROOT=$(DCAPE_ROOT)
