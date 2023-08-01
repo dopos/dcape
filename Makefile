@@ -10,7 +10,7 @@ CFG_BAK          ?= .env.bak
 #- DCAPE: general config
 
 #- dcape containers hostname domain
-DCAPE_DOMAIN     ?= dev.lan
+DCAPE_DOMAIN     ?= dev.test
 
 #- dcape root directory
 DCAPE_ROOT       ?= $(PWD)

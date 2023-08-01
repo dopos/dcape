@@ -88,7 +88,7 @@
 Требования:
 
 * компьютер с linux, docker и **dcape**
-* зарегистрированные (в /etc/hosts или внутреннем DNS) имена для ip компьютера (например - `mysite.dev.lan`, `www.mysite.dev.lan`)
+* зарегистрированные (в /etc/hosts или внутреннем DNS) имена для ip компьютера (например - `mysite.dev.test`, `www.mysite.dev.test`)
 
 #### Пример для статического сайта и nginx
 
@@ -100,7 +100,7 @@ make config-if
 make up
 ```
 
-Все готово - `http://mysite.dev.lan/` и `http://www.mysite.dev.lan/` запущены.
+Все готово - `http://mysite.dev.test/` и `http://www.mysite.dev.test/` запущены.
 
 ### Запуск приложения удаленно
 
@@ -226,7 +226,7 @@ make echo-gitea-admin-pass
 
 | Имя | По умолчанию | Описание |
 | --- | ------------ | -------- |
-| DCAPE_DOMAIN | dev.lan | dcape containers hostname domain |
+| DCAPE_DOMAIN | dev.test | dcape containers hostname domain |
 | DCAPE_ROOT | $(PWD) | dcape root directory |
 | DCAPE_TAG | dcape | container name prefix |
 | DCAPE_ADMIN_USER | dcapeadmin | CICD_ADMIN - CICD admin user<br>GITEA_ADMIN_NAME - Gitea admin user name |

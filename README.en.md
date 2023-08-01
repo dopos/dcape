@@ -59,20 +59,20 @@ See [dopos.github.io/dcape](https://dopos.github.io/en/dcape)
 Requirements:
 
 * linux computer with docker and **dcape**
-* hostnames registered in /etc/hosts or internal DNS (for example - `mysite.dev.lan`, `www.mysite.dev.lan`) pointing to this computer
+* hostnames registered in /etc/hosts or internal DNS (for example - `mysite.dev.test`, `www.mysite.dev.test`) pointing to this computer
 
 #### Static site with nginx
 
 ```bash
-$ git clone -b v2 --single-branch --depth 1 https://github.com/dopos/dcape-app-nginx-sample.git
+$ git clone https://github.com/dopos/dcape-app-nginx-sample.git
 ..
 $ cd dcape-app-nginx-sample
-$ make init up APP_SITE=mysite.dev.lan
+$ make init up APP_SITE=mysite.dev.test
 ..
 Creating mysite-dev-lan_www_1 ... done
 ```
 
-That's all - `http://mysite.dev.lan/` and `http://www.mysite.dev.lan/` are working.
+That's all - `http://mysite.dev.test/` and `http://www.mysite.dev.test/` are working.
 
 ### Install dcape without gitea
 
@@ -90,7 +90,7 @@ GITEA_URL=${GITEA_URL:-https://git.domain.tld}
 GITEA_ORG=${GITEA_ORG:-dcape}
 GITEA_USER=${GITEA_USER:-dcapeadmin}
 
-$ git clone -b v2 --single-branch --depth 1 https://github.com/dopos/dcape.git
+$ git clone https://github.com/dopos/dcape.git
 ..
 $ cd dcape
 $ make install ACME=wild DNS=wild DCAPE_DOMAIN=${MY_HOST} \
