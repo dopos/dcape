@@ -186,8 +186,8 @@ make echo-gitea-admin-pass
     psql            exec psql inside db container 
     db-create       create database and user 
     db-drop         drop database and user 
-    psql-docker     exec psql inside db container from apps/*/ Example: make psql-docker DCAPE_STACK=yes
-    psql-local      run local psql from apps/*/ Example: make psql-local DCAPE_STACK=yes PGPORT=5433
+    psql-docker     exec psql inside db container from apps. Example: make psql-docker DCAPE_STACK=yes
+    psql-local      run local psql from apps. Example: make psql-local DCAPE_STACK=yes PGPORT=5433
 ```
 
 ### App config storage commands
