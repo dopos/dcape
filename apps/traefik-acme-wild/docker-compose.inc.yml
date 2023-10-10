@@ -3,6 +3,7 @@
     image: traefik:${TRAEFIK_VER}
     command:
       --api --docker --docker.watch --docker.exposedbydefault=false --logLevel=INFO
+      --file --file.directory=/custom --file.watch=true
       --acme --acme.acmelogging=true --acme.email=${TRAEFIK_ACME_EMAIL}
       --acme.domains='*.'${DOMAIN}
       --acme.tlsconfig=true
@@ -28,6 +29,7 @@
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - ./var/data/acme:/acme
+      - ./var/data/traefik/custom:/custom
     networks:
       default:
         aliases:

@@ -288,6 +288,10 @@ mv .env .env.all
 make init
 ```
 
+## Динамические конфигурации traefik
+Traefik позволяет добавлять динамические конфигурации из файлов *.toml, *.yaml. Для добавления дополнительных правил traaefik, необходимо разместить файлы конфигураций, в формате *.toml или *.yaml
+по пути установленного dcape `... dcape/var/data/traefik/custom/`. Конфигурация приеняется автоматически. [Traefik dedicated files](https://doc.traefik.io/traefik/v1.7/configuration/backends/file/#rules-in-dedicated-files)
+
 ## Особенности реализации
 
 * для запуска контейнеров достаточно docker и make (docker-compose запускается в контейнере)

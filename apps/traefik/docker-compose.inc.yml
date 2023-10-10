@@ -3,9 +3,7 @@
     image: traefik:${TRAEFIK_VER}
     command:
       --web --docker --docker.watch --docker.exposedbydefault=false --logLevel=DEBUG
-
-#--docker.constraints  = ["tag==hel*rld", "tag!=rev-*-beta"]
-
+      --file --file.directory=/custom --file.watch=true
     restart: always
     labels:
       - "traefik.enable=false"
@@ -16,4 +14,5 @@
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - /dev/null:/traefik.toml
+      - ./var/data/traefik/custom:/custom
 
