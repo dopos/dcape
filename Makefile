@@ -29,6 +29,8 @@ PG_PORT_LOCAL    ?= 5433
 PG_SOURCE_SUFFIX ?=
 # shared memory
 PG_SHM_SIZE      ?= 64mb
+# initdbargs for customise create postgres cluster
+INITDB_ARGS      ?= --lc-message=C
 
 # Docker-compose image tag
 DC_VER           ?= 1.23.2
@@ -68,6 +70,8 @@ PG_ENCODING=$(PG_ENCODING)
 PG_PORT_LOCAL=$(PG_PORT_LOCAL)
 # shared memory
 PG_SHM_SIZE=$(PG_SHM_SIZE)
+# initdbargs for customise create postgres cluster
+INITDB_ARGS=$(INITDB_ARGS)
 
 endef
 export CONFIG_DEF

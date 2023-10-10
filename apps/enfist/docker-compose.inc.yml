@@ -1,6 +1,6 @@
   # ------------------------------------------------------------------------------
   enfist:
-    image: apisite/enfist:${ENFIST_VER}
+    image: ${ENFIST_DOCKER_IMAGE}:${ENFIST_VER}
     restart: always
     depends_on:
       db:
