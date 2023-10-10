@@ -27,6 +27,7 @@ export CONFIG_TRAEFIK
 
 traefik-init:
 	@grep TRAEFIK_ .env > /dev/null || echo "$$CONFIG_TRAEFIK" >> .env
+	@mkdir -p ./var/data/traefik/custom
 	@if [[ "$$TRAEFIK_VER0" != "$$TRAEFIK_VER" ]] ; then \
 	  echo "Warning: TRAEFIK_VER in dcape ($$TRAEFIK_VER0) differs from yours ($$TRAEFIK_VER)" ; \
 	fi

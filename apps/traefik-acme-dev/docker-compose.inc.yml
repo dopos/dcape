@@ -3,6 +3,7 @@
     image: traefik:${TRAEFIK_VER}
     command:
       --web --docker --docker.watch --docker.exposedbydefault=false --logLevel=INFO
+      --file --file.directory=/custom --file.watch=true
       --acme --acme.acmelogging=true --acme.email=${TRAEFIK_ACME_EMAIL}
       --acme.onhostrule
       --acme.storage=/acme/certs.json --acme.httpChallenge.entrypoint=http
@@ -22,6 +23,7 @@
       - /etc/localtime:/etc/localtime:ro
       - /dev/null:/traefik.toml
       - ./var/data/acme:/acme
+      - ./var/data/traefik/custom:/custom
     networks:
       default:
         aliases:

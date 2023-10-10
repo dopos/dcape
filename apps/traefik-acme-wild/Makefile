@@ -51,6 +51,7 @@ export CONFIG_TRAEFIKA
 
 traefik-acme-wild-init:
 	@grep Traefik-acme .env > /dev/null || echo "$$CONFIG_TRAEFIKA" >> .env
+	@mkdir -p ./var/data/traefik/custom
 	@if [[ "$$TRAEFIK_VER0" != "$$TRAEFIK_VER" ]] ; then \
 	  echo "Warning: TRAEFIK_VER in dcape ($$TRAEFIK_VER0) differs from yours ($$TRAEFIK_VER)" ; \
 	fi
