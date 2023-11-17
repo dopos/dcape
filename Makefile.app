@@ -123,14 +123,17 @@ else
 endif
 
 ## run local psql
+## (Add DB_PORT_LOCAL to .env before use)
 psql-local:
 ifeq ($(USE_DB),yes)
 	@echo "*** $@ ***"
-	$(MAKE) -s .lib-db-psql
+	psql -p $(DB_PORT_LOCAL)
+#	$(MAKE) -s .lib-db-psql
 else
 	@echo "Target '$@' is disabled in app config"
 endif
 
+#
 # ------------------------------------------------------------------------------
 ## CI/CD operations
 #:
