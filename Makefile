@@ -83,7 +83,7 @@ export
 
 all: help
 
-ifneq ($(findstring $(MAKECMDGOALS),install oauth-again),)
+ifneq ($(findstring $(MAKECMDGOALS),install oauth-again upgrade-v3 .setup-app),)
   include Makefile.install
 endif
 

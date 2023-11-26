@@ -98,10 +98,13 @@ init-all: $(CFG).sample $(DCAPE_VAR)
 	@mv $(CFG).sample $(CFG)
 	$(MAKE) -s .env
 
-# Setup and run dcape apps
+# Prepare and Setup and run dcape apps
 setup-all: APPS_DIRS  = $(addprefix $(DCAPE_ROOT)/apps/_,$(APPS))
 setup-all: DC_SOURCES = $(addsuffix /docker-compose.inc.yml,$(APPS_DIRS))
-setup-all: .env docker-compose.yml
+setup-all: .env docker-compose.yml .setup-app
+
+# Setup and run dcape apps
+.setup-app:
 	@for app in $(APPS); do \
 	  echo "Setting $$app up..."; \
 	  app_uc=$${app^^}; \
@@ -120,6 +123,27 @@ setup-all: .env docker-compose.yml
 install: msg = Dcape install start
 install: .stamp init-all setup-all ps
 	@$(MAKE) -s .stamp msg="Dcape install done"
+
+
+APPS_NEW = db
+
+ifneq ($(findstring ns,$(APPS)),)
+  APPS_NEW += ns
+endif
+APPS_NEW += router
+ifneq ($(findstring gitea,$(APPS)),)
+  APPS_NEW += vcs
+endif
+APPS_NEW += $(APPS_ALWAYS)
+
+export
+
+# Upgrade dcape to v3
+upgrade-v3: msg = Dcape upgrade start
+upgrade-v3: APPS=$(APPS_NEW)
+upgrade-v3: .stamp init-all
+<------>@$(MAKE) -s .setup-app APPS=cicd
+<------>@$(MAKE) -s .stamp msg="Dcape upgrade done"
 
 # Repeat OAuth apps linking
 oauth-again:
