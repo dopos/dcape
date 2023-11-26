@@ -199,6 +199,9 @@ APPS_NEW += $(APPS_ALWAYS)
 
 config-upgrade: APPS=$(APPS_NEW)
 config-upgrade: config upgrade-v3
+config-upgrade:
+	@find . -name "*.env" -exec sed -i "s|/opt/dcape3|/opt/dcape|g" {} +
+
 
 after-upgrade:
 	@$(MAKE) -s .setup-app APPS=cicd
