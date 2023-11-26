@@ -20,6 +20,7 @@ DCAPE_TAG        ?= dcape
 
 #- CICD_ADMIN - CICD admin user
 #- GITEA_ADMIN_NAME - Gitea admin user name
+DCAPE_ADMIN_USER ?= $(DRONE_ADMIN)
 DCAPE_ADMIN_USER ?= dcapeadmin
 
 #- VCS OAuth app owner group
@@ -31,7 +32,7 @@ DCAPE_ADMIN_ORG  ?= dcape
 #- dcape apps
 #- calculated by install
 #- used in make only
-APPS     ?=
+APPS             ?= $(APPS)
 
 # internal makefile var
 DCAPE_STACK = yes
@@ -62,12 +63,12 @@ DCAPE_PDNS_API_KEY     ?= $(shell openssl rand -hex 16; echo)
 #- (auto) http(s)
 DCAPE_SCHEME     ?=
 #- gitea url
-AUTH_URL         ?=
+AUTH_URL         ?= $(AUTH_SERVER)
 #- db container
 DB_CONTAINER     ?= $(DCAPE_TAG)-db-1
 
 #- gitea allowed webhook host
-CICD_HOST              ?= cicd.$(DCAPE_DOMAIN)
+CICD_HOST        ?= cicd.$(DCAPE_DOMAIN)
 
 ENFIST_URL       ?= http://enfist:8080/rpc
 
@@ -83,7 +84,7 @@ export
 
 all: help
 
-ifneq ($(findstring $(MAKECMDGOALS),install oauth-again upgrade-v3 .setup-app),)
+ifneq ($(findstring $(MAKECMDGOALS),install oauth-again config-upgrade after-upgrade .setup-app),)
   include Makefile.install
 endif
 
@@ -181,3 +182,23 @@ down: dc
 ## exec psql inside db container
 psql:
 	@docker compose exec db psql -U postgres
+
+# ------------------------------------------------------------------------------
+
+APPS_NEW     = db
+APPS_ALWAYS ?= auth config cicd manager
+
+ifneq ($(findstring ns,$(APPS)),)
+  APPS_NEW += ns
+endif
+APPS_NEW += router
+ifneq ($(findstring gitea,$(APPS)),)
+  APPS_NEW += vcs
+endif
+APPS_NEW += $(APPS_ALWAYS)
+
+config-upgrade: APPS=$(APPS_NEW)
+config-upgrade: config upgrade-v3
+
+after-upgrade:
+	@$(MAKE) -s .setup-app APPS=cicd

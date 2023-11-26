@@ -207,7 +207,7 @@ endif
 	@echo "endef" >> $@
 	@echo "export CFVAR" >> $@
 
-ifneq ($(findstring $(MAKECMDGOALS),config config-force config-if $(CFG).sample $(CFG) install ),)
+ifneq ($(findstring $(MAKECMDGOALS),config config-force config-if config-upgrade $(CFG).sample $(CFG) install ),)
 include .env.temp.mk
 endif
 

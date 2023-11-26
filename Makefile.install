@@ -13,7 +13,7 @@ AUTH_TOKEN        ?=
 # External gitea URL
 # Required if AUTH_TOKEN is not empty
 # install will set to local url otherwise
-AUTH_URL          ?=
+AUTH_URL          ?= $(AUTH_SERVER)
 
 # Enable ACME (Let's Encrypt) certificates: [no]|http|wild
 # http - use individual host cert
@@ -124,25 +124,9 @@ install: msg = Dcape install start
 install: .stamp init-all setup-all ps
 	@$(MAKE) -s .stamp msg="Dcape install done"
 
-
-APPS_NEW = db
-
-ifneq ($(findstring ns,$(APPS)),)
-  APPS_NEW += ns
-endif
-APPS_NEW += router
-ifneq ($(findstring gitea,$(APPS)),)
-  APPS_NEW += vcs
-endif
-APPS_NEW += $(APPS_ALWAYS)
-
-export
-
 # Upgrade dcape to v3
 upgrade-v3: msg = Dcape upgrade start
-upgrade-v3: APPS=$(APPS_NEW)
 upgrade-v3: .stamp init-all
-<------>@$(MAKE) -s .setup-app APPS=cicd
 <------>@$(MAKE) -s .stamp msg="Dcape upgrade done"
 
 # Repeat OAuth apps linking
