@@ -127,7 +127,7 @@ install: .stamp init-all setup-all ps
 # Upgrade dcape to v3
 upgrade-v3: msg = Dcape upgrade start
 upgrade-v3: .stamp init-all
-<------>@$(MAKE) -s .stamp msg="Dcape upgrade done"
+	@$(MAKE) -s .stamp msg="Dcape upgrade done"
 
 # Repeat OAuth apps linking
 oauth-again:
