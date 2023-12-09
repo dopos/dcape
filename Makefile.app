@@ -180,7 +180,7 @@ endif
 # use inside .woodpecker.yml only
 .build:
 	[ "$(USE_DCAPE_DC)" != yes ] || args="-f $(DCAPE_DC_YML)" ; \
-	docker compose -p $(APP_TAG) --env-file $(CFG) -f $(DCAPE_APP_DC_YML) $$args build
+	docker compose -p $(APP_TAG) -f $(DCAPE_APP_DC_YML) $$args build
 
 # setup .env by CICD
 # used inside .woodpecker.yml by .default-deploy
