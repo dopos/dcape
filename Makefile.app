@@ -167,7 +167,7 @@ endif
 	  if [ ! -d $$dir ]; then \
 	    echo -n "Create dir.. " ; \
 	    mkdir -p $$dir ; \
-	  fi
+	  fi ; \
 	  cp -rf $$PERSIST_FILES $$dir ; \
 	fi ;
 	[ "$(USE_DCAPE_DC)" != yes ] || args="-f $(DCAPE_DC_YML)" ; \
@@ -176,7 +176,7 @@ endif
 # setup .env by CICD
 # use inside .woodpecker.yml only
 .config-link:
-	echo -n "Setup config for $${ENFIST_TAG}... " ; \
+	@echo -n "Setup config for $${ENFIST_TAG}... " ; \
 	if curl -gsS "http://config:8080/rpc/tag_vars?code=$$ENFIST_TAG" | jq -er '.' > $(CFG) ; then \
 	  echo "Ok" ; \
 	else \
