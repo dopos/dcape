@@ -146,7 +146,8 @@ endif
 	[ "$$USE_DB" != "yes" ] || $(MAKE) -s db-create ; \
 	$(MAKE) -s .up
 
-.deplay-vars:
+# internal target, do not used
+.deploy-vars:
 	@echo "DCAPE_ROOT_BASE=$${DCAPE_ROOT_BASE}"
 	@echo "DCAPE_ROOT_LOCAL=$${DCAPE_ROOT_LOCAL}"
 	@echo "DCAPE_TAG:$${DCAPE_TAG}"
@@ -156,11 +157,13 @@ endif
 	@echo "DCAPE_COMPOSE:$${DCAPE_COMPOSE}"
 	@echo "DCAPE_SCM:$${DCAPE_SCM}"
 
+# internal target for .default-deploy
+.up: KEEP_ROOT = $(findstring $(APP_ROOT_OPTS),keep)
 .up:
 	@if [ ! -z "$$PERSIST_FILES" ] ; then \
 	  echo "Got persist ($$PERSIST_FILES) for $$APP_ROOT.." ; \
 	  dir=$${DCAPE_ROOT_LOCAL}/$(ENFIST_TAG); \
-	  if [ -d $$dir ] && [ -z "$(SETUP_ROOT_OPTS)" ]; then \
+	  if [ -d $$dir ] && [ -z "$(KEEP_ROOT)" ]; then \
 	    echo -n "Clean dir.. " ; \
 	    rm -rf $$dir ; \
 	  fi ; \
@@ -173,8 +176,14 @@ endif
 	[ "$(USE_DCAPE_DC)" != yes ] || args="-f $(DCAPE_DC_YML)" ; \
 	docker compose -p $(APP_TAG) --env-file $(CFG) -f $(DCAPE_APP_DC_YML) $$args up -d --force-recreate
 
-# setup .env by CICD
+# build app by CICD
 # use inside .woodpecker.yml only
+.build:
+	[ "$(USE_DCAPE_DC)" != yes ] || args="-f $(DCAPE_DC_YML)" ; \
+	docker compose -p $(APP_TAG) --env-file $(CFG) -f $(DCAPE_APP_DC_YML) $$args build
+
+# setup .env by CICD
+# used inside .woodpecker.yml by .default-deploy
 .config-link:
 	@echo -n "Setup config for $${ENFIST_TAG}... " ; \
 	if curl -gsS "http://config:8080/rpc/tag_vars?code=$$ENFIST_TAG" | jq -er '.' > $(CFG) ; then \
