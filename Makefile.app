@@ -139,7 +139,8 @@ endif
 
 # run app by CICD
 # use inside .woodpecker.yml only
-.default-deploy: ENFIST_TAG ?= $(CI_REPO_OWNER)--$(CI_REPO_NAME)--$(CI_COMMIT_BRANCH)
+.default-deploy: ENFIST_BRANCH ?= $(CI_COMMIT_BRANCH)
+.default-deploy: ENFIST_TAG ?= $(CI_REPO_OWNER)--$(CI_REPO_NAME)--$(ENFIST_BRANCH)
 .default-deploy: APP_ROOT    = $(DCAPE_ROOT_BASE)/$(ENFIST_TAG)
 .default-deploy: .config-link
 	@echo "*** $@ ***" ; \
