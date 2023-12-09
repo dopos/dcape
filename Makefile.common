@@ -237,6 +237,14 @@ config-if: config
 ## Other
 #:
 
+## Changes from last tag
+changelog: RELEASE ?= $(shell git describe --tags --abbrev=0 --always)
+changelog:
+	@echo Changes since $(RELEASE)
+	@echo
+	@git log $(RELEASE)..@ --pretty=format:"* %s"
+
+
 ## print config var.
 ## Sample: make echo-gitea-admin-pass
 echo-%:
