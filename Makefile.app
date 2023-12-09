@@ -135,28 +135,47 @@ endif
 
 #
 # ------------------------------------------------------------------------------
-## CI/CD operations
-#:
+# CI/CD operations
 
-## run app by CICD
-## use inside .woodpecker.yml only
+# run app by CICD
+# use inside .woodpecker.yml only
+.default-deploy: ENFIST_TAG ?= $(CI_REPO_OWNER)--$(CI_REPO_NAME)--$(CI_COMMIT_BRANCH)
+.default-deploy: APP_ROOT    = $(DCAPE_ROOT_BASE)/$(ENFIST_TAG)
 .default-deploy: .config-link
 	@echo "*** $@ ***" ; \
 	[ "$$USE_DB" != "yes" ] || $(MAKE) -s db-create ; \
-	if [ ! -z "$$PERSIST_FILES" ] ; then \
-	  echo "Persist not implemented" ; \
-	 # . setup root $(SETUP_ROOT_OPTS) ; \
-	 # cp -r $$PERSIST_FILES $$APP_ROOT ; \
-	fi ; \
-	[ "$(USE_DCAPE_DC)" != yes ] || args="-f $(DCAPE_DC_YML)" ; \
-	docker compose -p $(APP_TAG) --env-file $(CFG) $$args -f $(DCAPE_APP_DC_YML) up -d --force-recreate
+	$(MAKE) -s .up
 
-## setup .env by CICD
-## use inside .woodpecker.yml only
+.deplay-vars:
+	@echo "DCAPE_ROOT_BASE=$${DCAPE_ROOT_BASE}"
+	@echo "DCAPE_ROOT_LOCAL=$${DCAPE_ROOT_LOCAL}"
+	@echo "DCAPE_TAG:$${DCAPE_TAG}"
+	@echo "DCAPE_NET:$${DCAPE_NET}"
+	@echo "DCAPE_ROOT:$${DCAPE_ROOT}"
+	@echo "DCAPE_DOMAIN:$${DCAPE_DOMAIN}"
+	@echo "DCAPE_COMPOSE:$${DCAPE_COMPOSE}"
+	@echo "DCAPE_SCM:$${DCAPE_SCM}"
+
+.up:
+	@if [ ! -z "$$PERSIST_FILES" ] ; then \
+	  echo "Got persist ($$PERSIST_FILES) for $$APP_ROOT.." ; \
+	  dir=$${DCAPE_ROOT_LOCAL}/$(ENFIST_TAG); \
+	  if [ -d $$dir ] && [ -z "$(SETUP_ROOT_OPTS)" ]; then \
+	    echo -n "Clean dir.. " ; \
+	    rm -rf $$dir ; \
+	  fi ; \
+	  if [ ! -d $$dir ]; then \
+	    echo -n "Create dir.. " ; \
+	    mkdir -p $$dir ; \
+	  fi
+	  cp -rf $$PERSIST_FILES $$dir ; \
+	fi ;
+	[ "$(USE_DCAPE_DC)" != yes ] || args="-f $(DCAPE_DC_YML)" ; \
+	docker compose -p $(APP_TAG) --env-file $(CFG) -f $(DCAPE_APP_DC_YML) $$args up -d --force-recreate
+
+# setup .env by CICD
+# use inside .woodpecker.yml only
 .config-link:
-	@if [ -z "$$ENFIST_TAG" ]; then \
-	  ENFIST_TAG=$${CI_REPO_OWNER}--$${CI_REPO_NAME}--$${CI_COMMIT_BRANCH} ; \
-	fi ; \
 	echo -n "Setup config for $${ENFIST_TAG}... " ; \
 	if curl -gsS "http://config:8080/rpc/tag_vars?code=$$ENFIST_TAG" | jq -er '.' > $(CFG) ; then \
 	  echo "Ok" ; \
