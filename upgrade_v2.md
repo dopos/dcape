@@ -14,7 +14,7 @@ cd /opt
 git clone https://github.com/dopos/dcape.git dcape3
 cd dcape3
 cp ../dcape/.env ./.env.bak
-sed -i "s|DCAPE_VAR=var|#DCAPE_VAR=var|" ./env.bak
+sed -i "s|DCAPE_VAR=var|#DCAPE_VAR=var|" ./.env.bak
 make config-upgrade
 ```
 
@@ -65,5 +65,6 @@ make up
 * Было: https://drone.cx.elfire.ru/login
 * Стало: https://cicd.cx.elfire.ru/authorize
 
+### Удалить .env.bak
 
-
+Пока не выяснил, почему наличие в этом файле старых значений переменных попадает и ENV для `docker compose`. Текущее решение - удалить файл
