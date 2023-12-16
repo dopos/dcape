@@ -67,6 +67,9 @@ AUTH_URL         ?= $(AUTH_SERVER)
 #- db container
 DB_CONTAINER     ?= $(DCAPE_TAG)-db-1
 
+#- network DCAPE_NET already exists
+DCAPE_NET_EXISTS ?= false
+
 #- gitea allowed webhook host
 CICD_HOST        ?= cicd.$(DCAPE_DOMAIN)
 
