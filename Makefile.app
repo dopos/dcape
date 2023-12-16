@@ -38,11 +38,12 @@ DCAPE_TAG       ?= dcape
 DCAPE_NET       ?= $(DCAPE_TAG)
 
 # Docker compose project name (container name prefix)
-PROJECT_NAME  ?= $(APP_TAG)
+PROJECT_NAME     ?= $(APP_TAG)
 
-USE_DCAPE_DC  ?= yes
-DCAPE_DC_YML  ?= $(DCAPE_ROOT)/docker-compose.app.yml
+USE_DCAPE_DC     ?= yes
+DCAPE_DC_YML     ?= $(DCAPE_ROOT)/docker-compose.app.yml
 DCAPE_APP_DC_YML ?= docker-compose.yml
+DB_CONTAINER     ?= $(DCAPE_TAG)-db-1
 
 all: help
 
