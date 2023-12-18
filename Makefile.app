@@ -165,16 +165,18 @@ endif
 	@if [ ! -z "$$PERSIST_FILES" ] ; then \
 	  echo "Got persist ($$PERSIST_FILES) for $$APP_ROOT.." ; \
 	  dir=$${DCAPE_ROOT_LOCAL}/$(ENFIST_TAG); \
+	  echo "Local dir: $$dir" >&2 ; \
 	  if [ -d $$dir ] && [ -z "$(KEEP_ROOT)" ]; then \
-	    echo -n "Clean dir.. " ; \
+	    echo -n "Clean dir.. " >&2 ; \
 	    rm -rf $$dir ; \
 	  fi ; \
 	  if [ ! -d $$dir ]; then \
-	    echo -n "Create dir.. " ; \
+	    echo -n "Create dir.. " >&2 ; \
 	    mkdir -p $$dir ; \
 	  fi ; \
 	  cp -rf $$PERSIST_FILES $$dir ; \
-	fi ;
+	fi ; \
+	echo "Starting.. " >&2 ; \
 	[ "$(USE_DCAPE_DC)" != yes ] || args="-f $(DCAPE_DC_YML)" ; \
 	docker compose -p $(APP_TAG) --env-file $(CFG) -f $(DCAPE_APP_DC_YML) $$args up -d --force-recreate
 
@@ -188,10 +190,10 @@ endif
 # used inside .woodpecker.yml by .default-deploy
 .config-link:
 	@echo -n "Setup config for $${ENFIST_TAG}... " ; \
-	if curl -gsS "http://config:8080/rpc/tag_vars?code=$$ENFIST_TAG" | jq -er '.' > $(CFG) ; then \
-	  echo "Ok" ; \
+	if curl -gsS "http://config:8080/rpc/tag_vars?code=$$ENFIST_TAG" | jq -er '.' > $(CFG).temp ; then \
+	  mv $(CFG).temp $(CFG) ; echo "Ok" ; \
 	else \
-	  rm $(CFG) # here will be `null` if tag does not exists ; \
+	  rm $(CFG).temp # here will be `null` if tag does not exists ; \
 	  echo "NOT FOUND" ; \
 	  [ -f $(CFG).sample ] || $(MAKE) -s $(CFG).sample ; \
 	  jq -R -sc ". | {\"code\":\"$$ENFIST_TAG.sample\",\"data\":.}" < $(CFG).sample \
