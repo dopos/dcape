@@ -140,9 +140,6 @@ endif
 
 # run app by CICD
 # use inside .woodpecker.yml only
-.default-deploy: ENFIST_BRANCH ?= $(CI_COMMIT_BRANCH)
-.default-deploy: ENFIST_TAG ?= $(CI_REPO_OWNER)--$(CI_REPO_NAME)--$(ENFIST_BRANCH)
-.default-deploy: APP_ROOT    = $(DCAPE_ROOT_BASE)/$(ENFIST_TAG)
 .default-deploy: .config-link
 	@echo "*** $@ ***" ; \
 	[ "$$USE_DB" != "yes" ] || $(MAKE) -s db-create ; \
@@ -188,6 +185,9 @@ endif
 
 # setup .env by CICD
 # used inside .woodpecker.yml by .default-deploy
+.config-link: ENFIST_BRANCH ?= $(CI_COMMIT_BRANCH)
+.config-link: ENFIST_TAG ?= $(CI_REPO_OWNER)--$(CI_REPO_NAME)--$(ENFIST_BRANCH)
+.config-link: APP_ROOT    = $(DCAPE_ROOT_BASE)/$(ENFIST_TAG)
 .config-link:
 	@echo -n "Setup config for $${ENFIST_TAG}... " ; \
 	if curl -gsS "http://config:8080/rpc/tag_vars?code=$$ENFIST_TAG" | jq -er '.' > $(CFG).temp ; then \
