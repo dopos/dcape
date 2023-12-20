@@ -44,6 +44,20 @@ psql-local:
 compose:
 	@docker compose -p $(DCAPE_TAG) --project-directory $(DCAPE_ROOT) $(CMD)
 
+## show apps versions
+versions-check:
+	@for app in $(APPS); do \
+	  if [[ $$app == config ]] ; then img=ghcr.io/apisite/app-enfist ; \
+	  elif [[ $$app == router ]] ; then img=traefik ; \
+	  else x=$$(grep -E '^[^#].+_IMAGE=' apps/_$$app/.env) ; img=$${x#*=} ; fi ; \
+	  x=$$(grep -E '^[^#].+_VER=' apps/_$$app/.env) ; ver=$${x#*=} ; \
+	  printf "%10s $$img:$$ver\n" $$app; \
+	done
+
+versions-check-upd:
+
+
+
 # may be used in app Makefile, called before app up
 .setup-before-up:
 
