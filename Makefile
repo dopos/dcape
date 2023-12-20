@@ -32,7 +32,7 @@ DCAPE_ADMIN_ORG  ?= dcape
 #- dcape apps
 #- calculated by install
 #- used in make only
-APPS             ?= $(APPS)
+APPS             ?=
 
 # internal makefile var
 DCAPE_STACK = yes
