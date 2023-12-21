@@ -168,7 +168,9 @@ oauth2-org-create:
 	    echo -n "ERROR: " ; \
 	    echo $$resp | jq -re '.message' ; \
 	  fi ; \
-	else false ; fi
+	else false ; fi ; \
+	[ -z $$DEBUG ] || echo ">>>> RESP:  $$resp" ; \
+
 
 ## create OAuth2 app via VCS API
 oauth2-app-create:
@@ -179,7 +181,8 @@ oauth2-app-create:
 	  sed -i "s/\(_CLIENT_ID=\).*/\1$$client_id/ ; s/\(_CLIENT_KEY=\).*/\1$$client_secret/ " $(CFG) ; \
 	  [ ! -f ../../$(CFG) ] || sed -i "s/^\($(PREFIX)_CLIENT_ID=\).*/\1$$client_id/ ; s/^\($(PREFIX)_CLIENT_KEY=\).*/\1$$client_secret/ " ../../$(CFG) ; \
 	  echo " Done" ; \
-	else false ; fi
+	else false ; fi ; \
+	[ -z $$DEBUG ] || echo ">>>> RESP:  $$resp" ; \
 
 else
 
