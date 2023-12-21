@@ -49,7 +49,8 @@ DCAPE_VERSION_OPTS   ?= -t txt +short
 
 ## compare local and upstream app versions
 ver-cmp:
-	@printf "%-8s %-18s %-30s %-15s %-30s %-15s\n" "Role" "App" "Image" Version "Dcape image" "Dcape version" ; \
+	@echo "Local and Dcape upstream app docker images and versions" ; \
+	printf "%-8s %-18s %-30s %-15s %-30s %-15s\n" "Role" "App" "Image" "Version" "Dcape image" "Dcape version" ; \
 	printf "%-8s %-18s %-30s %-15s %-30s %-15s\n" "----" "---" "-----" "-------" "-----------" "-------------" ; \
 	for app in $(APPS); do \
 	  x=$$(grep -E '^[^#].+_IMAGE=' apps/_$$app/.env) ; img=$${x#*=} ; \
