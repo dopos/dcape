@@ -161,7 +161,8 @@ endif
 .up:
 	@if [ ! -z "$$PERSIST_FILES" ] ; then \
 	  echo "Got persist ($$PERSIST_FILES) for $$APP_ROOT.." ; \
-	  dir=$${DCAPE_ROOT_LOCAL}/$(ENFIST_TAG); \
+	  root=$$(grep APP_ROOT= $(CFG)) ; rootvar=$${root#*=} ; myroot=$${rootvar#$(DCAPE_ROOT_BASE)/} ; \
+	  dir=$${DCAPE_ROOT_LOCAL}/$$myroot ; \
 	  echo "Local dir: $$dir" >&2 ; \
 	  if [ -d $$dir ] && [ -z "$(KEEP_ROOT)" ]; then \
 	    echo -n "Clean dir.. " >&2 ; \
