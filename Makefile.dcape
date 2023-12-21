@@ -44,19 +44,28 @@ psql-local:
 compose:
 	@docker compose -p $(DCAPE_TAG) --project-directory $(DCAPE_ROOT) $(CMD)
 
-## show apps versions
-versions-check:
-	@for app in $(APPS); do \
-	  if [[ $$app == config ]] ; then img=ghcr.io/apisite/app-enfist ; \
-	  elif [[ $$app == router ]] ; then img=traefik ; \
-	  else x=$$(grep -E '^[^#].+_IMAGE=' apps/_$$app/.env) ; img=$${x#*=} ; fi ; \
+DCAPE_VERSION_DOMAIN ?= dockerpoll.dcape.ru
+DCAPE_VERSION_OPTS   ?= -t txt +short
+
+## compare local and upstream app versions
+ver-cmp:
+	@printf "%-8s %-18s %-30s %-15s %-30s %-15s\n" "Role" "App" "Image" Version "Dcape image" "Dcape version" ; \
+	printf "%-8s %-18s %-30s %-15s %-30s %-15s\n" "----" "---" "-----" "-------" "-----------" "-------------" ; \
+	for app in $(APPS); do \
+	  x=$$(grep -E '^[^#].+_IMAGE=' apps/_$$app/.env) ; img=$${x#*=} ; \
+	  tag=$${img##*/} ; \
+	  if [[ $$app == config ]] ; then img=ghcr.io/apisite/app-enfist ; tag=enfist ; \
+	  elif [[ $$app == router ]] ; then img=traefik ; tag=$$img ; \
+	  elif [[ $$tag == woodpecker-server ]] ; then tag=woodpecker ; \
+	  elif [[ $$tag == powerdns-alpine ]] ; then tag=powerdns ; \
+	  elif [[ $$tag == portainer-ce ]] ; then tag=portainer ; \
+	  fi ; \
 	  x=$$(grep -E '^[^#].+_VER=' apps/_$$app/.env) ; ver=$${x#*=} ; \
-	  printf "%10s $$img:$$ver\n" $$app; \
+	  read i v < <(dig $(DCAPE_VERSION_OPTS) $${tag}.$(DCAPE_VERSION_DOMAIN) | tr -d \") ; \
+	  [[ $$img == $$i ]] && i="="; \
+	  [[ $$ver == $$v ]] && v="="; \
+	  printf "%-8s %-18s %-30s %-15s %-30s %-15s\n" $$app $$tag $$img $$ver $$i $$v; \
 	done
-
-versions-check-upd:
-
-
 
 # may be used in app Makefile, called before app up
 .setup-before-up:
