@@ -64,15 +64,16 @@ ifndef APPS
   APPS += router
   ifndef AUTH_TOKEN
     APPS += vcs
-    ifndef AUTH_URL
-      AUTH_URL := $(DCAPE_SCHEME)://git.$(DCAPE_DOMAIN)
-    endif
-  else
-    ifndef AUTH_URL
-      $(error AUTH_URL required if AUTH_TOKEN is set)
-    endif
   endif
   APPS += $(APPS_ALWAYS)
+endif
+
+ifeq ($(AUTH_URL),)
+  ifndef AUTH_TOKEN
+    AUTH_URL := $(DCAPE_SCHEME)://git.$(DCAPE_DOMAIN)
+  else
+    $(error AUTH_URL required if AUTH_TOKEN is set)
+  endif
 endif
 
 # ------------------------------------------------------------------------------

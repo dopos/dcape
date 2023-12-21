@@ -20,7 +20,6 @@ DCAPE_TAG        ?= dcape
 
 #- CICD_ADMIN - CICD admin user
 #- GITEA_ADMIN_NAME - Gitea admin user name
-DCAPE_ADMIN_USER ?= $(DRONE_ADMIN)
 DCAPE_ADMIN_USER ?= dcapeadmin
 
 #- VCS OAuth app owner group
