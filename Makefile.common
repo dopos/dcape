@@ -160,6 +160,7 @@ ifneq ($(AUTH_TOKEN),)
 ## create VCS org via VCS API
 oauth2-org-create:
 	@echo -n "create org ($${ORG:?Must be set})... " ; \
+	[ -z $$DEBUG ] || echo ">>>> POST: $(OAUTH_ORG_CREATE_URL)" ; \
 	if resp=$$(echo $$OAUTH_ORG_CREATE | curl -gsS -X POST \
 	   $(OAUTH_ORG_CREATE_URL) $(POST_CMD_PRE) -d @-) ; then \
 	  if echo $$resp | jq -re '.id' > /dev/null ; then \
@@ -169,12 +170,13 @@ oauth2-org-create:
 	    echo $$resp | jq -re '.message' ; \
 	  fi ; \
 	else false ; fi ; \
-	[ -z $$DEBUG ] || echo ">>>> RESP:  $$resp" ; \
+	[ -z $$DEBUG ] || echo ">>>> RESP: $$resp" ; \
 
 
 ## create OAuth2 app via VCS API
 oauth2-app-create:
 	@echo -n "create OAuth2 app for $(PREFIX)..." ; \
+	[ -z $$DEBUG ] || echo ">>>> POST: $(OAUTH_APP_CREATE_URL)" ; \
 	if resp=$$(echo "{\"name\": \"$(HOST)\", \"confidential_client\": true, \"redirect_uris\": [ \"$(DCAPE_SCHEME)://$(HOST)$(URL)\" ]}" | curl -gsS -X POST $(OAUTH_APP_CREATE_URL) $(POST_CMD) -d @-) ; then \
 	  client_id=$$(echo $$resp | jq -r '.client_id') ; \
 	  client_secret=$$(echo $$resp | jq -r '.client_secret') ; \
