@@ -1,8 +1,6 @@
 # Base docker-compose config for single application
 # included by separate dcape app if USE_DCAPE_DC=yes
 
-version: '3'
-
 services:
   app:
     image: ${IMAGE}:${IMAGE_VER}
