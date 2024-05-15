@@ -12,12 +12,15 @@
 [![GitHub Release][1]][2]
 ![GitHub code size in bytes][3]
 [![GitHub license][4]][5]
+[![Hits][hi]][hl]
 
 [1]: https://img.shields.io/github/release/dopos/dcape.svg
 [2]: https://github.com/dopos/dcape/releases
 [3]: https://img.shields.io/github/languages/code-size/dopos/dcape.svg
 [4]: https://img.shields.io/github/license/dopos/dcape.svg
 [5]: LICENSE
+[hi]: https://hits.sh/github.com/dopos/dcape.svg
+[hl]: https://hits.sh/github.com/dopos/dcape/
 
 [Dcape](https://github.com/dopos/dcape) - это инструмент для развёртывания [docker](https://www.docker.com/)-приложений по технологии [GitOps](https://www.gitops.tech/), который с помощью [make](https://www.gnu.org/software/make/) и [docker-compose](https://docs.docker.com/compose/), позволяет решить следующие задачи:
 
@@ -238,4 +241,4 @@ make echo-gitea-admin-pass
 
 The MIT License (MIT), see [LICENSE](LICENSE).
 
-Copyright (c) 2017-2023 Алексей Коврижкин <lekovr+dopos@gmail.com>
+Copyright (c) 2017-2024 Алексей Коврижкин <lekovr+dopos@gmail.com>
