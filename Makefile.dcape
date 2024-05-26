@@ -48,10 +48,12 @@ DCAPE_VERSION_DOMAIN ?= dockerpoll.dcape.ru
 DCAPE_VERSION_OPTS   ?= -t txt +short
 
 ## compare local and upstream app versions
+## and update if VER_UPDATE=yes
 ver-cmp:
 	@echo "Local and Dcape upstream app docker images and versions" ; \
-	printf "%-8s %-18s %-30s %-15s %-30s %-15s\n" "Role" "App" "Image" "Version" "Dcape image" "Dcape version" ; \
+	printf "%-8s %-18s %-30s %-15s %-30s %-15s\n" "Role" "App" "Dcape image" "Dcape version" "Image" "Version" ; \
 	printf "%-8s %-18s %-30s %-15s %-30s %-15s\n" "----" "---" "-----" "-------" "-----------" "-------------" ; \
+	updated=0 ; \
 	for app in $(APPS); do \
 	  x=$$(grep -E '^[^#].+_IMAGE=' apps/_$$app/.env) ; img=$${x#*=} ; \
 	  tag=$${img##*/} ; \
@@ -63,10 +65,15 @@ ver-cmp:
 	  fi ; \
 	  x=$$(grep -E '^[^#].+_VER=' apps/_$$app/.env) ; ver=$${x#*=} ; \
 	  read i v < <(dig $(DCAPE_VERSION_OPTS) $${tag}.$(DCAPE_VERSION_DOMAIN) | tr -d \") ; \
-	  [[ $$img == $$i ]] && i="="; \
-	  [[ $$ver == $$v ]] && v="="; \
-	  printf "%-8s %-18s %-30s %-15s %-30s %-15s\n" $$app $$tag $$img $$ver $$i $$v; \
-	done
+	  [[ $$img == $$i ]] && img="="; \
+	  [[ $$ver == $$v ]] && ver="="; \
+	  if [[ "$(VER_UPDATE)" == "yes" ]] && [[ "$$img" == "=" ]] && [[ "$$ver" != "=" ]] ; then \
+	    ver="$$ver (updated)" ; ((updated+=1)) ; \
+	    sed -E -i 's/^([^#].+_VER=)(.+)/\1'$$v'/' apps/_$$app/.env ; \
+	  fi ; \
+	  printf "%-8s %-18s %-30s %-15s %-30s %-30s\n" $$app $$tag $$i $$v $$img "$$ver"; \
+	done ; \
+	[[ "$$updated" == 0 ]] || $(MAKE) -s .env ; \
 
 # may be used in app Makefile, called before app up
 .setup-before-up:
