@@ -125,6 +125,12 @@ install: msg = Dcape install start
 install: .stamp init-all setup-all ps
 	@$(MAKE) -s .stamp msg="Dcape install done"
 
+install-minimal:
+	@echo "Not implemented. WIP"
+
+install-minimal-acme:
+	@echo "Not implemented. WIP"
+
 # Upgrade dcape to v3
 upgrade-v3: msg = Dcape upgrade start
 upgrade-v3: .stamp init-all
