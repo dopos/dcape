@@ -207,3 +207,6 @@ config-upgrade:
 
 after-upgrade:
 	@$(MAKE) -s .setup-app APPS=cicd
+
+iperf3:
+	@docker run --name=iperf3 -d --restart=unless-stopped -p 5201:5201/tcp -p 5201:5201/udp mlabbe/iperf3
