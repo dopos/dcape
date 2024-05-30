@@ -47,12 +47,16 @@ compose:
 DCAPE_VERSION_DOMAIN ?= dockerpoll.dcape.ru
 DCAPE_VERSION_OPTS   ?= -t txt +short
 
+## update local app versions from upstream
+ver-upd: VER_UPDATE=yes
+ver-upd: ver-cmp
+
 ## compare local and upstream app versions
 ## and update if VER_UPDATE=yes
 ver-cmp:
 	@echo "Local and Dcape upstream app docker images and versions" ; \
 	printf "%-8s %-18s %-30s %-15s %-30s %-15s\n" "Role" "App" "Dcape image" "Dcape version" "Image" "Version" ; \
-	printf "%-8s %-18s %-30s %-15s %-30s %-15s\n" "----" "---" "-----" "-------" "-----------" "-------------" ; \
+	printf "%-8s %-18s %-30s %-15s %-30s %-15s\n" "----" "---" "-----------" "-------------" "-----" "-------" ; \
 	updated=0 ; \
 	for app in $(APPS); do \
 	  x=$$(grep -E '^[^#].+_IMAGE=' apps/_$$app/.env) ; img=$${x#*=} ; \
@@ -73,7 +77,7 @@ ver-cmp:
 	  fi ; \
 	  printf "%-8s %-18s %-30s %-15s %-30s %-30s\n" $$app $$tag $$i $$v $$img "$$ver"; \
 	done ; \
-	[[ "$$updated" == 0 ]] || $(MAKE) -s .env ; \
+	[[ "$$updated" == 0 ]] || $(MAKE) -s .env up
 
 # may be used in app Makefile, called before app up
 .setup-before-up:
