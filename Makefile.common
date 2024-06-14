@@ -12,6 +12,7 @@ DB_ADMIN_USER    ?= postgres
 # ------------------------------------------------------------------------------
 # DB vars
 
+PGHOST          ?= db
 PGDATABASE      ?= $(APP_NAME)
 PGUSER          ?= $(APP_NAME)
 PGPASSWORD      ?= $(shell openssl rand -hex 16; echo)
@@ -19,6 +20,8 @@ PG_DUMP_SOURCE  ?=
 
 define CONFIG_DB
 # ------------------------------------------------------------------------------
+# Database host
+PGHOST=$(PGHOST)
 # Database name
 PGDATABASE=$(PGDATABASE)
 # Database user name
@@ -74,7 +77,7 @@ export IMPORT_SCRIPT
 
 .lib-db-create: docker-wait
 	@echo "Create db $$PGDATABASE for user $$PGUSER via $$DB_CONTAINER..."
-	sql="CREATE USER \"$$PGUSER\" WITH PASSWORD '$$PGPASSWORD'" ; \
+	@sql="CREATE USER \"$$PGUSER\" WITH PASSWORD '$$PGPASSWORD'" ; \
 	docker exec -i $$DB_CONTAINER psql -U postgres -c "$$sql" 2>&1 > .psql.log | grep -v "already exists" > /dev/null || true ; \
 	cat .psql.log ; \
 	docker exec -i $$DB_CONTAINER psql -U postgres -c "CREATE DATABASE \"$$PGDATABASE\" OWNER \"$$PGUSER\";" 2>&1 > .psql.log | grep  "already exists" > /dev/null || db_created=1 ; \
