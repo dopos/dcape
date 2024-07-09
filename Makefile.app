@@ -40,9 +40,15 @@ DCAPE_NET       ?= $(DCAPE_TAG)
 # Docker compose project name (container name prefix)
 PROJECT_NAME     ?= $(APP_TAG)
 
+# arg for --profile
+DC_PROFILE       ?=
+# add DCAPE_DC_YML
 USE_DCAPE_DC     ?= yes
+# dcape-app base docker-compose.yml
 DCAPE_DC_YML     ?= $(DCAPE_ROOT)/docker-compose.app.yml
+# config added unconditionally
 DCAPE_APP_DC_YML ?= docker-compose.yml
+# DB(Postgredsql) container
 DB_CONTAINER     ?= $(DCAPE_TAG)-db-1
 
 all: help
@@ -88,6 +94,7 @@ docker-clean:
 
 dc:
 	@[ "$(USE_DCAPE_DC)" != yes ] || args="-f $(DCAPE_DC_YML)" ; \
+	[ "$(DC_PROFILE)" == "" ] || args="$$args --profile $(DC_PROFILE)" ; \
 	docker compose $$args -f $(DCAPE_APP_DC_YML) \
 	  -p $(PROJECT_NAME) --project-directory $$PWD \
 	  $(CMD)
@@ -176,12 +183,14 @@ endif
 	fi ; \
 	echo "Starting.. " >&2 ; \
 	[ "$(USE_DCAPE_DC)" != yes ] || args="-f $(DCAPE_DC_YML)" ; \
+	[ "$(DC_PROFILE)" == "" ] || args="$$args --profile $(DC_PROFILE)" ; \
 	docker compose -p $(APP_TAG) --env-file $(CFG) -f $(DCAPE_APP_DC_YML) $$args up -d --force-recreate
 
 # build app by CICD
 # use inside .woodpecker.yml only
 .build:
 	[ "$(USE_DCAPE_DC)" != yes ] || args="-f $(DCAPE_DC_YML)" ; \
+	[ "$(DC_PROFILE)" == "" ] || args="$$args --profile $(DC_PROFILE)" ; \
 	docker compose -p $(APP_TAG) -f $(DCAPE_APP_DC_YML) $$args build
 
 # setup .env by CICD
