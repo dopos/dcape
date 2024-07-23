@@ -151,8 +151,8 @@ git clone https://github.com/dopos/dcape.git
 cd dcape
 make install ACME=wild DNS=wild DCAPE_DOMAIN=${MY_HOST} \
   TRAEFIK_ACME_EMAIL=${LE_ADMIN} \
-  NARRA_GITEA_ORG=${GITEA_ORG} \
-  CICD_ADMIN=${GITEA_USER} \
+  DCAPE_ADMIN_ORG=${GITEA_ORG} \
+  DCAPE_ADMIN_USER=${GITEA_USER} \
   PDNS_LISTEN=${MY_IP}:53 \
   GITEA=${GITEA_URL} \
   AUTH_TOKEN=${AUTH_TOKEN}
