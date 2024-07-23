@@ -18,14 +18,11 @@ DCAPE_ROOT       ?= $(PWD)
 #- container name prefix
 DCAPE_TAG        ?= dcape
 
-#- CICD_ADMIN - CICD admin user
-#- GITEA_ADMIN_NAME - Gitea admin user name
+#- CICD & Gitea admin user name
 DCAPE_ADMIN_USER ?= dcapeadmin
 
 #- VCS OAuth app owner group
-#- NARRA_GITEA_ORG - user group with access to auth protected resources
-#- config oauth app owner
-#- CICD oauth app owner
+#- user group with access to auth protected resources
 DCAPE_ADMIN_ORG  ?= dcape
 
 #- dcape apps

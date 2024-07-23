@@ -232,8 +232,8 @@ make echo-gitea-admin-pass
 | DCAPE_DOMAIN | dev.test | dcape containers hostname domain |
 | DCAPE_ROOT | $(PWD) | dcape root directory |
 | DCAPE_TAG | dcape | container name prefix |
-| DCAPE_ADMIN_USER | dcapeadmin | CICD_ADMIN - CICD admin user<br>GITEA_ADMIN_NAME - Gitea admin user name |
-| DCAPE_ADMIN_ORG | dcape | VCS OAuth app owner group<br>* NARRA_GITEA_ORG - user group with access to auth protected resources<br>* config oauth app owner<br>* CICD oauth app owner |
+| DCAPE_ADMIN_USER | dcapeadmin | CICD & gitea admin user |
+| DCAPE_ADMIN_ORG | dcape | user group with access to auth protected resources |
 | APPS | - | dcape apps<br>calculated by install<br>used in make only |
 
 
