@@ -64,10 +64,11 @@ Requirements:
 #### Static site with nginx
 
 ```bash
-$ git clone https://github.com/dopos/dcape-app-nginx-sample.git
-..
-$ cd dcape-app-nginx-sample
-$ make init up APP_SITE=mysite.dev.test
+git clone https://github.com/dopos/dcape-app-nginx-sample.git
+cd dcape-app-nginx-sample
+make config-if APP_SITE=mysite.dev.test
+# <edit .env>
+make up
 ..
 Creating mysite-dev-lan_www_1 ... done
 ```
@@ -90,10 +91,10 @@ GITEA_URL=${GITEA_URL:-https://git.domain.tld}
 GITEA_ORG=${GITEA_ORG:-dcape}
 GITEA_USER=${GITEA_USER:-dcapeadmin}
 
-$ git clone https://github.com/dopos/dcape.git
+git clone https://github.com/dopos/dcape.git
 ..
-$ cd dcape
-$ make install ACME=wild DNS=wild DCAPE_DOMAIN=${MY_HOST} \
+cd dcape
+make install ACME=wild DNS=wild DCAPE_DOMAIN=${MY_HOST} \
   TRAEFIK_ACME_EMAIL=${LE_ADMIN} \
   DCAPE_ADMIN_ORG=${GITEA_ORG} \
   DCAPE_ADMIN_USER=${GITEA_USER} \
