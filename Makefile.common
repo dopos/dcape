@@ -97,6 +97,21 @@ export IMPORT_SCRIPT
 	  done \
 	fi
 
+.lib-db-cr-ext: docker-wait
+	@echo "Create PG extension: $(PG_EXTENSION) in db $$PGDATABASE .." ; \
+	if [[ "$(PG_EXTENSION)" == "" ]] ; then echo "Error: empty name" ; \
+	  else \
+	    docker exec -it $$DB_CONTAINER psql -U postgres -d $$PGDATABASE -c "CREATE EXTENSION $(PG_EXTENSION);" || true ; \
+	fi
+
+.lib-db-grant: docker-wait
+	@echo "Grant $(PG_GRANT) to user $$PGUSER .." ; \
+	if [[ "$(PG_GRANT)" == "" ]] ; then echo "Error: empty name" ; \
+	  else \
+	    docker exec -it $$DB_CONTAINER psql -U postgres -c "GRANT $(PG_GRANT) TO $$PGUSER;" || true ; \
+	fi
+
+
 .lib-db-drop: docker-wait
 	@docker exec -it $$DB_CONTAINER psql -U postgres -c "DROP DATABASE \"$$PGDATABASE\";" || true
 	@for pgdb in $$PGDATABASE_EXTRA ; do \
