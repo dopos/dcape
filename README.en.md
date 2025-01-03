@@ -36,7 +36,7 @@ For solving of above-mentioned tasks **dcape** uses docker-images of the followi
 
 * **shared port**  - [traefik](https://traefik.io/)
   * **database** - [postgresql](https://www.postgresql.org)
-* **deploy applications remotely** - [drone](https://github.com/drone) (on every computer) and [gitea](https://gitea.io/) on someone
+* **deploy applications remotely** - [woodpecker](https://github.com/woodpecker-ci/woodpecker) (on every computer) and [gitea](https://gitea.io/) on someone
 * **manage app configs** - [enfist](https://github.com/apisite/app-enfist)
 * **limit access** - [narra](https://github.com/dopos/narra), [gitea](https://gitea.io/) organization used as user group
 * **wildcard-domains** - [powerdns](https://www.powerdns.com/)
@@ -64,10 +64,11 @@ Requirements:
 #### Static site with nginx
 
 ```bash
-$ git clone https://github.com/dopos/dcape-app-nginx-sample.git
-..
-$ cd dcape-app-nginx-sample
-$ make init up APP_SITE=mysite.dev.test
+git clone https://github.com/dopos/dcape-app-nginx-sample.git
+cd dcape-app-nginx-sample
+make config-if APP_SITE=mysite.dev.test
+# <edit .env>
+make up
 ..
 Creating mysite-dev-lan_www_1 ... done
 ```
@@ -90,10 +91,10 @@ GITEA_URL=${GITEA_URL:-https://git.domain.tld}
 GITEA_ORG=${GITEA_ORG:-dcape}
 GITEA_USER=${GITEA_USER:-dcapeadmin}
 
-$ git clone https://github.com/dopos/dcape.git
+git clone https://github.com/dopos/dcape.git
 ..
-$ cd dcape
-$ make install ACME=wild DNS=wild DCAPE_DOMAIN=${MY_HOST} \
+cd dcape
+make install ACME=wild DNS=wild DCAPE_DOMAIN=${MY_HOST} \
   TRAEFIK_ACME_EMAIL=${LE_ADMIN} \
   DCAPE_ADMIN_ORG=${GITEA_ORG} \
   DCAPE_ADMIN_USER=${GITEA_USER} \
@@ -101,20 +102,19 @@ $ make install ACME=wild DNS=wild DCAPE_DOMAIN=${MY_HOST} \
   GITEA=${GITEA_URL} \
   AUTH_TOKEN=${TOKEN}
 ..
-Running dc command: up -d db powerdns traefik narra enfist drone portainer
+Running dc command: up -d db ns router vcs auth config cicd manager
 Dcape URL: https://srv1.domain.tld
 ------------------------------------------
-Creating network "dcape" with driver "bridge"
-Creating dcape_narra_1         ... done
-Creating dcape_db_1            ... done
-Creating dcape_drone-compose_1 ... done
-Creating dcape_portainer_1     ... done
-Creating dcape_traefik_1       ... done
-Creating dcape_drone-rd_1      ... done
-Creating dcape_drone_1         ... done
-Creating dcape_powerdns_1      ... done
-Creating dcape_enfist_1        ... done
-
+[+] Running 9/9
+ ✔ Container dcape-cicd-agent-1  Running
+ ✔ Container dcape-manager-1     Running
+ ✔ Container dcape-auth-1        Running
+ ✔ Container dcape-router-1      Running
+ ✔ Container dcape-db-1          Healthy
+ ✔ Container dcape-cicd-1        Running
+ ✔ Container dcape-vcs-1         Running
+ ✔ Container dcape-ns-1          Running
+ ✔ Container dcape-config-1      Running
 ```
 
 That's all - server `srv1.domain.tld` ready for apps deployment, used **dcape** applications are accessible via `https://srv1.domain.tld`.

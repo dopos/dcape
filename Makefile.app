@@ -121,6 +121,22 @@ else
 	@echo "Target '$@' is disabled in app config"
 endif
 
+db-cr-ext:
+ifeq ($(USE_DB),yes)
+	@echo "*** $@ ***"
+	$(MAKE) -s .lib-db-cr-ext
+else
+	@echo "Target '$@' is disabled in app config"
+endif
+
+db-grant:
+ifeq ($(USE_DB),yes)
+	@echo "*** $@ ***"
+	$(MAKE) -s .lib-db-grant
+else
+	@echo "Target '$@' is disabled in app config"
+endif
+
 ## exec psql inside db container
 psql: docker-wait
 ifeq ($(USE_DB),yes)
