@@ -50,7 +50,7 @@ See [dopos.github.io/dcape](https://dopos.github.io/en/dcape)
 
 * [linux](https://ubuntu.com/download)
 * [docker](https://docs.docker.com/engine/install/ubuntu/)
-* `sudo apt -y install git make sed curl jq`
+* `sudo apt -y install git make sed curl jq bind9-dnsutils`
 
 ## Usage examples
 
