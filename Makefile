@@ -154,18 +154,6 @@ ps: dc
 up: CMD=up -d $(APPS)
 up: dc
 
-## start container
-up-%:
-	@echo "*** $@ ***" ; \
-	x=$@ ; \
-	$(MAKE) -s up APPS=$${x#up-}
-
-## restart container
-reup-%:
-	@echo "*** $@ ***" ; \
-	x=$@ ; \
-	$(MAKE) -s reup APPS=$${x#reup-}
-
 ## restart container(s)
 reup: CMD=up --force-recreate -d $(APPS)
 reup: dc
@@ -173,6 +161,24 @@ reup: dc
 ## stop (and remove) container(s)
 down: CMD=down
 down: dc
+
+## start container
+up-%:
+	@echo "*** $@ ***" ; \
+	x=$@ ; \
+	$(MAKE) -s dc CMD="up -d $${x#up-}"
+
+## restart container
+reup-%:
+	@echo "*** $@ ***" ; \
+	x=$@ ; \
+	$(MAKE) -s dc CMD="up --force-recreate -d $${x#reup-}"
+
+## stop container
+down-%:
+	@echo "*** $@ ***" ; \
+	x=$@ ; \
+	$(MAKE) -s dc CMD="down $${x#down-}"
 
 # ------------------------------------------------------------------------------
 ## Database commands
