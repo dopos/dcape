@@ -102,7 +102,7 @@ init-all: $(CFG).sample $(DCAPE_VAR)
 # Prepare and Setup and run dcape apps
 setup-all: APPS_DIRS  = $(addprefix $(DCAPE_ROOT)/apps/_,$(APPS))
 setup-all: DC_SOURCES = $(addsuffix /docker-compose.inc.yml,$(APPS_DIRS))
-setup-all: .env docker-compose.yml .setup-app
+setup-all: .env docker-compose.yml .setup-app build-compose
 
 # Setup and run dcape apps
 .setup-app:
