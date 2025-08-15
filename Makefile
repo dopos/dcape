@@ -72,8 +72,8 @@ CICD_HOST        ?= cicd.$(DCAPE_DOMAIN)
 ENFIST_URL       ?= http://enfist:8080/rpc
 
 # helpers, use: make echo-dcape-version
-DCAPE_VERSION    ?= $(shell git describe --tags --always)
-DCAPE_RELEASE    ?= $(shell git describe --tags --abbrev=0 --always)
+DCAPE_VERSION    := $(shell git describe --tags --always)
+DCAPE_RELEASE    := $(shell git describe --tags --abbrev=0 --always)
 
 #- ------------------------------------------------------------------------------
 

@@ -12,11 +12,24 @@ DB_ADMIN_USER    ?= postgres
 # ------------------------------------------------------------------------------
 # DB vars
 
-PGHOST          ?= db
-PGDATABASE      ?= $(APP_NAME)
-PGUSER          ?= $(APP_NAME)
-PGPASSWORD      ?= $(shell openssl rand -hex 16; echo)
-PG_DUMP_SOURCE  ?=
+ifndef PGHOST
+PGHOST          := db
+endif
+ifndef PGDATABASE
+PGDATABASE      := $(APP_NAME)
+endif
+
+ifndef PGUSER
+PGUSER          := $(APP_NAME)
+endif
+
+ifndef PGPASSWORD
+PGPASSWORD      := $(shell openssl rand -hex 16; echo)
+endif
+
+ifndef PG_DUMP_SOURCE
+PG_DUMP_SOURCE  :=
+endif
 
 define CONFIG_DB
 # ------------------------------------------------------------------------------
@@ -33,10 +46,17 @@ PGPASSWORD=$(PGPASSWORD)
 PG_DUMP_SOURCE=$(PG_DUMP_SOURCE)
 
 endef
+ifndef USER_NAME
+USER_NAME       := $(APP_NAME)
+endif
 
-USER_NAME       ?= $(APP_NAME)
-USER_EMAIL      ?= admin@$(APP_SITE)
-USER_PASS       ?= $(shell openssl rand -hex 16; echo)
+ifndef USER_EMAIL
+USER_EMAIL      := admin@$(APP_SITE)
+endif
+
+ifndef USER_PASS
+USER_PASS       := $(shell openssl rand -hex 16; echo)
+endif
 
 define CONFIG_USER
 # ------------------------------------------------------------------------------
