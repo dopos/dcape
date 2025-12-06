@@ -1,4 +1,4 @@
-FROM docker:24.0.3
+FROM docker:29.0.0
 
 #ghcr.io/dopos/docker-alpine:v3.14.3
 
